@@ -1,0 +1,9 @@
+{
+  "extends": "@tsconfig/node16/tsconfig.json",
+  "compilerOptions": {
+    /* Visit https://aka.ms/tsconfig to read more about this file */
+    "outDir": "dist",
+    "rootDir": "ts-src", 
+  },
+  "exclude": ["__tests__/*.ts", "node_modules", "**/jest.config.ts"]
+}
