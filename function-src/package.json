@@ -1,0 +1,30 @@
+{
+  "scripts": {
+    "lint": "eslint .",
+    "fix": "eslint . --fix",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-dynamodb": "^3.321.1",
+    "@aws-sdk/client-lambda": "^3.322.0",
+    "@tsconfig/node16": "^1.0.3",
+    "@types/aws-lambda": "^8.10.114",
+    "@types/jest": "^29.5.1",
+    "@typescript-eslint/eslint-plugin": "^5.58.0",
+    "@typescript-eslint/parser": "^5.58.0",
+    "eslint": "^8.38.0",
+    "eslint-plugin-node": "^11.1.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "@google-cloud/datastore": "^7.5.1",
+    "@google-cloud/functions-framework": "^3.0.0",
+    "@slack/bolt": "^3.13.0",
+    "googleapis": "^118.0.0",
+    "util": "^0.12.5"
+  },
+  "main": "dist/gcp/slashmeet.js"
+}
