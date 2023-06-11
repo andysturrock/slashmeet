@@ -15,15 +15,15 @@ MeetArgs {
   StartTimeExp = TimeExp
   FinishTimeExp =TimeExp
   
-  TimeExp = TwentyFourHourClockExp | TwelveHourClockExp
-  TwentyFourHourClockExp = digit digit ":" digit digit
-  TwelveHourClockExp = HourOnlyExp | HourMinuteExp
-  HourOnlyExp = OneDigitHourOnlyExp | TwoDigitHourOnlyExp
-  OneDigitHourOnlyExp = digit AmPm
-  TwoDigitHourOnlyExp = digit digit AmPm
-  HourMinuteExp = digit digit ":" digit digit
-  AmPm  = "am" | "pm"
+  TimeExp = twentyFourHourClockExp | twelveHourClockExp
+  twentyFourHourClockExp = digit digit ":" digit digit
+  twelveHourClockExp = hourOnlyExp | hourMinuteExp
+  hourOnlyExp = oneDigitHourOnlyExp | twoDigitHourOnlyExp
+  oneDigitHourOnlyExp = digit amPm
+  twoDigitHourOnlyExp = digit digit amPm
+  hourMinuteExp = digit digit ":" digit digit
+  amPm  = "am" | "pm"
   
-  DurationExp = digit+ MinOrHourExp
-  MinOrHourExp = "m" | "h"
+  DurationExp = digit+ minOrHourExp
+  minOrHourExp = "m" | "h"
 }
