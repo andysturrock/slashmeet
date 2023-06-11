@@ -1,0 +1,29 @@
+MeetArgs {
+  Exp = MeetingWithArgsExp | MeetingNameExp
+  
+  MeetingWithArgsExp = MeetingNameExp MeetingArgsExp
+  
+  MeetingArgsExp = StartEndTimeExp | StartDurationExp | DurationExp | StartTimeExp
+  StartEndTimeExp = (StartTimeExp FinishTimeExp)
+  
+  StartDurationExp = (StartTimeExp DurationExp)
+  
+  MeetingNameExp = meetingNameStart meetingNamePart
+  meetingNameStart = letter
+  meetingNamePart = meetingNameStart alnum*
+    
+  StartTimeExp = TimeExp
+  FinishTimeExp =TimeExp
+  
+  TimeExp = TwentyFourHourClockExp | TwelveHourClockExp
+  TwentyFourHourClockExp = digit digit ":" digit digit
+  TwelveHourClockExp = HourOnlyExp | HourMinuteExp
+  HourOnlyExp = OneDigitHourOnlyExp | TwoDigitHourOnlyExp
+  OneDigitHourOnlyExp = digit AmPm
+  TwoDigitHourOnlyExp = digit digit AmPm
+  HourMinuteExp = digit digit ":" digit digit
+  AmPm  = "am" | "pm"
+  
+  DurationExp = digit+ MinOrHourExp
+  MinOrHourExp = "m" | "h"
+}
