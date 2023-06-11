@@ -23,15 +23,15 @@ export interface MeetArgsActionDict<T> extends BaseActionDict<T> {
   StartTimeExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   FinishTimeExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TimeExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  TwentyFourHourClockExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode) => T;
-  TwelveHourClockExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  HourOnlyExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  OneDigitHourOnlyExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
-  TwoDigitHourOnlyExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
-  HourMinuteExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode) => T;
-  AmPm?: (this: NonterminalNode, arg0: TerminalNode) => T;
+  twentyFourHourClockExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode) => T;
+  twelveHourClockExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  hourOnlyExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  oneDigitHourOnlyExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
+  twoDigitHourOnlyExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
+  hourMinuteExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode) => T;
+  amPm?: (this: NonterminalNode, arg0: TerminalNode) => T;
   DurationExp?: (this: NonterminalNode, arg0: IterationNode, arg1: NonterminalNode) => T;
-  MinOrHourExp?: (this: NonterminalNode, arg0: TerminalNode) => T;
+  minOrHourExp?: (this: NonterminalNode, arg0: TerminalNode) => T;
 }
 
 export interface MeetArgsSemantics extends Semantics {
