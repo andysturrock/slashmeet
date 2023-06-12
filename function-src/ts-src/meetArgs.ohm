@@ -16,12 +16,16 @@ MeetArgs {
   FinishTimeExp =TimeExp
   
   TimeExp = twentyFourHourClockExp | twelveHourClockExp
-  twentyFourHourClockExp = digit digit ":" digit digit
+  twentyFourHourClockExp = digit digit ":" digit digit ~amPm
+  
   twelveHourClockExp = hourOnlyExp | hourMinuteExp
   hourOnlyExp = oneDigitHourOnlyExp | twoDigitHourOnlyExp
   oneDigitHourOnlyExp = digit amPm
   twoDigitHourOnlyExp = digit digit amPm
-  hourMinuteExp = digit digit ":" digit digit
+  
+  hourMinuteExp = (twoDigitHourAndMinutes | oneDigitHourAndMinutes) amPm
+  twoDigitHourAndMinutes = digit digit ":" digit digit
+  oneDigitHourAndMinutes = digit ":" digit digit
   amPm  = "am" | "pm"
   
   DurationExp = digit+ minOrHourExp

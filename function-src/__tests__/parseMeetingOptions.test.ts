@@ -1,20 +1,94 @@
 import { parseMeetingArgs, MeetingOptions } from "../ts-src/parseMeetingArgs";
 
-
-test("should be called foo", () => {
-  const meetingOptions = parseMeetingArgs('foo');
-  expect(meetingOptions.name).toBe('foo');
+const name = 'foo';
+test(`should be called ${name}`, () => {
+  const meetingOptions = parseMeetingArgs(`${name}`);
+  expect(meetingOptions.name).toBe(name);
 });
 
-test("should be called foo with duration 25m", () => {
-  const meetingOptions = parseMeetingArgs('foo 25m');
-  expect(meetingOptions.name).toBe('foo');
-  expect(meetingOptions.duration).toBe('25m');
+const duration = '25m';
+test(`should be called ${name} and duration ${duration}`, () => {
+  const meetingOptions = parseMeetingArgs(`${name} ${duration}`);
+  expect(meetingOptions.name).toBe(name);
+  expect(meetingOptions.duration).toBe(duration);
 });
 
-test("should be called foo with start 14:00 and duration 25m", () => {
-  const meetingOptions = parseMeetingArgs('foo 14:00 25m');
-  expect(meetingOptions.name).toBe('foo');
-  expect(meetingOptions.startTime).toBe('14:00');
-  expect(meetingOptions.duration).toBe('25m');
+let startTime = '14:00';
+test(`should be called ${name} with start ${startTime} and duration ${duration}`, () => {
+  const meetingOptions = parseMeetingArgs(`${name} ${startTime} ${duration}`);
+  expect(meetingOptions.name).toBe(name);
+  expect(meetingOptions.startTime).toBe(startTime);
+  expect(meetingOptions.duration).toBe(duration);
+});
+
+startTime = '2pm';
+test(`should be called ${name} with start ${startTime} and duration ${duration}`, () => {
+  const meetingOptions = parseMeetingArgs(`${name} ${startTime} ${duration}`);
+  expect(meetingOptions.name).toBe(name);
+  expect(meetingOptions.startTime).toBe(startTime);
+  expect(meetingOptions.duration).toBe(duration);
+});
+
+startTime = '11pm';
+test(`should be called ${name} with start ${startTime} and duration ${duration}`, () => {
+  const meetingOptions = parseMeetingArgs(`${name} ${startTime} ${duration}`);
+  expect(meetingOptions.name).toBe(name);
+  expect(meetingOptions.startTime).toBe(startTime);
+  expect(meetingOptions.duration).toBe(duration);
+});
+
+startTime = '1:12pm';
+test(`should be called ${name} with start ${startTime} and duration ${duration}`, () => {
+  const meetingOptions = parseMeetingArgs(`${name} ${startTime} ${duration}`);
+  expect(meetingOptions.name).toBe(name);
+  expect(meetingOptions.startTime).toBe(startTime);
+  expect(meetingOptions.duration).toBe(duration);
+});
+
+startTime = '10:23pm';
+test(`should be called ${name} with start ${startTime} and duration ${duration}`, () => {
+  const meetingOptions = parseMeetingArgs(`${name} ${startTime} ${duration}`);
+  expect(meetingOptions.name).toBe(name);
+  expect(meetingOptions.startTime).toBe(startTime);
+  expect(meetingOptions.duration).toBe(duration);
+});
+
+let finishTime = '17:00';
+test(`should be called ${name} with start ${startTime} and finsh ${finishTime}`, () => {
+  const meetingOptions = parseMeetingArgs(`${name} ${startTime} ${finishTime}`);
+  expect(meetingOptions.name).toBe(name);
+  expect(meetingOptions.startTime).toBe(startTime);
+  expect(meetingOptions.finishTime).toBe(finishTime);
+});
+
+finishTime = '5pm';
+test(`should be called ${name} with start ${startTime} and finsh ${finishTime}`, () => {
+  const meetingOptions = parseMeetingArgs(`${name} ${startTime} ${finishTime}`);
+  expect(meetingOptions.name).toBe(name);
+  expect(meetingOptions.startTime).toBe(startTime);
+  expect(meetingOptions.finishTime).toBe(finishTime);
+});
+
+finishTime = '11pm';
+test(`should be called ${name} with start ${startTime} and finsh ${finishTime}`, () => {
+  const meetingOptions = parseMeetingArgs(`${name} ${startTime} ${finishTime}`);
+  expect(meetingOptions.name).toBe(name);
+  expect(meetingOptions.startTime).toBe(startTime);
+  expect(meetingOptions.finishTime).toBe(finishTime);
+});
+
+finishTime = '1:23pm'
+test(`should be called ${name} with start ${startTime} and finsh ${finishTime}`, () => {
+  const meetingOptions = parseMeetingArgs(`${name} ${startTime} ${finishTime}`);
+  expect(meetingOptions.name).toBe(name);
+  expect(meetingOptions.startTime).toBe(startTime);
+  expect(meetingOptions.finishTime).toBe(finishTime);
+});
+
+finishTime = '11:23pm'
+test(`should be called ${name} with start ${startTime} and finsh ${finishTime}`, () => {
+  const meetingOptions = parseMeetingArgs(`${name} ${startTime} ${finishTime}`);
+  expect(meetingOptions.name).toBe(name);
+  expect(meetingOptions.startTime).toBe(startTime);
+  expect(meetingOptions.finishTime).toBe(finishTime);
 });

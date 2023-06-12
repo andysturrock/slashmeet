@@ -28,7 +28,9 @@ export interface MeetArgsActionDict<T> extends BaseActionDict<T> {
   hourOnlyExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   oneDigitHourOnlyExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   twoDigitHourOnlyExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
-  hourMinuteExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode) => T;
+  hourMinuteExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
+  twoDigitHourAndMinutes?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode) => T;
+  oneDigitHourAndMinutes?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   amPm?: (this: NonterminalNode, arg0: TerminalNode) => T;
   DurationExp?: (this: NonterminalNode, arg0: IterationNode, arg1: NonterminalNode) => T;
   minOrHourExp?: (this: NonterminalNode, arg0: TerminalNode) => T;
