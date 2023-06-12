@@ -3,8 +3,7 @@
     "lint": "eslint .",
     "fix": "eslint . --fix",
     "test": "jest",
-    "generate": "ohm generateBundles --withTypes 'ts-src/*.ohm'",
-    "test-ohm": "ts-node ts-src/test-args.ts"
+    "generate": "ohm generateBundles --withTypes 'ts-src/*.ohm'"
   },
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.321.1",
