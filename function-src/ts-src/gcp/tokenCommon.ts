@@ -1,4 +1,4 @@
-import { Datastore} from '@google-cloud/datastore';
+import {Datastore} from '@google-cloud/datastore';
 
 // Creating this in global scope means GCP will cache it.
 // This helps performance.

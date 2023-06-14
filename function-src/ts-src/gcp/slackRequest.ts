@@ -1,9 +1,9 @@
-import functions = require('@google-cloud/functions-framework');
-import { getToken } from './getToken';
-import { verifySlackRequest } from './verifySlackRequest';
-import { Auth } from 'googleapis';
-import { generateGoogleMeetURLBlocks } from '../generateGoogleMeetURLBlocks';
-import { generateGoogleAuthBlocks } from '../generateGoogleAuthBlocks';
+import * as functions from '@google-cloud/functions-framework';
+import {getToken} from './getToken';
+import {verifySlackRequest} from './verifySlackRequest';
+import {Auth} from 'googleapis';
+import {generateGoogleMeetURLBlocks} from '../generateGoogleMeetURLBlocks';
+import {generateGoogleAuthBlocks} from '../generateGoogleAuthBlocks';
 
 export async function slackRequest(req: functions.Request, oauth2Client: Auth.OAuth2Client) {
   // Verify that this request really did come from Slack

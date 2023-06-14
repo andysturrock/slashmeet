@@ -1,5 +1,6 @@
-import { IterationNode, NonterminalNode, TerminalNode } from 'ohm-js';
-import grammar, { MeetArgsActionDict, MeetArgsSemantics } from './meetArgs.ohm-bundle';
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+import {IterationNode, NonterminalNode, TerminalNode} from 'ohm-js';
+import grammar, {MeetArgsActionDict, MeetArgsSemantics} from './meetArgs.ohm-bundle';
 
 
 export interface MeetingOptions {
@@ -105,13 +106,14 @@ export function parseMeetingArgs(userInput: string) {
     _iter(...children) {
       return meetingOptions;
     }
-  }
+  };
 
   const semantics: MeetArgsSemantics = grammar.createSemantics();
   semantics.addOperation<MeetingOptions>('eval', actions);
 
   const matchResult = grammar.match(userInput);
   const semanticsResult = semantics(matchResult);
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const evalResult = semanticsResult.eval();
   return evalResult as MeetingOptions;
 }
