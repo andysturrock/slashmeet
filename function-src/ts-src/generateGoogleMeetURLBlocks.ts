@@ -1,4 +1,4 @@
-import { Auth, calendar_v3, google } from 'googleapis';
+import {Auth, calendar_v3, google} from 'googleapis';
 
 export async function generateGoogleMeetURLBlocks(oauth2Client: Auth.OAuth2Client) {
 
@@ -9,10 +9,10 @@ export async function generateGoogleMeetURLBlocks(oauth2Client: Auth.OAuth2Clien
   const requestId = Date.now.toString();
   const createRequest: calendar_v3.Schema$CreateConferenceRequest = {
     requestId: requestId
-  }
+  };
   const conferenceData: calendar_v3.Schema$ConferenceData = {
     createRequest: createRequest
-  }
+  };
   const hourInMillis = 1000 * 60 * 60;
   const event: calendar_v3.Schema$Event = {
     conferenceData: conferenceData,
@@ -29,7 +29,7 @@ export async function generateGoogleMeetURLBlocks(oauth2Client: Auth.OAuth2Clien
     calendarId: 'primary',
     conferenceDataVersion: 1,  // Magic number means "use the createRequest field"
     requestBody: event
-  }
+  };
 
   const res = await calendar.events.insert(meetingParams);
   const meetingUrl = res.data.hangoutLink;
@@ -48,6 +48,6 @@ export async function generateGoogleMeetURLBlocks(oauth2Client: Auth.OAuth2Clien
         }
       }
     ]
-  }
+  };
   return blocks;
 }

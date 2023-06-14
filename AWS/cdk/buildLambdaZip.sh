@@ -6,7 +6,7 @@ echo "Deleting old build..."
 rm -rf ../../function-src/dist/
 
 echo "Transpiling Typescript..."
-tsc --project ../../function-src/tsconfig.json
+tsc --project ../../function-src/tsconfig-build.json
 
 echo "Downloading dependencies..."
 cat <<EOF > ../../function-src/dist/package.json

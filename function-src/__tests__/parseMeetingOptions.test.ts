@@ -1,4 +1,4 @@
-import { parseMeetingArgs, MeetingOptions } from "../ts-src/parseMeetingArgs";
+import {parseMeetingArgs} from "../ts-src/parseMeetingArgs";
 
 const name = 'foo';
 test(`should be called ${name}`, () => {
@@ -77,7 +77,7 @@ test(`should be called ${name} with start ${startTime} and finsh ${finishTime}`,
   expect(meetingOptions.finishTime).toBe(finishTime);
 });
 
-finishTime = '1:23pm'
+finishTime = '1:23pm';
 test(`should be called ${name} with start ${startTime} and finsh ${finishTime}`, () => {
   const meetingOptions = parseMeetingArgs(`${name} ${startTime} ${finishTime}`);
   expect(meetingOptions.name).toBe(name);
@@ -85,7 +85,7 @@ test(`should be called ${name} with start ${startTime} and finsh ${finishTime}`,
   expect(meetingOptions.finishTime).toBe(finishTime);
 });
 
-finishTime = '11:23pm'
+finishTime = '11:23pm';
 test(`should be called ${name} with start ${startTime} and finsh ${finishTime}`, () => {
   const meetingOptions = parseMeetingArgs(`${name} ${startTime} ${finishTime}`);
   expect(meetingOptions.name).toBe(name);

@@ -1,8 +1,4 @@
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import functions = require('@google-cloud/functions-framework');
+import * as functions from '@google-cloud/functions-framework';
 import {slackRequest} from './slackRequest';
 import {saveToken} from './saveToken';
 import {Auth} from 'googleapis';
@@ -30,7 +26,6 @@ async function slashmeet(req: functions.Request, res: functions.Response) {
       clientSecret: clientSecret,
       redirectUri: redirectUri
     };
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const oauth2Client = new Auth.OAuth2Client(options);
 
     // This is us being called back from the Google authentication page.
@@ -66,6 +61,7 @@ async function slashmeet(req: functions.Request, res: functions.Response) {
     if(req.method === 'POST' && req.path === '/slack') {
       // We need to respond within 3 seconds so do that first and then
       // do the rest of the processing asynchronously.
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const response_url  = req.body.response_url as string;
 
       const immediateResponse = generateImmediateSlackResponseBlocks();
@@ -84,6 +80,7 @@ async function slashmeet(req: functions.Request, res: functions.Response) {
   } catch (err) {
     console.error(err);
     const slackMessage = {
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       text: `Error: ${err}`
     };
     // TODO send to response_url if have already sent initial response.

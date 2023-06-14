@@ -1,5 +1,5 @@
 export function generateLoggedInHTML() {
-    const hmtl = `
+  const hmtl = `
 <!DOCTYPE html>
 <html>
 <body>
@@ -10,5 +10,5 @@ export function generateLoggedInHTML() {
 </body>
 </html>
     `;
-    return hmtl;
+  return hmtl;
 }
