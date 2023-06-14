@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {DynamoDBClient, QueryCommand, QueryCommandInput} from '@aws-sdk/client-dynamodb';
 
 export async function getToken(slackUserId: string) { 

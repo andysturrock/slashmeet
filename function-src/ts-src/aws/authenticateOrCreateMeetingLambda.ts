@@ -24,6 +24,9 @@ interface SlackEvent {
 export async function lambdaHandler(event: SlackEvent): Promise<void> {
   const responseUrl = event.response_url;
 
+  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+  console.log(`authOrCreate got event: ${event}`);
+
   const clientId = process.env.CLIENT_ID;
   if(!clientId) {
     throw new Error("Missing env var CLIENT_ID");

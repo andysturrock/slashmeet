@@ -1,4 +1,4 @@
-import { Key } from '@google-cloud/datastore';
+import {Key} from '@google-cloud/datastore';
 import {createKey, datastore} from './tokenCommon';
 
 export async function getToken(slackUserId: string) { 
