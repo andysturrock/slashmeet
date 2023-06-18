@@ -1,7 +1,32 @@
 import {Auth, calendar_v3, google} from 'googleapis';
+import {MeetingOptions, parseMeetingArgs} from './parseMeetingArgs';
 
-export async function generateGoogleMeetURLBlocks(oauth2Client: Auth.OAuth2Client) {
+export async function generateGoogleMeetURLBlocks(oauth2Client: Auth.OAuth2Client, meetingArgs: string) {
 
+  const hourInMillis = 1000 * 60 * 60;
+  let meetingOptions: MeetingOptions = {
+    name: "/meet",
+    duration: "60m",
+    startTime: new Date(Date.now()).toISOString(),
+    finishTime: new Date(Date.now() + hourInMillis).toISOString()
+  };
+  try {
+    meetingOptions = parseMeetingArgs(meetingArgs);
+  } catch (error) {
+    const blocks = {
+      response_type: 'in_channel',
+      blocks: [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `Error parsing meeting parameters.`
+          }
+        }
+      ]
+    };
+    return blocks;
+  }
   const calendar = google.calendar('v3');
   google.options({auth: oauth2Client});
 
@@ -13,16 +38,16 @@ export async function generateGoogleMeetURLBlocks(oauth2Client: Auth.OAuth2Clien
   const conferenceData: calendar_v3.Schema$ConferenceData = {
     createRequest: createRequest
   };
-  const hourInMillis = 1000 * 60 * 60;
+
   const event: calendar_v3.Schema$Event = {
     conferenceData: conferenceData,
-    summary: '/meet',
+    summary: meetingOptions.name,
     description: 'Generated /meet event from Slack',
     start: {
-      dateTime: new Date(Date.now()).toISOString()
+      dateTime: meetingOptions.startTime
     },
     end: {
-      dateTime: new Date(Date.now() + hourInMillis).toISOString()
+      dateTime: meetingOptions.finishTime
     }
   };
   const meetingParams: calendar_v3.Params$Resource$Events$Insert = {
