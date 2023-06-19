@@ -5,20 +5,18 @@ import grammar, {MeetArgsActionDict, MeetArgsSemantics} from './meetArgs.ohm-bun
 
 export interface MeetingOptions {
   name?: string
-  duration?: string
-  startTime?: string
-  finishTime?: string
+  // duration?: string
+  // startTime?: string
+  // finishTime?: string
   startDate?: Date,
   endDate?: Date
 }
 
-export function parseMeetingArgs(userInput: string) {
-  const now = new Date();
-  now.setSeconds(0);
-  now.setMilliseconds(0);
+export function parseMeetingArgs(userInput: string, defaultStartDate: Date) {
+
   const meetingOptions : MeetingOptions = {
-    startDate: now,
-    endDate: new Date(now.getTime() + 1000 * 60 * 60) // 1 hour later than start
+    startDate: new Date(defaultStartDate.getTime()),
+    endDate: new Date(defaultStartDate.getTime() + 1000 * 60 * 60) // 1 hour later than start
   };
 
   let amPm: string | undefined = undefined;
@@ -52,7 +50,13 @@ export function parseMeetingArgs(userInput: string) {
       const match = this.sourceString.match(/([0-9]+):([0-9]+)/);
       if(match) {
         hours = Number.parseInt(match[1]);
+        if(hours < 0 || hours > 23) {
+          throw new Error("Hour must be between 0 and 23 in 24 hour clock");
+        }
         minutes = Number.parseInt(match[2]);
+        if(minutes < 0 || minutes > 59) {
+          throw new Error("Minute must be between 0 and 59 in 24 hour clock");
+        }
       }
       return meetingOptions;
     },
@@ -68,8 +72,6 @@ export function parseMeetingArgs(userInput: string) {
     DurationExp(this: NonterminalNode, arg0: IterationNode, arg1: NonterminalNode) {
       arg0.eval();
       arg1.eval();
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      console.log(`DurationExp found ${this.sourceString}, durationUnit = ${durationUnit}`);
       let durationMinutes = 0;
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       const regexp = new RegExp(`([0-9]+)${durationUnit}`);
@@ -80,11 +82,9 @@ export function parseMeetingArgs(userInput: string) {
           durationMinutes *= 60;
         }
       }
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      console.log(`DurationExp found ${this.sourceString}, starttime = ${meetingOptions.startTime}`);
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       meetingOptions.endDate?.setTime(meetingOptions.startDate!.getTime() + durationMinutes * 60 * 1000);
-      meetingOptions.duration = this.sourceString;
+      // meetingOptions.duration = this.sourceString;
       return meetingOptions;
     },
     oneDigitHourOnlyExp(this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) {
@@ -106,14 +106,11 @@ export function parseMeetingArgs(userInput: string) {
       arg0.eval();
       arg1.eval();
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      console.log(`hourMinuteExp found ${this.sourceString}, amPm = ${amPm}`);
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       const regexp = new RegExp(`([0-9]+):([0-9]+)${amPm}`);
       const match = this.sourceString.match(regexp);
       if(match) {
         hours = Number.parseInt(match[1]);
         minutes = Number.parseInt(match[2]);
-        console.log(`match! ${hours}:${minutes}`);
       }
       return meetingOptions;
     },
@@ -139,39 +136,39 @@ export function parseMeetingArgs(userInput: string) {
     },
     StartTimeExp(this: NonterminalNode, arg0: NonterminalNode) {
       arg0.eval();
-      console.log(`StartTimeExp found ${this.sourceString}`);
       if(amPm) {
-        console.log(`StartTimeExp found a 12h time with hours ${hours}`);
         if(amPm == 'pm' && hours < 12) {
-          console.log(`startTimeExp adding 12 hours`);
           hours += 12;
         }
         meetingOptions.startDate?.setHours(hours);
         meetingOptions.startDate?.setMinutes(minutes);
-        meetingOptions.startTime = this.sourceString;
+        amPm = undefined;
       }
       else {
-        meetingOptions.startTime = this.sourceString;
+        meetingOptions.startDate?.setHours(hours);
+        meetingOptions.startDate?.setMinutes(minutes);
       }
-      amPm = undefined;
-      hours = 0;
-      minutes = 0;
+      // meetingOptions.startTime = this.sourceString;
       return meetingOptions;
     },
     FinishTimeExp(this: NonterminalNode, arg0: NonterminalNode) {
       arg0.eval();
-      console.log(`FinishTimeExp found ${this.sourceString}`);
       if(amPm) {
-        console.log(`FinishTimeExp found a 12h time`);
+        if(amPm == 'pm' && hours < 12) {
+          hours += 12;
+        }
+        meetingOptions.endDate?.setHours(hours);
+        meetingOptions.endDate?.setMinutes(minutes);
         amPm = undefined;
+      } else {
+        meetingOptions.endDate?.setHours(hours);
+        meetingOptions.endDate?.setMinutes(minutes);
       }
-      meetingOptions.finishTime = this.sourceString;
+      // meetingOptions.finishTime = this.sourceString;
       return meetingOptions;
     },
     amPm(this: NonterminalNode, arg0: TerminalNode) {
-      console.log(`amPm found ${this.sourceString}`);
       arg0.eval();
-      console.log(`amPm done eval`);
       amPm = this.sourceString;
       return meetingOptions;
     },
@@ -188,7 +185,6 @@ export function parseMeetingArgs(userInput: string) {
       return meetingOptions;
     },
     _terminal(this: TerminalNode) {
-      console.log(`_terminal found ${this.sourceString}`);
       return meetingOptions;
     },
     _iter(...children) {
