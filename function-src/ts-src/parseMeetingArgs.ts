@@ -4,9 +4,9 @@ import grammar, {MeetArgsActionDict, MeetArgsSemantics} from './meetArgs.ohm-bun
 
 
 export interface MeetingOptions {
-  name?: string
-  startDate?: Date,
-  endDate?: Date
+  name: string
+  startDate: Date,
+  endDate: Date
 }
 
 /**
@@ -20,6 +20,7 @@ export interface MeetingOptions {
 export function parseMeetingArgs(userInput: string, defaultStartDate: Date): MeetingOptions {
 
   const meetingOptions : MeetingOptions = {
+    name: '',
     startDate: new Date(defaultStartDate.getTime()),
     endDate: new Date(defaultStartDate.getTime() + 1000 * 60 * 60) // 1 hour later than start
   };
@@ -87,9 +88,7 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
           durationMinutes *= 60;
         }
       }
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      meetingOptions.endDate?.setTime(meetingOptions.startDate!.getTime() + durationMinutes * 60 * 1000);
-      // meetingOptions.duration = this.sourceString;
+      meetingOptions.endDate?.setTime(meetingOptions.startDate.getTime() + durationMinutes * 60 * 1000);
       return meetingOptions;
     },
     oneDigitHourOnlyExp(this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) {
@@ -145,15 +144,10 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
         if(amPm == 'pm' && hours < 12) {
           hours += 12;
         }
-        meetingOptions.startDate?.setHours(hours);
-        meetingOptions.startDate?.setMinutes(minutes);
         amPm = undefined;
       }
-      else {
-        meetingOptions.startDate?.setHours(hours);
-        meetingOptions.startDate?.setMinutes(minutes);
-      }
-      // meetingOptions.startTime = this.sourceString;
+      meetingOptions.startDate?.setHours(hours);
+      meetingOptions.startDate?.setMinutes(minutes);
       return meetingOptions;
     },
     FinishTimeExp(this: NonterminalNode, arg0: NonterminalNode) {
@@ -162,14 +156,10 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
         if(amPm == 'pm' && hours < 12) {
           hours += 12;
         }
-        meetingOptions.endDate?.setHours(hours);
-        meetingOptions.endDate?.setMinutes(minutes);
         amPm = undefined;
-      } else {
-        meetingOptions.endDate?.setHours(hours);
-        meetingOptions.endDate?.setMinutes(minutes);
-      }
-      // meetingOptions.finishTime = this.sourceString;
+      } 
+      meetingOptions.endDate?.setHours(hours);
+      meetingOptions.endDate?.setMinutes(minutes);
       return meetingOptions;
     },
     amPm(this: NonterminalNode, arg0: TerminalNode) {
