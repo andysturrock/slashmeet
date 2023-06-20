@@ -32,6 +32,7 @@ export async function slackRequest(req: functions.Request, oauth2Client: Auth.OA
   });
   
   // If so, create the meeting and generate a message with the GMeet URL
-  const blocks = await generateGoogleMeetURLBlocks(oauth2Client);
+  // TODO get meeting args and pass to be parsed.
+  const blocks = await generateGoogleMeetURLBlocks(oauth2Client, '/meet');
   return blocks;
 }

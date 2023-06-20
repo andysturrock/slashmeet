@@ -5,14 +5,19 @@ import grammar, {MeetArgsActionDict, MeetArgsSemantics} from './meetArgs.ohm-bun
 
 export interface MeetingOptions {
   name?: string
-  // duration?: string
-  // startTime?: string
-  // finishTime?: string
   startDate?: Date,
   endDate?: Date
 }
 
-export function parseMeetingArgs(userInput: string, defaultStartDate: Date) {
+/**
+ * Parses userInput into a {@link MeetingOptions} object.
+ * @param userInput The string to parse.
+ * @param defaultStartDate Default start date and time of the meeting if not provided in userInput.
+ * @returns A {@link MeetingOptions} object with name, startDate and endDate populated.
+ * @throws {Error} on invalid userInput.
+ * @see {@link meetArgs.ohm} for grammar.
+ */
+export function parseMeetingArgs(userInput: string, defaultStartDate: Date): MeetingOptions {
 
   const meetingOptions : MeetingOptions = {
     startDate: new Date(defaultStartDate.getTime()),

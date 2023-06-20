@@ -1,27 +1,45 @@
 import {parseMeetingArgs} from "../ts-src/parseMeetingArgs";
-import util from 'util';
 
+// All tests are in their own scope as want to use globals where we can, but changing the globals
+// seems to confuse Jest.  So each test gets its own copy of any non-const variable.
 const name = 'foo';
-test(`should be called ${name}`, () => {
-  const startDate = new Date(2023, 6, 19, 22, 50, 0, 0);
-  const meetingOptions = parseMeetingArgs(`${name}`, startDate);
-  expect(meetingOptions.name).toBe(name);
-  expect(meetingOptions.startDate).toStrictEqual(startDate);
-  const endDate = new Date(startDate.getTime() + 1000 * 60 * 60);
-  expect(meetingOptions.endDate).toStrictEqual(endDate);
-});
-
 const duration = '25m';
-test(`should be called ${name} and duration ${duration}`, () => {
-  const startDate = new Date(2023, 6, 19, 22, 50, 0, 0);
-  const meetingOptions = parseMeetingArgs(`${name} ${duration}`, startDate);
-  expect(meetingOptions.name).toBe(name);
-  // expect(meetingOptions.duration).toBe(duration);
 
-  expect(meetingOptions.startDate).toStrictEqual(startDate);
-  const endDate = new Date(startDate.getTime() + 1000 * 60 * 25);
-  expect(meetingOptions.endDate).toStrictEqual(endDate);
-});
+{
+  test(`should be called ${name}`, () => {
+    const startDate = new Date(2023, 6, 19, 22, 50, 0, 0);
+    const meetingOptions = parseMeetingArgs(`${name}`, startDate);
+    expect(meetingOptions.name).toBe(name);
+    expect(meetingOptions.startDate).toStrictEqual(startDate);
+    const endDate = new Date(startDate.getTime() + 1000 * 60 * 60);
+    expect(meetingOptions.endDate).toStrictEqual(endDate);
+  });
+}
+
+{
+  const duration = '1h';
+  test(`should be called ${name} and duration ${duration}`, () => {
+    const startDate = new Date(2023, 6, 19, 22, 50, 0, 0);
+    const meetingOptions = parseMeetingArgs(`${name} ${duration}`, startDate);
+    expect(meetingOptions.name).toBe(name);
+
+    expect(meetingOptions.startDate).toStrictEqual(startDate);
+    const endDate = new Date(startDate.getTime() + 1000 * 60 * 60);
+    expect(meetingOptions.endDate).toStrictEqual(endDate);
+  });
+}
+
+{
+  test(`should be called ${name} and duration ${duration}`, () => {
+    const startDate = new Date(2023, 6, 19, 22, 50, 0, 0);
+    const meetingOptions = parseMeetingArgs(`${name} ${duration}`, startDate);
+    expect(meetingOptions.name).toBe(name);
+
+    expect(meetingOptions.startDate).toStrictEqual(startDate);
+    const endDate = new Date(startDate.getTime() + 1000 * 60 * 25);
+    expect(meetingOptions.endDate).toStrictEqual(endDate);
+  });
+}
 
 {
   const startTime = '14:00';
@@ -32,8 +50,6 @@ test(`should be called ${name} and duration ${duration}`, () => {
     expect(meetingOptions.startDate).toStrictEqual<Date>(startDate);
     const endDate = new Date(startDate.getTime() + 1000 * 60 * 25);
     expect(meetingOptions.endDate).toStrictEqual(endDate);
-  // expect(meetingOptions.startTime).toBe(startTime);
-  // expect(meetingOptions.duration).toBe(duration);
   });
 }
 
@@ -46,8 +62,6 @@ test(`should be called ${name} and duration ${duration}`, () => {
     expect(meetingOptions.startDate).toStrictEqual(startDate);
     const endDate = new Date(startDate.getTime() + 1000 * 60 * 25);
     expect(meetingOptions.endDate).toStrictEqual(endDate);
-  // expect(meetingOptions.startTime).toBe(startTime);
-  // expect(meetingOptions.duration).toBe(duration);
   });
 }
 
@@ -60,8 +74,6 @@ test(`should be called ${name} and duration ${duration}`, () => {
     expect(meetingOptions.startDate).toStrictEqual(startDate);
     const endDate = new Date(startDate.getTime() + 1000 * 60 * 25);
     expect(meetingOptions.endDate).toStrictEqual(endDate);
-  // expect(meetingOptions.startTime).toBe(startTime);
-  // expect(meetingOptions.duration).toBe(duration);
   });
 }
 
@@ -74,8 +86,6 @@ test(`should be called ${name} and duration ${duration}`, () => {
     expect(meetingOptions.startDate).toStrictEqual(startDate);
     const endDate = new Date(startDate.getTime() + 1000 * 60 * 25);
     expect(meetingOptions.endDate).toStrictEqual(endDate);
-  // expect(meetingOptions.startTime).toBe(startTime);
-  // expect(meetingOptions.duration).toBe(duration);
   });
 }
 
@@ -88,8 +98,6 @@ test(`should be called ${name} and duration ${duration}`, () => {
     expect(meetingOptions.startDate).toStrictEqual(startDate);
     const endDate = new Date(startDate.getTime() + 1000 * 60 * 25);
     expect(meetingOptions.endDate).toStrictEqual(endDate);
-  // expect(meetingOptions.startTime).toBe(startTime);
-  // expect(meetingOptions.duration).toBe(duration);
   });
 }
 
@@ -104,8 +112,6 @@ test(`should be called ${name} and duration ${duration}`, () => {
     endDate.setHours(17, 0);
     expect(meetingOptions.startDate).toStrictEqual(startDate);
     expect(meetingOptions.endDate).toStrictEqual(endDate);
-  // expect(meetingOptions.startTime).toBe(startTime);
-  // expect(meetingOptions.finishTime).toBe(finishTime);
   });
 }
 
@@ -120,8 +126,6 @@ test(`should be called ${name} and duration ${duration}`, () => {
     endDate.setHours(17, 0);
     expect(meetingOptions.startDate).toStrictEqual(startDate);
     expect(meetingOptions.endDate).toStrictEqual(endDate);
-  // expect(meetingOptions.startTime).toBe(startTime);
-  // expect(meetingOptions.finishTime).toBe(finishTime);
   });
 }
 
@@ -136,8 +140,6 @@ test(`should be called ${name} and duration ${duration}`, () => {
     endDate.setHours(23, 0);
     expect(meetingOptions.startDate).toStrictEqual(startDate);
     expect(meetingOptions.endDate).toStrictEqual(endDate);
-  // expect(meetingOptions.startTime).toBe(startTime);
-  // expect(meetingOptions.finishTime).toBe(finishTime);
   });
 }
 
@@ -153,8 +155,6 @@ test(`should be called ${name} and duration ${duration}`, () => {
     endDate.setMinutes(23);
     expect(meetingOptions.startDate).toStrictEqual(startDate);
     expect(meetingOptions.endDate).toStrictEqual(endDate);
-  // expect(meetingOptions.startTime).toBe(startTime);
-  // expect(meetingOptions.finishTime).toBe(finishTime);
   });
 }
 
@@ -170,7 +170,5 @@ test(`should be called ${name} and duration ${duration}`, () => {
     endDate.setMinutes(23);
     expect(meetingOptions.startDate).toStrictEqual(startDate);
     expect(meetingOptions.endDate).toStrictEqual(endDate);
-  // expect(meetingOptions.startTime).toBe(startTime);
-  // expect(meetingOptions.finishTime).toBe(finishTime);
   });
 }
