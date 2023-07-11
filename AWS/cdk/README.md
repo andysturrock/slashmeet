@@ -1,6 +1,4 @@
-# CDK for AWS Lambda implementation of SlashMeet
-## Useful commands
+CDK for deploying the AWS infra for slashmeet
 
- * `npm run build`   Build the zip bundle of source code for the Lambdas
- * `npm run deploy`  Deploy the infra and code.  Also use this to update the Lambdas if you have changed the source.
-
+1. run `npm run build` to build the zipfile with Lambda source
+2. run `npm run deploy` to deploy all the AWS stuff including if you need to update the Lambda from source.
