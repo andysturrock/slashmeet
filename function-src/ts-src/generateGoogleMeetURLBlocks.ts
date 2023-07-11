@@ -1,7 +1,9 @@
 import {Auth, calendar_v3, google} from 'googleapis';
 import {MeetingOptions, parseMeetingArgs} from './parseMeetingArgs';
+import {WebClient, LogLevel} from "@slack/web-api";
+import util from 'util';
 
-export async function generateGoogleMeetURLBlocks(oauth2Client: Auth.OAuth2Client, meetingArgs: string) {
+export async function generateGoogleMeetURLBlocks(oauth2Client: Auth.OAuth2Client, meetingArgs: string, userId: string) {
   // Give a default name for the meeting if not provided.
   if(meetingArgs == '') {
     meetingArgs = 'slashmeet';
@@ -24,6 +26,44 @@ export async function generateGoogleMeetURLBlocks(oauth2Client: Auth.OAuth2Clien
     };
     return blocks;
   }
+
+  // User will be specifying meetings times in their local timezone, whereas AWS always uses UTC.
+  // So grab the timezone and we can specify it to Google API later.
+  let timeZone = '';
+  try {
+    const botUserOauthToken = process.env.BOT_USER_OAUTH_TOKEN;
+    if(!botUserOauthToken) {
+      throw new Error("Missing env var BOT_USER_OAUTH_TOKEN");
+    }
+
+    const client = new WebClient(botUserOauthToken, {
+      logLevel: LogLevel.INFO
+    });
+    const result = await client.users.info({
+      user: userId
+    });
+    if(!result.user?.tz) {
+      throw new Error("Cannot get timezone from user object");
+    }
+    timeZone = result.user.tz;
+  }
+  catch (error) {
+    console.error(`Error: ${util.inspect(error)}`);
+    const blocks = {
+      response_type: 'in_channel',
+      blocks: [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `Error discovering client timezone.`
+          }
+        }
+      ]
+    };
+    return blocks;
+  }
+
   const calendar = google.calendar('v3');
   google.options({auth: oauth2Client});
 
@@ -36,15 +76,21 @@ export async function generateGoogleMeetURLBlocks(oauth2Client: Auth.OAuth2Clien
     createRequest: createRequest
   };
 
+  // Convert time to RFC3339 format, without the Z bit as we will specify the timezone.
+  const startDate = meetingOptions.startDate?.toISOString().substring(0, 19);
+  const endDate = meetingOptions.endDate?.toISOString().substring(0, 19);
+
   const event: calendar_v3.Schema$Event = {
     conferenceData: conferenceData,
     summary: meetingOptions.name,
     description: 'Generated /meet event from Slack',
     start: {
-      dateTime: meetingOptions.startDate?.toISOString()
+      dateTime: startDate,
+      timeZone: timeZone
     },
     end: {
-      dateTime: meetingOptions.endDate?.toISOString()
+      dateTime: endDate,
+      timeZone: timeZone
     }
   };
   const meetingParams: calendar_v3.Params$Resource$Events$Insert = {

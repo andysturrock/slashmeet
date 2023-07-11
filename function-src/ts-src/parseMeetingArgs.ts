@@ -182,6 +182,7 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
     _terminal(this: TerminalNode) {
       return meetingOptions;
     },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _iter(...children) {
       return meetingOptions;
     }

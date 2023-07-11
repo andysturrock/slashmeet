@@ -1,14 +1,6 @@
-# Welcome to your CDK TypeScript project!
-
-This is a blank project for TypeScript development with CDK.
-
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
-
+# CDK for AWS Lambda implementation of SlashMeet
 ## Useful commands
 
- * `npm run build`   compile typescript to js
- * `npm run watch`   watch for changes and compile
- * `npm run test`    perform the jest unit tests
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk synth`       emits the synthesized CloudFormation template
+ * `npm run build`   Build the zip bundle of source code for the Lambdas
+ * `npm run deploy`  Deploy the infra and code.  Also use this to update the Lambdas if you have changed the source.
+

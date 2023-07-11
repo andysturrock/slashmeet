@@ -52,7 +52,7 @@ export async function lambdaHandler(event: SlackEvent): Promise<void> {
     oauth2Client.setCredentials({
       refresh_token: refresh_token
     });
-    blocks = await generateGoogleMeetURLBlocks(oauth2Client, event.text);
+    blocks = await generateGoogleMeetURLBlocks(oauth2Client, event.text, event.user_id);
   }
   await postToResponseUrl(responseUrl, blocks);
 }
