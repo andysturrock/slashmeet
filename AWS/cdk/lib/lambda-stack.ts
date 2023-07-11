@@ -26,6 +26,8 @@ export class LambdaStack extends Stack {
     const clientSecret = getEnv('CLIENT_SECRET', false)!;
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const redirectUri = getEnv('REDIRECT_URI', false)!;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const botUserOauthToken = getEnv('BOT_USER_OAUTH_TOKEN', false)!;
 
     const slashMeetDomainName = `slashmeet.${customDomainName}`;
 
@@ -65,6 +67,7 @@ export class LambdaStack extends Stack {
     authenticateOrCreateMeetingLambda.addEnvironment('CLIENT_ID', clientId);
     authenticateOrCreateMeetingLambda.addEnvironment('CLIENT_SECRET', clientSecret);
     authenticateOrCreateMeetingLambda.addEnvironment('REDIRECT_URI', redirectUri);
+    authenticateOrCreateMeetingLambda.addEnvironment('BOT_USER_OAUTH_TOKEN', botUserOauthToken);
 
     // Create the lambda which handles the redirect from the Google auth
     const authenticationCallbackLambda = new lambda.Function(this, "SlashMeetAuthenticationCallbackLambda", {
