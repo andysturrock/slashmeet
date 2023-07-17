@@ -5,9 +5,9 @@ import {APIGatewayProxyEventHeaders} from 'aws-lambda';
 
 // TODO - make this generic across AWS and GCP
 export function verifySlackRequest(headers: APIGatewayProxyEventHeaders, body: string) {
-  const signingSecret = process.env.SLACK_SECRET;
+  const signingSecret = process.env.SLACK_SIGNING_SECRET;
   if(!signingSecret) {
-    throw new Error("Missing env var SLACK_SECRET");
+    throw new Error("Missing env var SLACK_SIGNING_SECRET");
   }
 
   let x_slack_signature = headers['X-Slack-Signature'];
