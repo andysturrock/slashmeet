@@ -4,9 +4,9 @@ import {SlackRequestVerificationOptions} from '@slack/bolt/dist/receivers/verify
 
 export function verifySlackRequest(req: functions.Request) {
   // Verify that this request came from Slack
-  const signingSecret = process.env.SLACK_SECRET;
+  const signingSecret = process.env.SLACK_SIGNING_SECRET;
   if(!signingSecret) {
-    throw new Error("Missing env var SLACK_SECRET");
+    throw new Error("Missing env var SLACK_SIGNING_SECRET");
   }
 
   let x_slack_signature = req.headers['x-slack-signature'];

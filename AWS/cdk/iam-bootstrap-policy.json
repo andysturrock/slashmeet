@@ -1,0 +1,74 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "iam",
+            "Effect": "Allow",
+            "Action": [
+                "iam:GetRole",
+                "iam:CreateRole",
+                "iam:DeleteRole",
+                "iam:AttachRolePolicy",
+                "iam:DetachRolePolicy",
+                "iam:DeleteRolePolicy",
+                "iam:PutRolePolicy",
+                "iam:ListRoleTags",
+                "iam:GetRolePolicy",
+                "iam:TagRole"
+            ],
+            "Resource": "arn:aws:iam::__ACCOUNTID__:role/*"
+        },
+        {
+            "Sid": "s3",
+            "Effect": "Allow",
+            "Action": [
+                "s3:CreateBucket",
+                "s3:PutLifecycleConfiguration",
+                "s3:PutEncryptionConfiguration",
+                "s3:PutBucketVersioning",
+                "s3:PutBucketPublicAccessBlock",
+                "s3:GetBucketPolicy",
+                "s3:PutBucketPolicy",
+                "s3:DeleteBucketPolicy"
+            ],
+            "Resource": "arn:aws:s3:::*"
+        },
+        {
+            "Sid": "cloudformation",
+            "Effect": "Allow",
+            "Action": [
+                "cloudformation:DescribeStackEvents",
+                "cloudformation:GetTemplate",
+                "cloudformation:DeleteStack",
+                "cloudformation:CreateChangeSet",
+                "cloudformation:DescribeChangeSet",
+                "cloudformation:ExecuteChangeSet",
+                "cloudformation:DeleteChangeSet",
+                "cloudformation:DescribeStacks"
+            ],
+            "Resource": "arn:aws:cloudformation:eu-west-2:__ACCOUNTID__:stack/CDKToolkit/*"
+        },
+        {
+            "Sid": "ecr",
+            "Effect": "Allow",
+            "Action": [
+                "ecr:CreateRepository",
+                "ecr:PutLifecyclePolicy",
+                "ecr:DeleteRepository",
+                "ecr:SetRepositoryPolicy",
+                "ecr:DescribeRepositories"
+            ],
+            "Resource": "arn:aws:ecr:eu-west-2:__ACCOUNTID__:repository/*"
+        },
+        {
+            "Sid": "ssm",
+            "Effect": "Allow",
+            "Action": [
+                "ssm:PutParameter",
+                "ssm:DeleteParameter",
+                "ssm:GetParameters"
+            ],
+            "Resource": "arn:aws:ssm:eu-west-2:__ACCOUNTID__:parameter/cdk-bootstrap/*"
+        }
+    ]
+}

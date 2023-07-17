@@ -1,0 +1,41 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ssm",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:GetParameter"
+      ],
+      "Resource": "arn:aws:ssm:eu-west-2:__ACCOUNTID__:parameter/cdk-bootstrap/*"
+    },
+    {
+      "Sid": "cloudformation",
+      "Effect": "Allow",
+      "Action": [
+        "cloudformation:DescribeStacks",
+        "cloudformation:CreateChangeSet"
+      ],
+      "Resource": "arn:aws:cloudformation:eu-west-2:__ACCOUNTID__:stack/SlashMeetDynamoDBStack/*"
+    },
+    {
+      "Sid": "iam",
+      "Effect": "Allow",
+      "Action": [
+        "iam:PassRole"
+      ],
+      "Resource": "arn:aws:iam::__ACCOUNTID__:role/cdk-hnb659fds-cfn-exec-role-__ACCOUNTID__-eu-west-2"
+    },
+    {
+      "Sid": "sts",
+			"Effect": "Allow",
+			"Action": [
+				"sts:AssumeRole"
+			],
+			"Resource": [
+        "arn:aws:iam::__ACCOUNTID__:role/cdk-hnb659fds-deploy-role-__ACCOUNTID__-eu-west-2",
+        "arn:aws:iam::__ACCOUNTID__:role/cdk-hnb659fds-file-publishing-role-__ACCOUNTID__-eu-west-2"
+      ]
+		}
+  ]
+}

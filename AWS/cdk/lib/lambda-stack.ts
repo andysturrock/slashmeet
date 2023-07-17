@@ -19,7 +19,7 @@ export class LambdaStack extends Stack {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const lambdaVersion = getEnv('LAMBDA_VERSION', false)!;
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const slackSecret = getEnv('SLACK_SECRET', false)!;
+    const slackSigningSecret = getEnv('SLACK_SIGNING_SECRET', false)!;
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const clientId = getEnv('CLIENT_ID', false)!;
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -40,7 +40,7 @@ export class LambdaStack extends Stack {
       functionName: 'SlashMeet-InitialResponseLambda'
     });
     // Add a runtime env var for verifying the request came from Slack
-    initialResponseLambda.addEnvironment('SLACK_SECRET', slackSecret);
+    initialResponseLambda.addEnvironment('SLACK_SIGNING_SECRET', slackSigningSecret);
 
     // Create the lambda which either creates the authentication response or creates the meeting.
     // This lambda is called from the initial response lambda, not via the API Gateway.
