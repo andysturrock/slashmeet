@@ -21,6 +21,6 @@ echo "Loading secrets..."
 . ./.secrets
 
 echo "Deploying to GCP..."
-gcloud functions deploy slashMeet-function --gen2 --runtime=nodejs18 --region=europe-west2 --source=./dist --entry-point=slashmeet --trigger-http --set-env-vars "SLACK_SECRET=$SLACK_SECRET,CLIENT_ID=$CLIENT_ID,CLIENT_SECRET=$CLIENT_SECRET,REDIRECT_URI=$REDIRECT_URI" --allow-unauthenticated
+gcloud functions deploy slashMeet-function --gen2 --runtime=nodejs18 --region=europe-west2 --source=./dist --entry-point=slashmeet --trigger-http --set-env-vars "SLACK_SIGNING_SECRET=$SLACK_SIGNING_SECRET,CLIENT_ID=$CLIENT_ID,CLIENT_SECRET=$CLIENT_SECRET,REDIRECT_URI=$REDIRECT_URI" --allow-unauthenticated
 
 popd
