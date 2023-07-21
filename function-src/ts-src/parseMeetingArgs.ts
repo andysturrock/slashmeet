@@ -36,10 +36,9 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
       arg1.eval();
       return meetingOptions;
     },
-    MeetingNameExp(this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) {
+    MeetingNameExp(this: NonterminalNode, arg0: NonterminalNode) {
       arg0.eval();
-      arg1.eval();
-      meetingOptions.name = this.sourceString;
+      meetingOptions.name = this.sourceString.replaceAll('"', '');
       return meetingOptions;
     },
     StartDurationExp(this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) {
@@ -66,13 +65,16 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
       }
       return meetingOptions;
     },
-    meetingNameStart(this: NonterminalNode, arg0: NonterminalNode) {
-      arg0.eval();
-      return meetingOptions;
-    },
-    meetingNamePart(this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode) {
+    meetingNamePartNoQuote(this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode) {
       arg0.eval();
       arg1.eval();
+      return meetingOptions;
+    },
+    meetingNamePartQuote(this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: TerminalNode) {
+      arg0.eval();
+      arg1.eval();
+      arg2.eval();
+      arg3.eval();
       return meetingOptions;
     },
     DurationExp(this: NonterminalNode, arg0: IterationNode, arg1: NonterminalNode) {
@@ -157,7 +159,7 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
           hours += 12;
         }
         amPm = undefined;
-      } 
+      }
       meetingOptions.endDate?.setHours(hours);
       meetingOptions.endDate?.setMinutes(minutes);
       return meetingOptions;

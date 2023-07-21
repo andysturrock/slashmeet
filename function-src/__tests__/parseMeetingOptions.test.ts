@@ -6,13 +6,41 @@ const name = 'foo';
 const duration = '25m';
 
 {
-  test(`should be called ${name}`, () => {
+  const names = [
+    '3amigos',
+    'mymeeting',
+    'mymeeting123',
+    'my_meeting123',
+    'my-meeting123',
+    'pleaseattend123!',
+    'please_attend123!',
+    'please-attend123!',
+    'attending123?',
+    'attending_anyone123?',
+    'attending-anyone123?',
+    '"my test meeting 123"',
+    '"10 amigos? -_- shouldn\'t it be 3 amigos!?"',
+    '1couldn\'t!?',
+  ];
+
+  for(const meetingName of names) {
+    const unquotedName = meetingName.replaceAll('"', '');
+
+    test(`should be called ${unquotedName}`, () => {
+      const startDate = new Date(2023, 6, 19, 22, 50, 0, 0);
+      const meetingOptions = parseMeetingArgs(`${meetingName}`, startDate);
+      expect(meetingOptions.name).toBe(unquotedName);
+      expect(meetingOptions.startDate).toStrictEqual(startDate);
+      const endDate = new Date(startDate.getTime() + 1000 * 60 * 60);
+      expect(meetingOptions.endDate).toStrictEqual(endDate);
+    });
+  }
+
+  test(`should throw an error when starting char is not alphanumeric`, () => {
     const startDate = new Date(2023, 6, 19, 22, 50, 0, 0);
-    const meetingOptions = parseMeetingArgs(`${name}`, startDate);
-    expect(meetingOptions.name).toBe(name);
-    expect(meetingOptions.startDate).toStrictEqual(startDate);
-    const endDate = new Date(startDate.getTime() + 1000 * 60 * 60);
-    expect(meetingOptions.endDate).toStrictEqual(endDate);
+
+    expect(() => parseMeetingArgs(`!alphanumeric`, startDate)).toThrowError("cannot apply Semantics to [match failed at position 0]");
+    expect(() => parseMeetingArgs(`"!alphanumeric"`, startDate)).toThrowError("cannot apply Semantics to [match failed at position 1]");
   });
 }
 
