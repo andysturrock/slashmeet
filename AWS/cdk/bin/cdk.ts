@@ -2,7 +2,7 @@
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import {LambdaStack} from '../lib/lambda-stack';
-import {DynamoDBStack } from '../lib/dynamodb-stack';
+import {DynamoDBStack} from '../lib/dynamodb-stack';
 
 const app = new cdk.App();
 const dynamoDBStack = new DynamoDBStack(app, 'SlashMeetDynamoDBStack');
