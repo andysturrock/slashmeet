@@ -17,9 +17,9 @@ export interface MeetArgsActionDict<T> extends BaseActionDict<T> {
   MeetingArgsExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   StartEndTimeExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   StartDurationExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
-  MeetingNameExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
-  meetingNameStart?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  meetingNamePart?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode) => T;
+  MeetingNameExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  meetingNamePartNoQuote?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode) => T;
+  meetingNamePartQuote?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: TerminalNode) => T;
   StartTimeExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   FinishTimeExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TimeExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
