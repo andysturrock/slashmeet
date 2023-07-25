@@ -6,7 +6,7 @@
     "generate": "ohm generateBundles --withTypes 'ts-src/*.ohm'"
   },
   "devDependencies": {
-    "@aws-sdk/client-dynamodb": "^3.321.1",
+    "@aws-sdk/client-dynamodb": "^3.377.0",
     "@aws-sdk/client-lambda": "^3.322.0",
     "@ohm-js/cli": "^2.0.0",
     "@tsconfig/node16": "^16.1.0",
