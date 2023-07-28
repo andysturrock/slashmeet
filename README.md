@@ -12,6 +12,6 @@ Slack slash command to create a GMeet meeting
 8. Add an OAuth scope for `users:read`.  It should already have `commands` scope.
 9. Copy the Bot User OAuth Token to the .env file.
 10. Copy the Signing Secret to the .env file.
-11. Set the REDIRECT_URL in the .env file to the same value as step 4.
+11. Set the CUSTOM_DOMAIN_NAME and LAMBDA_VERSION in the .env file to the same values as step 4 (ie https://slashmeet.${CUSTOM_DOMAIN_NAME}/${LAMBDA_VERSION}/redirectUri).
 12. For AWS, create a R53 hosted zone for the subdomain slackapps.example.com.  Update your root DNS with the NS records to do the subdomain delegation.
 13. Add the custom domain name and R53 zone id to the .env file.
