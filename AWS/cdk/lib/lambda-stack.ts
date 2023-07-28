@@ -12,24 +12,17 @@ export class LambdaStack extends Stack {
   constructor(scope: Construct, id: string, props: LambdaStackProps) {
     super(scope, id, props);
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const customDomainName = getEnv('CUSTOM_DOMAIN_NAME', false)!;
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const r53ZoneId = getEnv('R53_ZONE_ID', false)!;
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const lambdaVersion = getEnv('LAMBDA_VERSION', false)!;
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const slackSigningSecret = getEnv('SLACK_SIGNING_SECRET', false)!;
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const clientId = getEnv('CLIENT_ID', false)!;
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const clientSecret = getEnv('CLIENT_SECRET', false)!;
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const redirectUri = getEnv('REDIRECT_URI', false)!;
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const botUserOauthToken = getEnv('BOT_USER_OAUTH_TOKEN', false)!;
-
+    const customDomainName = getEnv('CUSTOM_DOMAIN_NAME', false)!;
     const slashMeetDomainName = `slashmeet.${customDomainName}`;
+    // Semantic versioning has dots as separators but this is invalid in a URL
+    // so replace the dots with underscores first.
+    const lambdaVersionIdForURL = lambdaVersion.replace(/\./g, '_');
 
     // Create the initial response lambda
     const initialResponseLambda = new lambda.Function(this, "SlashMeetInitialResponseLambda", {
@@ -66,8 +59,9 @@ export class LambdaStack extends Stack {
     // TODO get the client secret from AWS Secrets Manager
     authenticateOrCreateMeetingLambda.addEnvironment('CLIENT_ID', clientId);
     authenticateOrCreateMeetingLambda.addEnvironment('CLIENT_SECRET', clientSecret);
-    authenticateOrCreateMeetingLambda.addEnvironment('REDIRECT_URI', redirectUri);
     authenticateOrCreateMeetingLambda.addEnvironment('BOT_USER_OAUTH_TOKEN', botUserOauthToken);
+    authenticateOrCreateMeetingLambda.addEnvironment('CUSTOM_DOMAIN_NAME', customDomainName);
+    authenticateOrCreateMeetingLambda.addEnvironment('LAMBDA_VERSION_FOR_URL', lambdaVersionIdForURL);
 
     // Create the lambda which handles the redirect from the Google auth
     const authenticationCallbackLambda = new lambda.Function(this, "SlashMeetAuthenticationCallbackLambda", {
@@ -83,7 +77,8 @@ export class LambdaStack extends Stack {
     // TODO get the client secret from AWS Secrets Manager
     authenticationCallbackLambda.addEnvironment('CLIENT_ID', clientId);
     authenticationCallbackLambda.addEnvironment('CLIENT_SECRET', clientSecret);
-    authenticationCallbackLambda.addEnvironment('REDIRECT_URI', redirectUri);
+    authenticationCallbackLambda.addEnvironment('CUSTOM_DOMAIN_NAME', customDomainName);
+    authenticationCallbackLambda.addEnvironment('LAMBDA_VERSION_FOR_URL', lambdaVersionIdForURL);
 
     // Get hold of the hosted zone which has previously been created
     const zone = route53.HostedZone.fromHostedZoneAttributes(this, 'R53Zone', {
@@ -118,9 +113,6 @@ export class LambdaStack extends Stack {
     // By default CDK creates a deployment and a "prod" stage.  That means the URL is something like
     // https://2z2ockh6g5.execute-api.eu-west-2.amazonaws.com/prod/
     // We want to create the stage to match the version id.
-    // Semantic versioning has dots as separators but this is invalid in a URL
-    // so replace the dots with underscores first.
-    const versionIdForURL = lambdaVersion.replace(/\./g, '_');
     const apiGatewayDeployment = new apigateway.Deployment(this, 'ApiGatewayDeployment', {
       api: api,
     });
@@ -128,7 +120,7 @@ export class LambdaStack extends Stack {
       deployment: apiGatewayDeployment,
       loggingLevel: apigateway.MethodLoggingLevel.INFO,
       dataTraceEnabled: true,
-      stageName: versionIdForURL
+      stageName: lambdaVersionIdForURL
     });
 
     // Connect the API Gateway to the initial response and auth redirect lambdas
@@ -152,6 +144,6 @@ export class LambdaStack extends Stack {
       target: route53.RecordTarget.fromAlias(new targets.ApiGatewayDomain(customDomain))
     });
     // And path mapping to the API
-    customDomain.addBasePathMapping(api, {basePath: `${versionIdForURL}`, stage: stage});
+    customDomain.addBasePathMapping(api, {basePath: `${lambdaVersionIdForURL}`, stage: stage});
   }
 }

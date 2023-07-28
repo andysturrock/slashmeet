@@ -1,4 +1,3 @@
-import util from 'util';
 import {generateGoogleAuthBlocks} from '../generateGoogleAuthBlocks';
 import {postToResponseUrl} from '../postToResponseUrl';
 import {Auth} from 'googleapis';
@@ -32,10 +31,15 @@ export async function lambdaHandler(event: SlackEvent): Promise<void> {
   if(!clientSecret) {
     throw new Error("Missing env var CLIENT_SECRET");
   }
-  const redirectUri = process.env.REDIRECT_URI;
-  if(!redirectUri) {
-    throw new Error("Missing env var REDIRECT_URI");
+  const customDomainName = process.env.CUSTOM_DOMAIN_NAME;
+  if(!customDomainName) {
+    throw new Error("Missing env var CUSTOM_DOMAIN_NAME");
   }
+  const lambdaVersionIdForURL = process.env.LAMBDA_VERSION_FOR_URL;
+  if(!lambdaVersionIdForURL) {
+    throw new Error("Missing env var LAMBDA_VERSION_FOR_URL");
+  }
+  const redirectUri = `https://slashmeet.${customDomainName}/${lambdaVersionIdForURL}/redirectUri`;
 
   const options: Auth.OAuth2ClientOptions = {
     clientId: clientId,
