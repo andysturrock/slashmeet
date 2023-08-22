@@ -6,7 +6,7 @@
 version: 2
 updates:
   - package-ecosystem: "npm" # See documentation for possible values
-    directory: "/function-src" # Location of package manifests
+    directory: "/lambda-src" # Location of package manifests
     schedule:
       interval: "weekly"
   - package-ecosystem: "npm" # See documentation for possible values
