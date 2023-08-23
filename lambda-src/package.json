@@ -12,7 +12,7 @@
     "@ohm-js/cli": "^2.0.0",
     "@tsconfig/node16": "^16.1.0",
     "@types/aws-lambda": "^8.10.119",
-    "@types/jest": "^29.5.3",
+    "@types/jest": "^29.5.4",
     "@typescript-eslint/eslint-plugin": "^6.2.0",
     "@typescript-eslint/parser": "^6.4.1",
     "eslint": "^8.47.0",
