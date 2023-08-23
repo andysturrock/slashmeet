@@ -1,8 +1,8 @@
-import {generateGoogleAuthBlocks} from '../generateGoogleAuthBlocks';
-import {postToResponseUrl} from '../postToResponseUrl';
+import {generateGoogleAuthBlocks} from './generateGoogleAuthBlocks';
+import {postToResponseUrl} from './postToResponseUrl';
 import {Auth} from 'googleapis';
 import {getToken} from './getToken';
-import {generateGoogleMeetURLBlocks} from '../generateGoogleMeetURLBlocks';
+import {generateGoogleMeetURLBlocks} from './generateGoogleMeetURLBlocks';
 
 interface SlackEvent {
   token: string;

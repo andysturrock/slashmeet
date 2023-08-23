@@ -1,5 +1,5 @@
 import {InvocationType, InvokeCommand, InvokeCommandInput, LambdaClient, LambdaClientConfig} from "@aws-sdk/client-lambda";
-import {generateImmediateSlackResponseBlocks} from '../generateImmediateSlackResponseBlocks';
+import {generateImmediateSlackResponseBlocks} from './generateImmediateSlackResponseBlocks';
 import querystring from 'querystring';
 import util from 'util';
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda";

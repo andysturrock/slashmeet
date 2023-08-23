@@ -1,5 +1,5 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from 'aws-lambda';
-import {generateLoggedInHTML} from '../generateLoggedInHTML';
+import {generateLoggedInHTML} from './generateLoggedInHTML';
 import {Auth} from 'googleapis';
 import {saveToken} from './saveToken';
 

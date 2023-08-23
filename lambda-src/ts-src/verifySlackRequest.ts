@@ -3,7 +3,6 @@ import {verifySlackRequest as _verifySlackRequest} from '@slack/bolt';
 import {SlackRequestVerificationOptions} from '@slack/bolt/dist/receivers/verify-request';
 import {APIGatewayProxyEventHeaders} from 'aws-lambda';
 
-// TODO - make this generic across AWS and GCP
 export function verifySlackRequest(headers: APIGatewayProxyEventHeaders, body: string) {
   const signingSecret = process.env.SLACK_SIGNING_SECRET;
   if(!signingSecret) {
