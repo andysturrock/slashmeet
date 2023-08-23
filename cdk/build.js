@@ -10,11 +10,11 @@ const AdmZip = require("adm-zip");
 
 async function main() {
   const zip = new AdmZip();
-  const functionDirPath = path.join('..', '..', 'lambda-src');
+  const functionDirPath = path.join('..', 'lambda-src');
   const distDirPath = path.join(functionDirPath, 'dist');
   const zipfilePath = path.join(distDirPath, 'lambda.zip');
   // TODO use proper path stuff for the glob.
-  const jsFiles = await glob('../../lambda-src/dist/*.js');
+  const jsFiles = await glob('../lambda-src/dist/*.js');
   jsFiles.forEach(jsFile => {
     console.log(`adding ${jsFile}`);
     zip.addLocalFile(jsFile);

@@ -27,7 +27,7 @@ export class LambdaStack extends Stack {
     // Create the initial response lambda
     const initialResponseLambda = new lambda.Function(this, "SlashMeetInitialResponseLambda", {
       runtime: lambda.Runtime.NODEJS_18_X,
-      code: lambda.Code.fromAsset("../../lambda-src/dist/lambda.zip"),
+      code: lambda.Code.fromAsset("../lambda-src/dist/lambda.zip"),
       handler: "aws/initialResponseLambda.lambdaHandler",
       logRetention: logs.RetentionDays.THREE_DAYS,
       functionName: 'SlashMeet-InitialResponseLambda'
@@ -39,7 +39,7 @@ export class LambdaStack extends Stack {
     // This lambda is called from the initial response lambda, not via the API Gateway.
     const authenticateOrCreateMeetingLambda = new lambda.Function(this, "SlashMeetAuthenticateOrCreateMeetingLambda", {
       runtime: lambda.Runtime.NODEJS_18_X,
-      code: lambda.Code.fromAsset("../../lambda-src/dist/lambda.zip"),
+      code: lambda.Code.fromAsset("../lambda-src/dist/lambda.zip"),
       handler: "aws/authenticateOrCreateMeetingLambda.lambdaHandler",
       logRetention: logs.RetentionDays.THREE_DAYS,
       functionName: 'SlashMeet-AuthenticateOrCreateMeetingLambda',
@@ -66,7 +66,7 @@ export class LambdaStack extends Stack {
     // Create the lambda which handles the redirect from the Google auth
     const authenticationCallbackLambda = new lambda.Function(this, "SlashMeetAuthenticationCallbackLambda", {
       runtime: lambda.Runtime.NODEJS_18_X,
-      code: lambda.Code.fromAsset("../../lambda-src/dist/lambda.zip"),
+      code: lambda.Code.fromAsset("../lambda-src/dist/lambda.zip"),
       handler: "aws/authenticationCallbackLambda.lambdaHandler",
       logRetention: logs.RetentionDays.THREE_DAYS,
       functionName: 'SlashMeet-AuthenticationCallbackLambda'
