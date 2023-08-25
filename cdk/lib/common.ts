@@ -3,6 +3,7 @@ dotenv.config();
 
 import {StackProps} from 'aws-cdk-lib';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 
 /**
  * Returns value of given environment variable, which may be read from .env file.
@@ -23,4 +24,13 @@ export function getEnv(name: string, optional = false): string | undefined {
 
 export interface LambdaStackProps extends StackProps {
   readonly slackIdToGCalTokenTable: dynamodb.Table;
+  readonly slashMeetSecret: secretsmanager.ISecret;
+  readonly lambdaVersion: string;
+  readonly customDomainName: string;
+  readonly slashMeetDomainName: string;
+  readonly route53ZoneId: string;
+}
+
+export interface SecretsManagerStackProps extends StackProps {
+  readonly customDomainName: string;
 }

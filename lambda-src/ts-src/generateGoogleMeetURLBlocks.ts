@@ -2,6 +2,7 @@ import {Auth, calendar_v3, google} from 'googleapis';
 import {MeetingOptions, parseMeetingArgs} from './parseMeetingArgs';
 import {WebClient, LogLevel} from "@slack/web-api";
 import util from 'util';
+import {getSecretValue} from './awsAPI';
 
 export async function generateGoogleMeetURLBlocks(oauth2Client: Auth.OAuth2Client, meetingArgs: string, userId: string) {
   // Give a default name for the meeting if not provided.
@@ -31,12 +32,9 @@ export async function generateGoogleMeetURLBlocks(oauth2Client: Auth.OAuth2Clien
   // So grab the timezone and we can specify it to Google API later.
   let timeZone = '';
   try {
-    const botUserOauthToken = process.env.BOT_USER_OAUTH_TOKEN;
-    if(!botUserOauthToken) {
-      throw new Error("Missing env var BOT_USER_OAUTH_TOKEN");
-    }
+    const slackBotToken = await getSecretValue('SlashMeet', 'slackBotToken');
 
-    const client = new WebClient(botUserOauthToken, {
+    const client = new WebClient(slackBotToken, {
       logLevel: LogLevel.INFO
     });
     const result = await client.users.info({
@@ -76,9 +74,17 @@ export async function generateGoogleMeetURLBlocks(oauth2Client: Auth.OAuth2Clien
     createRequest: createRequest
   };
 
-  // Convert time to RFC3339 format, without the Z bit as we will specify the timezone.
+  console.log(`timeZone = ${timeZone}`);
+  console.log(`meetingOptions.startDate = ${util.inspect(meetingOptions.startDate)}`);
+  console.log(`meetingOptions.endDate = ${util.inspect(meetingOptions.endDate)}`);
+  console.log(`meetingOptions.startDate?.toISOString() = ${meetingOptions.startDate?.toISOString()}`);
+  console.log(`meetingOptions.endDate?.toISOString() = ${meetingOptions.endDate?.toISOString()}`);
+
+  // Convert time to RFC3339 format, without the milliseconds or Z bit as we will specify the timezone.
   const startDate = meetingOptions.startDate?.toISOString().substring(0, 19);
   const endDate = meetingOptions.endDate?.toISOString().substring(0, 19);
+  console.log(`startDate = ${startDate}`);
+  console.log(`endDate = ${endDate}`);
 
   const event: calendar_v3.Schema$Event = {
     conferenceData: conferenceData,
