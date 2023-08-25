@@ -4,6 +4,7 @@ import querystring from 'querystring';
 import util from 'util';
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda";
 import {verifySlackRequest} from "./verifySlackRequest";
+import {getSecretValue} from "./awsAPI";
 
 async function lambdaHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
 
@@ -13,8 +14,10 @@ async function lambdaHandler(event: APIGatewayProxyEvent): Promise<APIGatewayPro
     }
     const body = querystring.parse(event.body);
 
+    const signingSecret = await getSecretValue('SlashMeet', 'slackSigningSecret');
+
     // Verify that this request really did come from Slack
-    verifySlackRequest(event.headers, event.body);
+    verifySlackRequest(signingSecret, event.headers, event.body);
 
     // We need to send an immediate response within 3000ms.
     // So this lambda will invoke another one to do the real work.

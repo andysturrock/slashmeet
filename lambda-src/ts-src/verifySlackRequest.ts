@@ -3,12 +3,7 @@ import {verifySlackRequest as _verifySlackRequest} from '@slack/bolt';
 import {SlackRequestVerificationOptions} from '@slack/bolt/dist/receivers/verify-request';
 import {APIGatewayProxyEventHeaders} from 'aws-lambda';
 
-export function verifySlackRequest(headers: APIGatewayProxyEventHeaders, body: string) {
-  const signingSecret = process.env.SLACK_SIGNING_SECRET;
-  if(!signingSecret) {
-    throw new Error("Missing env var SLACK_SIGNING_SECRET");
-  }
-
+export function verifySlackRequest(signingSecret: string, headers: APIGatewayProxyEventHeaders, body: string) {
   let x_slack_signature = headers['X-Slack-Signature'];
   if(!x_slack_signature) {
     throw new Error("Missing X-Slack-Signature header");

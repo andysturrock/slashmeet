@@ -6,23 +6,15 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as logs from 'aws-cdk-lib/aws-logs';
-import {LambdaStackProps, getEnv} from './common';
+import {LambdaStackProps} from './common';
 
 export class LambdaStack extends Stack {
   constructor(scope: Construct, id: string, props: LambdaStackProps) {
     super(scope, id, props);
 
-    const r53ZoneId = getEnv('R53_ZONE_ID', false)!;
-    const lambdaVersion = getEnv('LAMBDA_VERSION', false)!;
-    const slackSigningSecret = getEnv('SLACK_SIGNING_SECRET', false)!;
-    const clientId = getEnv('CLIENT_ID', false)!;
-    const clientSecret = getEnv('CLIENT_SECRET', false)!;
-    const botUserOauthToken = getEnv('BOT_USER_OAUTH_TOKEN', false)!;
-    const customDomainName = getEnv('CUSTOM_DOMAIN_NAME', false)!;
-    const slashMeetDomainName = `slashmeet.${customDomainName}`;
     // Semantic versioning has dots as separators but this is invalid in a URL
     // so replace the dots with underscores first.
-    const lambdaVersionIdForURL = lambdaVersion.replace(/\./g, '_');
+    const lambdaVersionIdForURL = props.lambdaVersion.replace(/\./g, '_');
 
     // Create the initial response lambda
     const initialResponseLambda = new lambda.Function(this, "SlashMeetInitialResponseLambda", {
@@ -32,8 +24,8 @@ export class LambdaStack extends Stack {
       logRetention: logs.RetentionDays.THREE_DAYS,
       functionName: 'SlashMeet-InitialResponseLambda'
     });
-    // Add a runtime env var for verifying the request came from Slack
-    initialResponseLambda.addEnvironment('SLACK_SIGNING_SECRET', slackSigningSecret);
+    // Allow read access to the secret it needs
+    props.slashMeetSecret.grantRead(initialResponseLambda);
 
     // Create the lambda which either creates the authentication response or creates the meeting.
     // This lambda is called from the initial response lambda, not via the API Gateway.
@@ -54,14 +46,9 @@ export class LambdaStack extends Stack {
     // Give the initial response lambda permission to invoke this one
     authenticateOrCreateMeetingLambda.grantInvoke(initialResponseLambda);
     // Allow read access to the DyanamoDB table
-    props.slackIdToGCalTokenTable.grantReadData(authenticateOrCreateMeetingLambda);  
-    // Add some runtime env vars for creating the Google auth request
-    // TODO get the client secret from AWS Secrets Manager
-    authenticateOrCreateMeetingLambda.addEnvironment('CLIENT_ID', clientId);
-    authenticateOrCreateMeetingLambda.addEnvironment('CLIENT_SECRET', clientSecret);
-    authenticateOrCreateMeetingLambda.addEnvironment('BOT_USER_OAUTH_TOKEN', botUserOauthToken);
-    authenticateOrCreateMeetingLambda.addEnvironment('CUSTOM_DOMAIN_NAME', customDomainName);
-    authenticateOrCreateMeetingLambda.addEnvironment('LAMBDA_VERSION_FOR_URL', lambdaVersionIdForURL);
+    props.slackIdToGCalTokenTable.grantReadData(authenticateOrCreateMeetingLambda);
+    // Allow read access to the secret it needs
+    props.slashMeetSecret.grantRead(authenticateOrCreateMeetingLambda);
 
     // Create the lambda which handles the redirect from the Google auth
     const authenticationCallbackLambda = new lambda.Function(this, "SlashMeetAuthenticationCallbackLambda", {
@@ -73,31 +60,27 @@ export class LambdaStack extends Stack {
     });
     // Allow write access to the DyanamoDB table
     props.slackIdToGCalTokenTable.grantReadWriteData(authenticationCallbackLambda);
-    // Add some runtime env vars for dealing with the callback from Google auth
-    // TODO get the client secret from AWS Secrets Manager
-    authenticationCallbackLambda.addEnvironment('CLIENT_ID', clientId);
-    authenticationCallbackLambda.addEnvironment('CLIENT_SECRET', clientSecret);
-    authenticationCallbackLambda.addEnvironment('CUSTOM_DOMAIN_NAME', customDomainName);
-    authenticationCallbackLambda.addEnvironment('LAMBDA_VERSION_FOR_URL', lambdaVersionIdForURL);
+    // Allow read access to the secret it needs
+    props.slashMeetSecret.grantRead(authenticationCallbackLambda);
 
     // Get hold of the hosted zone which has previously been created
     const zone = route53.HostedZone.fromHostedZoneAttributes(this, 'R53Zone', {
-      zoneName: customDomainName,
-      hostedZoneId: r53ZoneId,
+      zoneName: props.customDomainName,
+      hostedZoneId: props.route53ZoneId,
     });
 
     // Create the cert for the gateway.
     // Usefully, this writes the DNS Validation CNAME records to the R53 zone,
     // which is great as normal Cloudformation doesn't do that.
     const acmCertificateForCustomDomain = new acm.DnsValidatedCertificate(this, 'CustomDomainCertificate', {
-      domainName: slashMeetDomainName,
+      domainName: props.slashMeetDomainName,
       hostedZone: zone,
       validation: acm.CertificateValidation.fromDns(zone),
     });
 
     // Create the custom domain
     const customDomain = new apigateway.DomainName(this, 'CustomDomainName', {
-      domainName: slashMeetDomainName,
+      domainName: props.slashMeetDomainName,
       certificate: acmCertificateForCustomDomain,
       endpointType: apigateway.EndpointType.REGIONAL,
       securityPolicy: apigateway.SecurityPolicy.TLS_1_2
@@ -139,7 +122,7 @@ export class LambdaStack extends Stack {
 
     // Create the R53 "A" record to map from the custom domain to the actual API URL
     new route53.ARecord(this, 'CustomDomainAliasRecord', {
-      recordName: slashMeetDomainName,
+      recordName: props.slashMeetDomainName,
       zone: zone,
       target: route53.RecordTarget.fromAlias(new targets.ApiGatewayDomain(customDomain))
     });
