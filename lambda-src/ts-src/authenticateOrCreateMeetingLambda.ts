@@ -50,7 +50,7 @@ export async function lambdaHandler(event: SlackEvent): Promise<void> {
       refresh_token: refresh_token
     });
     // Give a default name for the meeting if not provided.
-    const meetingArgs = (event.text == "") ? "/meet" : event.text;
+    const meetingArgs = event.text.length == 0 ? '/meet' : event.text;
     const now = new Date();
     let meetingOptions: MeetingOptions;
     try {

@@ -64,12 +64,12 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
       }
       return meetingOptions;
     },
-    meetingNamePartNoQuote(this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode) {
+    meetingNamePartNoQuote(this: NonterminalNode, arg0: NonterminalNode | TerminalNode, arg1: IterationNode) {
       arg0.eval();
       arg1.eval();
       return meetingOptions;
     },
-    meetingNamePartQuote(this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: TerminalNode) {
+    meetingNamePartQuote(this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode | TerminalNode, arg2: IterationNode, arg3: TerminalNode) {
       arg0.eval();
       arg1.eval();
       arg2.eval();

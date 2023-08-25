@@ -35,13 +35,6 @@ const duration = '25m';
       expect(meetingOptions.endDate).toStrictEqual(endDate);
     });
   }
-
-  test(`should throw an error when starting char is not alphanumeric`, () => {
-    const startDate = new Date(2023, 6, 19, 22, 50, 0, 0);
-
-    expect(() => parseMeetingArgs(`!alphanumeric`, startDate)).toThrowError("cannot apply Semantics to [match failed at position 0]");
-    expect(() => parseMeetingArgs(`"!alphanumeric"`, startDate)).toThrowError("cannot apply Semantics to [match failed at position 1]");
-  });
 }
 
 {
@@ -210,5 +203,25 @@ const duration = '25m';
     expect(meetingOptions.startDate).toStrictEqual<Date>(startDate);
     const endDate = new Date(startDate.getTime() + 1000 * 60 * 25);
     expect(meetingOptions.endDate).toStrictEqual(endDate);
+  });
+}
+
+{
+  const startTime = '2023/06/19 14:00:00';
+  const name = '/meet';
+  test(`should be called "${name}" with start ${startTime}`, () => {
+    const startDate = new Date(2023, 6, 19, 14, 0, 0, 0);
+    const meetingOptions = parseMeetingArgs(name, startDate);
+    expect(meetingOptions.name).toBe(name);
+    expect(meetingOptions.startDate).toStrictEqual<Date>(startDate);
+    const endDate = new Date(startDate.getTime() + 1000 * 60 * 60);
+    expect(meetingOptions.endDate).toStrictEqual(endDate);
+  });
+}
+
+{
+  test(`should throw an error when meeting args are empty`, () => {
+    const startDate = new Date(2023, 6, 19, 22, 50, 0, 0);
+    expect(() => parseMeetingArgs('', startDate)).toThrowError("cannot apply Semantics to [match failed at position 0]");
   });
 }
