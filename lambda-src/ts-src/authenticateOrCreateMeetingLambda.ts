@@ -4,6 +4,9 @@ import {Auth} from 'googleapis';
 import {getToken} from './tokenStorage';
 import {generateGoogleMeetURLBlocks} from './generateGoogleMeetURLBlocks';
 import {getSecretValue} from './awsAPI';
+import {getSlackUserTimeZone} from './getSlackUserTimeZone';
+import {createGoogleMeetMeeting as createGoogleCalendarMeeting} from './createGoogleCalendarMeeting';
+import {MeetingOptions, parseMeetingArgs} from './parseMeetingArgs';
 
 interface SlackEvent {
   token: string;
@@ -39,12 +42,88 @@ export async function lambdaHandler(event: SlackEvent): Promise<void> {
   const refresh_token = await getToken(event.user_id);
   let blocks = {};
   if(!refresh_token) {
-    blocks = generateGoogleAuthBlocks(oauth2Client, event.user_id);
+    const blocks = generateGoogleAuthBlocks(oauth2Client, event.user_id);
+    await postToResponseUrl(responseUrl, blocks);
+    return;
   } else {
     oauth2Client.setCredentials({
       refresh_token: refresh_token
     });
-    blocks = await generateGoogleMeetURLBlocks(oauth2Client, event.text, event.user_id);
+    // Give a default name for the meeting if not provided.
+    const meetingArgs = (event.text == "") ? "/meet" : event.text;
+    const now = new Date();
+    let meetingOptions: MeetingOptions;
+    try {
+      meetingOptions = parseMeetingArgs(meetingArgs, now);
+    } catch (error) {
+      console.error(error);
+      const blocks = {
+        response_type: 'in_channel',
+        blocks: [
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `Error parsing meeting options.`
+            }
+          }
+        ]
+      };
+      await postToResponseUrl(responseUrl, blocks);
+      return;
+    }
+
+    let timeZone: string;
+    // If the user specified a startDate then grab their timezone.
+    // If they didn't specify (or they used "now"), then AWS uses GMT.
+    // We'll pass the timezone to Google API later.
+    if(meetingOptions.startDate.getTime() == now.getTime()) {
+      timeZone = "Etc/GMT";
+    }
+    else {
+      try {
+        timeZone = await getSlackUserTimeZone(event.user_id);
+      } catch (error) {
+        console.error(error);
+        const blocks = {
+          response_type: 'in_channel',
+          blocks: [
+            {
+              type: "section",
+              text: {
+                type: "mrkdwn",
+                text: `Error getting user's timezone.`
+              }
+            }
+          ]
+        };
+        await postToResponseUrl(responseUrl, blocks);
+        return;
+      }
+    }
+
+    let meetingUrl: string;
+    try {
+      meetingUrl = await createGoogleCalendarMeeting(oauth2Client, meetingOptions, timeZone);  
+    } catch (error) {
+      console.error(error);
+      const blocks = {
+        response_type: 'in_channel',
+        blocks: [
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `Error creating Google Calendar Meeting.`
+            }
+          }
+        ]
+      };
+      await postToResponseUrl(responseUrl, blocks);
+      return;
+    }
+    
+    blocks = generateGoogleMeetURLBlocks(meetingUrl);
+    await postToResponseUrl(responseUrl, blocks);
   }
-  await postToResponseUrl(responseUrl, blocks);
 }

@@ -152,8 +152,8 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
         }
         amPm = undefined;
       }
-      meetingOptions.startDate?.setHours(hours);
-      meetingOptions.startDate?.setMinutes(minutes);
+      meetingOptions.startDate.setHours(hours);
+      meetingOptions.startDate.setMinutes(minutes);
       return meetingOptions;
     },
     FinishTimeExp(this: NonterminalNode, arg0: NonterminalNode) {
@@ -164,8 +164,8 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
         }
         amPm = undefined;
       }
-      meetingOptions.endDate?.setHours(hours);
-      meetingOptions.endDate?.setMinutes(minutes);
+      meetingOptions.endDate.setHours(hours);
+      meetingOptions.endDate.setMinutes(minutes);
       return meetingOptions;
     },
     amPm(this: NonterminalNode, arg0: TerminalNode) {
