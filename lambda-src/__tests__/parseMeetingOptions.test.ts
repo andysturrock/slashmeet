@@ -200,3 +200,15 @@ const duration = '25m';
     expect(meetingOptions.endDate).toStrictEqual(endDate);
   });
 }
+
+{
+  const startTime = 'now';
+  test(`should be called ${name} with start ${startTime} and duration ${duration}`, () => {
+    const startDate = new Date(2023, 6, 19, 14, 0, 0, 0);
+    const meetingOptions = parseMeetingArgs(`${name} ${startTime} ${duration}`, startDate);
+    expect(meetingOptions.name).toBe(name);
+    expect(meetingOptions.startDate).toStrictEqual<Date>(startDate);
+    const endDate = new Date(startDate.getTime() + 1000 * 60 * 25);
+    expect(meetingOptions.endDate).toStrictEqual(endDate);
+  });
+}
