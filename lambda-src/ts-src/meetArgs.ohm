@@ -9,8 +9,8 @@ MeetArgs {
   StartDurationExp = (StartTimeExp DurationExp)
   
   MeetingNameExp = meetingNamePartNoQuote | meetingNamePartQuote
-  meetingNamePartNoQuote = alnum (alnum|"-"|"_"|"'"|"?"|"!")*
-  meetingNamePartQuote = "\"" alnum (space|alnum|"-"|"_"|"'"|"?"|"!")* "\""
+  meetingNamePartNoQuote = (alnum|"-"|"_"|"'"|"?"|"!"|"/") (alnum|"-"|"_"|"'"|"?"|"!"|"/")*
+  meetingNamePartQuote = "\"" (space|alnum|"-"|"_"|"'"|"?"|"!"|"/") (space|alnum|"-"|"_"|"'"|"?"|"!"|"/")* "\""
     
   StartTimeExp = TimeExp | "now"
   FinishTimeExp =TimeExp
