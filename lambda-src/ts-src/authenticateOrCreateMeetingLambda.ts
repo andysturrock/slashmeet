@@ -1,7 +1,7 @@
 import {generateGoogleAuthBlocks} from './generateGoogleAuthBlocks';
 import {postToResponseUrl} from './postToResponseUrl';
 import {Auth} from 'googleapis';
-import {getToken} from './getToken';
+import {getToken} from './tokenStorage';
 import {generateGoogleMeetURLBlocks} from './generateGoogleMeetURLBlocks';
 import {getSecretValue} from './awsAPI';
 

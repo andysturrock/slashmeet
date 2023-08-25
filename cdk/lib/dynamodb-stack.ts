@@ -8,8 +8,8 @@ export class DynamoDBStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    this.slackIdToGCalTokenTable = new dynamodb.Table(this, 'SlackIdToGCalTokenTable', {
-      tableName: "SlackIdToGCalToken",
+    this.slackIdToGCalTokenTable = new dynamodb.Table(this, 'SlashMeet_SlackIdToGCalToken', {
+      tableName: "SlashMeet_SlackIdToGCalToken",
       partitionKey: {name: 'slack_id', type: dynamodb.AttributeType.STRING},
       sortKey: {name: "gcal_token", type: dynamodb.AttributeType.STRING},
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
