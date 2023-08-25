@@ -12,7 +12,7 @@ MeetArgs {
   meetingNamePartNoQuote = alnum (alnum|"-"|"_"|"'"|"?"|"!")*
   meetingNamePartQuote = "\"" alnum (space|alnum|"-"|"_"|"'"|"?"|"!")* "\""
     
-  StartTimeExp = TimeExp
+  StartTimeExp = TimeExp | "now"
   FinishTimeExp =TimeExp
   
   TimeExp = twentyFourHourClockExp | twelveHourClockExp
