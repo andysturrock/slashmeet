@@ -1,4 +1,26 @@
-import {DynamoDBClient, PutItemCommand, PutItemCommandInput} from '@aws-sdk/client-dynamodb';
+import {DynamoDBClient, PutItemCommand, PutItemCommandInput, QueryCommand, QueryCommandInput} from '@aws-sdk/client-dynamodb';
+
+const tableName = "SlashMeet_SlackIdToGCalToken";
+
+export async function getToken(slackUserId: string) { 
+  const ddbClient = new DynamoDBClient({});
+
+  const params: QueryCommandInput = {
+    TableName: tableName,
+    KeyConditionExpression: "slack_id = :slack_id",
+    ExpressionAttributeValues: {
+      ":slack_id" : {"S" : slackUserId}
+    }
+  };
+  const data = await ddbClient.send(new QueryCommand(params));
+  const items = data.Items;
+  if(items && items[0] && items[0].gcal_token.S) {
+    return items[0].gcal_token.S;
+  }
+  else {
+    return undefined;
+  }
+}
 
 export async function saveToken(token:string, slackUserId:string) {
   try {
@@ -11,7 +33,7 @@ export async function saveToken(token:string, slackUserId:string) {
     ttl.setDate(ttl.getDate() + 7);
 
     const putItemCommandInput: PutItemCommandInput = {
-      TableName: "SlackIdToGCalToken",
+      TableName: tableName,
       Item: {
         slack_id: {S: slackUserId},
         gcal_token: {S: token},
