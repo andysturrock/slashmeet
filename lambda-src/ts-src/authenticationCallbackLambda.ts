@@ -1,7 +1,7 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from 'aws-lambda';
 import {generateLoggedInHTML} from './generateLoggedInHTML';
 import {Auth} from 'googleapis';
-import {saveToken} from './saveToken';
+import {saveToken} from './tokenStorage';
 import {getSecretValue} from './awsAPI';
 
 export async function lambdaHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
