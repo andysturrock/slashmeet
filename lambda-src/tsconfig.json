@@ -3,7 +3,7 @@
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
     "outDir": "dist",
-    "rootDir": "ts-src", 
+    // "rootDir": "ts-src", 
     "moduleResolution": "node"
   },
   "exclude": ["node_modules", "**/jest.config.ts"]
