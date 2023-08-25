@@ -2,7 +2,6 @@
 import {IterationNode, NonterminalNode, TerminalNode} from 'ohm-js';
 import grammar, {MeetArgsActionDict, MeetArgsSemantics} from './meetArgs.ohm-bundle';
 
-
 export interface MeetingOptions {
   name: string
   startDate: Date,
@@ -12,7 +11,7 @@ export interface MeetingOptions {
 /**
  * Parses userInput into a {@link MeetingOptions} object.
  * @param userInput The string to parse.
- * @param defaultStartDate Default start date and time of the meeting if not provided in userInput.
+ * @param defaultStartDate Default start date and time of the meeting if not provided in userInput or start time is passed as "now"
  * @returns A {@link MeetingOptions} object with name, startDate and endDate populated.
  * @throws {Error} on invalid userInput.
  * @see {@link meetArgs.ohm} for grammar.
@@ -140,8 +139,13 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
       arg4.eval();
       return meetingOptions;
     },
-    StartTimeExp(this: NonterminalNode, arg0: NonterminalNode) {
+    StartTimeExp(this: NonterminalNode, arg0: NonterminalNode | TerminalNode) {
       arg0.eval();
+      // Start time already set to the default if start is "now"
+      if(this.sourceString == 'now') {
+        return meetingOptions;
+      }
+      
       if(amPm) {
         if(amPm == 'pm' && hours < 12) {
           hours += 12;
