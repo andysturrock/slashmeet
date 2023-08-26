@@ -16,13 +16,32 @@ export class LambdaStack extends Stack {
     // so replace the dots with underscores first.
     const lambdaVersionIdForURL = props.lambdaVersion.replace(/\./g, '_');
 
+    // Common props for all lambdas, so define them once here.
+    const allLambdaProps = {
+      bundling: {minify: true, sourceMap: true},
+      environment: {
+        NODE_OPTIONS: '--enable-source-maps',
+      },
+      logRetention: logs.RetentionDays.THREE_DAYS,
+      runtime: lambda.Runtime.NODEJS_18_X,
+      timeout: Duration.seconds(10),
+      code: lambda.Code.fromAsset("../lambda-src/dist/lambda.zip"),
+    };
+
+    // The lambda for handling the callback for the Slack install
+    const handleSlackAuthRedirectLambda = new lambda.Function(this, "SlashMeetHandleSlackAuthRedirectLambda", {
+      handler: "handleSlackAuthRedirect.handleSlackAuthRedirect",
+      functionName: 'SlashMeet-handleSlackAuthRedirect',
+      ...allLambdaProps
+    });
+    // Allow read access to the secret it needs
+    props.slashMeetSecret.grantRead(handleSlackAuthRedirectLambda);
+
     // Create the initial response lambda
     const initialResponseLambda = new lambda.Function(this, "SlashMeetInitialResponseLambda", {
-      runtime: lambda.Runtime.NODEJS_18_X,
-      code: lambda.Code.fromAsset("../lambda-src/dist/lambda.zip"),
       handler: "aws/initialResponseLambda.lambdaHandler",
-      logRetention: logs.RetentionDays.THREE_DAYS,
-      functionName: 'SlashMeet-InitialResponseLambda'
+      functionName: 'SlashMeet-InitialResponseLambda',
+      ...allLambdaProps
     });
     // Allow read access to the secret it needs
     props.slashMeetSecret.grantRead(initialResponseLambda);
@@ -30,12 +49,9 @@ export class LambdaStack extends Stack {
     // Create the lambda which either creates the authentication response or creates the meeting.
     // This lambda is called from the initial response lambda, not via the API Gateway.
     const authenticateOrCreateMeetingLambda = new lambda.Function(this, "SlashMeetAuthenticateOrCreateMeetingLambda", {
-      runtime: lambda.Runtime.NODEJS_18_X,
-      code: lambda.Code.fromAsset("../lambda-src/dist/lambda.zip"),
       handler: "aws/authenticateOrCreateMeetingLambda.lambdaHandler",
-      logRetention: logs.RetentionDays.THREE_DAYS,
       functionName: 'SlashMeet-AuthenticateOrCreateMeetingLambda',
-      timeout: Duration.seconds(5)  // Sometimes takes slightly longer than 3 seconds to execute
+      ...allLambdaProps
     });
     // This function is going to be invoked asynchronously, so set some extra config for that
     new lambda.EventInvokeConfig(this, 'AuthenticateOrCreateMeetingLambdaEventInvokeConfig', {
@@ -52,11 +68,9 @@ export class LambdaStack extends Stack {
 
     // Create the lambda which handles the redirect from the Google auth
     const authenticationCallbackLambda = new lambda.Function(this, "SlashMeetAuthenticationCallbackLambda", {
-      runtime: lambda.Runtime.NODEJS_18_X,
-      code: lambda.Code.fromAsset("../lambda-src/dist/lambda.zip"),
       handler: "aws/authenticationCallbackLambda.lambdaHandler",
-      logRetention: logs.RetentionDays.THREE_DAYS,
-      functionName: 'SlashMeet-AuthenticationCallbackLambda'
+      functionName: 'SlashMeet-AuthenticationCallbackLambda',
+      ...allLambdaProps
     });
     // Allow write access to the DyanamoDB table
     props.slackIdToGCalTokenTable.grantReadWriteData(authenticationCallbackLambda);
@@ -107,6 +121,9 @@ export class LambdaStack extends Stack {
     });
 
     // Connect the API Gateway to the initial response and auth redirect lambdas
+    const handleSlackAuthRedirectLambdaIntegration = new apigateway.LambdaIntegration(handleSlackAuthRedirectLambda, {
+      requestTemplates: {"application/json": '{ "statusCode": "200" }'}
+    });
     const initialResponseLambdaIntegration = new apigateway.LambdaIntegration(initialResponseLambda, {
       requestTemplates: {"application/json": '{ "statusCode": "200" }'}
     });
@@ -115,10 +132,12 @@ export class LambdaStack extends Stack {
     });
     const initialResponseResource = api.root.addResource('meet');
     const authenticationCallbackResource = api.root.addResource('redirectUri');
+    const handleSlackAuthRedirectResource = api.root.addResource('slack-oauth-redirect');
     // And add the methods.
     // TODO add authorizer lambda
     initialResponseResource.addMethod("POST", initialResponseLambdaIntegration);
     authenticationCallbackResource.addMethod("GET", authenticationCallbackLambdaIntegration);
+    handleSlackAuthRedirectResource.addMethod("GET", handleSlackAuthRedirectLambdaIntegration);
 
     // Create the R53 "A" record to map from the custom domain to the actual API URL
     new route53.ARecord(this, 'CustomDomainAliasRecord', {
