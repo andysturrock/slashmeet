@@ -1,5 +1,6 @@
 cache:
   paths:
+    - lambda-src/dist/
     - lambda-src/node_modules/
     - cdk/node_modules/
 
@@ -33,8 +34,6 @@ deploy:
     - *aws-prep
   script:
     - export
-    - ls -lrt ~/.aws/config
-    - cat ~/.aws/config
-    - cat /tmp/web_identity_token
+    - ls -lrt lambda-src/dist/
     - aws sts get-caller-identity --profile=oidc
     - echo "Deploying to production!"
