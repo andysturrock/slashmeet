@@ -31,4 +31,5 @@ deploy:
     - *aws-prep
   script:
     - cd cdk
+    - npm install -g aws-cdk
     - cdk deploy --require-approval=never --all --profile=oidc
