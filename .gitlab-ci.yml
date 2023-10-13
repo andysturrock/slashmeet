@@ -14,9 +14,13 @@ build_lamda_zip:
   stage: build
   image: node:latest
   script:
-    - cd cdk
+    - cd lambda-src
     - pwd
     - npm ci
+    - cd ../cdk
+    - pwd
+    - npm ci
+    - npm run build
 
 deploy:
   stage: deploy
