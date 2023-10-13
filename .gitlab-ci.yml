@@ -23,7 +23,7 @@ build_lamda_zip:
 
 deploy:
   stage: deploy
-  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  image: docker.io/andysturrock/node_plus_aws_cli
   environment: production
   id_tokens:
     AWS_OIDC:
@@ -31,7 +31,9 @@ deploy:
   before_script:
     - *aws-prep
   script:
-    - apt-get install nodejs -y
+    - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    - unzip awscliv2.zip
+    - ./aws/install
     - cd cdk
     - npm install -g aws-cdk
     - cdk deploy --require-approval=never --all --profile=oidc
