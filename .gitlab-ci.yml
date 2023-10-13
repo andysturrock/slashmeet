@@ -1,5 +1,6 @@
 cache:
   paths:
+    - lambda-src/dist/
     - lambda-src/node_modules/
     - cdk/node_modules/
 
