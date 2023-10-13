@@ -31,6 +31,7 @@ deploy:
   before_script:
     - *aws-prep
   script:
+    - apt-get install nodejs -y
     - cd cdk
     - npm install -g aws-cdk
     - cdk deploy --require-approval=never --all --profile=oidc
