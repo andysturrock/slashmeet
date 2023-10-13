@@ -6,8 +6,7 @@ cache:
 
 # Utilize web identity federation to allow AWS to perform STS calls on our behalf
 .aws-prep: &aws-prep
-  - | 
-    IMAGE_TAG="$(echo $CI_COMMIT_SHA | head -c 8)"
+  - |
     mkdir -p ~/.aws
     echo "${AWS_OIDC}" > /tmp/web_identity_token
     echo -e "[profile oidc]\nrole_arn=${GITLAB_ROLE_ARN}\nweb_identity_token_file=/tmp/web_identity_token" > ~/.aws/config
@@ -22,9 +21,8 @@ deploy:
   before_script:
     - *aws-prep
   script:
-    - set -xv
     - ls -lrt ~/.aws/config
     - cat ~/.aws/config
-    - aws sts get-caller-identity
-    - aws s3 ls
+    - aws sts get-caller-identity --profile=oidc
+    - aws s3 ls --profile=oidc
     - echo "Deploying to production!"
