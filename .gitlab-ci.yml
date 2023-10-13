@@ -21,6 +21,7 @@ deploy:
   before_script:
     - *aws-prep
   script:
+    - export
     - ls -lrt ~/.aws/config
     - cat ~/.aws/config
     - cat /tmp/web_identity_token
