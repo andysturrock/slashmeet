@@ -33,7 +33,5 @@ deploy:
   before_script:
     - *aws-prep
   script:
-    - export
-    - ls -lrt lambda-src/dist/
-    - aws sts get-caller-identity --profile=oidc
-    - echo "Deploying to production!"
+    - cd cdk
+    - npm run deploy -- --profile=oidc
