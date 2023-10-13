@@ -23,6 +23,7 @@ deploy:
     - *aws-prep
   script:
     - |
+      set -xv
       ls -lrt ~/.aws/config
       aws sts get-caller-identity
       aws s3 ls
