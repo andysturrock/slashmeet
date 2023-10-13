@@ -23,5 +23,7 @@ deploy:
     - *aws-prep
   script:
     - |
+      ls -lrt ~/.aws/config
+      aws sts get-caller-identity
       aws s3 ls
       echo "Deploying to production!"
