@@ -14,6 +14,7 @@ build_lamda_zip:
   stage: build
   image: node:latest
   script:
+    - uname -a
     - cd lambda-src
     - npm ci
     - cd ../cdk
@@ -22,7 +23,7 @@ build_lamda_zip:
 
 deploy:
   stage: deploy
-  image: node:latest
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   environment: production
   id_tokens:
     AWS_OIDC:
