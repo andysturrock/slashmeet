@@ -4,25 +4,24 @@ cache:
   paths:
     - node_modules/
 
-assume role:
-  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
-  id_tokens:
-    GITLAB_OIDC_TOKEN:
-      aud: https://gitlab.example.com
-  script:
-    - >
-      export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s"
-      $(aws sts assume-role-with-web-identity
-      --role-arn ${ROLE_ARN}
-      --role-session-name "GitLabRunner-${CI_PROJECT_ID}-${CI_PIPELINE_ID}"
-      --web-identity-token ${GITLAB_OIDC_TOKEN}
-      --duration-seconds 3600
-      --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'
-      --output text))
-    - aws sts get-caller-identity
-
+# Utilize web identity federation to allow AWS to perform STS calls on our behalf
+.aws-prep: &aws-prep
+  - | 
+    IMAGE_TAG="$(echo $CI_COMMIT_SHA | head -c 8)"
+    mkdir -p ~/.aws
+    echo "${AWS_OIDC}" > /tmp/web_identity_token
+    echo -e "[profile oidc]\nrole_arn=${GITLAB_ROLE_ARN}\nweb_identity_token_file=/tmp/web_identity_token" > ~/.aws/config
 
 deploy:
   stage: deploy
-  script: echo "Define your deployment script! AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   environment: production
+  id_tokens:
+    AWS_OIDC:
+      aud: https://gitlab.com
+  before_script:
+    - *aws-prep
+  script:
+    - |
+      aws s3 ls
+      echo "Deploying to production!"
