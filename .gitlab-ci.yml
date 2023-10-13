@@ -1,6 +1,7 @@
 cache:
   paths:
-    - node_modules/
+    - lambda-src/node_modules/
+    - cdk/node_modules/
 
 # Utilize web identity federation to allow AWS to perform STS calls on our behalf
 .aws-prep: &aws-prep
@@ -13,7 +14,9 @@ build_lamda_zip:
   stage: build
   image: node:latest
   script:
-    - ls -lRt
+    - cd cdk
+    - pwd
+    - npm ci
 
 deploy:
   stage: deploy
