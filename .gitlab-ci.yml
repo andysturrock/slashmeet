@@ -22,9 +22,9 @@ deploy:
   before_script:
     - *aws-prep
   script:
-    - |
-      set -xv
-      ls -lrt ~/.aws/config
-      aws sts get-caller-identity
-      aws s3 ls
-      echo "Deploying to production!"
+    - set -xv
+    - ls -lrt ~/.aws/config
+    - cat ~/.aws/config
+    - aws sts get-caller-identity
+    - aws s3 ls
+    - echo "Deploying to production!"
