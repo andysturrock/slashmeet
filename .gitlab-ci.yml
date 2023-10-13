@@ -23,6 +23,7 @@ deploy:
   script:
     - ls -lrt ~/.aws/config
     - cat ~/.aws/config
+    - cat /tmp/web_identity_token
     - aws sts get-caller-identity --profile=oidc
     - aws s3 ls --profile=oidc
     - echo "Deploying to production!"
