@@ -8,7 +8,8 @@ cache:
 .aws-prep: &aws-prep
   - mkdir -p ~/.aws
   - echo "${AWS_OIDC}" > /tmp/web_identity_token
-  - echo -e "[profile oidc]\nrole_arn=${GITLAB_ROLE_ARN}\nweb_identity_token_file=/tmp/web_identity_token" > ~/.aws/config
+  - echo -e "[profile oidc]\nrole_arn=${GITLAB_ROLE_ARN}\nweb_identity_token_file=/tmp/web_identity_token\n" > ~/.aws/config
+  - echo -e "region=${AWS_DEFAULT_REGION}\noutput=json\n" >> ~/.aws/config
   - export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s"
       $(aws sts assume-role-with-web-identity
       --role-arn ${GITLAB_ROLE_ARN}
@@ -17,7 +18,7 @@ cache:
       --duration-seconds 3600
       --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'
       --output text))
-  - echo -e "[oidc]\nAWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}\nAWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}\nAWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}\n" > ~/.aws/credentials
+  - echo -e "[oidc]\naws_access_key_id=${AWS_ACCESS_KEY_ID}\naws_secret_access_key=${AWS_SECRET_ACCESS_KEY}\naws_session_token =${AWS_SESSION_TOKEN}\n" > ~/.aws/credentials
 
 build_lamda_zip:
   stage: build
