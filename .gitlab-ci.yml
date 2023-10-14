@@ -47,4 +47,4 @@ deploy:
     - aws sts get-caller-identity
     - cd cdk
     - npm install -g aws-cdk
-    - cdk deploy --profile=oidc --require-approval=never --all
+    - cdk -v deploy --profile=oidc --require-approval=never --all
