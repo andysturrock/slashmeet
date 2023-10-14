@@ -50,4 +50,4 @@ deploy:
     - aws sts get-caller-identity
     - cd cdk
     - npm install -g aws-cdk
-    - cdk -v deploy --require-approval=never --all
+    - cdk deploy --require-approval=never --all
