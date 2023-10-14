@@ -17,6 +17,7 @@ cache:
       --duration-seconds 3600
       --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'
       --output text))
+  - echo -e "[oidc]\nAWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}\AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}\AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}\n" > ~/.aws/credentials
 
 build_lamda_zip:
   stage: build
@@ -40,6 +41,10 @@ deploy:
     - *aws-prep
   script:
     - echo AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+    - echo AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    - echo AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+    - cat ~/.aws/credentials
+    - aws sts get-caller-identity
     - cd cdk
     - npm install -g aws-cdk
     - cdk deploy --profile=oidc --require-approval=never --all
