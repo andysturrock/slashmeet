@@ -9,14 +9,6 @@ cache:
   - mkdir -p ~/.aws
   - echo "${AWS_OIDC}" > /tmp/web_identity_token
   - echo -e "[profile oidc]\nrole_arn=${GITLAB_ROLE_ARN}\nweb_identity_token_file=/tmp/web_identity_token" > ~/.aws/config
-  - aws sts assume-role-with-web-identity
-      --role-arn ${GITLAB_ROLE_ARN}
-      --role-session-name "GitLabRunner-${CI_PROJECT_ID}-${CI_PIPELINE_ID}"
-      --web-identity-token ${AWS_OIDC}
-      --duration-seconds 3600
-      --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'
-      --output text
-  - aws sts get-caller-identity
   - export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s"
       $(aws sts assume-role-with-web-identity
       --role-arn ${GITLAB_ROLE_ARN}
@@ -47,6 +39,7 @@ deploy:
   before_script:
     - *aws-prep
   script:
+    - echo AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
     - cd cdk
     - npm install -g aws-cdk
     - cdk deploy --profile=oidc --require-approval=never --all
