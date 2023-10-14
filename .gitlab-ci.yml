@@ -17,7 +17,7 @@ cache:
       --duration-seconds 3600
       --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'
       --output text))
-  - echo -e "[oidc]\nAWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}\AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}\AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}\n" > ~/.aws/credentials
+  - echo -e "[oidc]\nAWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}\nAWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}\nAWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}\n" > ~/.aws/credentials
 
 build_lamda_zip:
   stage: build
