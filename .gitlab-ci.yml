@@ -18,8 +18,8 @@ cache:
   - echo "${AWS_OIDC}" > /tmp/web_identity_token
   - echo -e "[default]\nrole_arn=${GITLAB_ROLE_ARN}\nweb_identity_token_file=/tmp/web_identity_token\n" > ~/.aws/config
   - echo -e "region=${AWS_DEFAULT_REGION}\noutput=json\n" >> ~/.aws/config
-  - echo -e "aws_access_key_id=${AWS_ACCESS_KEY_ID}\naws_secret_access_key=${AWS_SECRET_ACCESS_KEY}\naws_session_token=${AWS_SESSION_TOKEN}\n" >> ~/.aws/config
-  - echo -e "[default]\naws_access_key_id=${AWS_ACCESS_KEY_ID}\naws_secret_access_key=${AWS_SECRET_ACCESS_KEY}\naws_session_token=${AWS_SESSION_TOKEN}\n" > ~/.aws/credentials
+  # - echo -e "aws_access_key_id=${AWS_ACCESS_KEY_ID}\naws_secret_access_key=${AWS_SECRET_ACCESS_KEY}\naws_session_token=${AWS_SESSION_TOKEN}\n" >> ~/.aws/config
+  # - echo -e "[default]\naws_access_key_id=${AWS_ACCESS_KEY_ID}\naws_secret_access_key=${AWS_SECRET_ACCESS_KEY}\naws_session_token=${AWS_SESSION_TOKEN}\n" > ~/.aws/credentials
 
 build_lamda_zip:
   stage: build
@@ -42,11 +42,11 @@ deploy:
   before_script:
     - *aws-prep
   script:
-    - echo AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-    - echo AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-    - echo AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
-    - cat ~/.aws/credentials
-    - cat ~/.aws/config
+    # - echo AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+    # - echo AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    # - echo AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+    # - cat ~/.aws/credentials
+    # - cat ~/.aws/config
     - aws sts get-caller-identity
     - cd cdk
     - npm install -g aws-cdk
