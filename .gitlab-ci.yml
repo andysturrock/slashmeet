@@ -1,0 +1,41 @@
+cache:
+  paths:
+    - lambda-src/dist/
+    - lambda-src/node_modules/
+    - cdk/node_modules/
+
+# Utilize web identity federation to allow CDK to perform STS calls on our behalf
+.aws-prep: &aws-prep
+  - export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s"
+      $(aws sts assume-role-with-web-identity
+      --role-arn ${GITLAB_ROLE_ARN}
+      --role-session-name "GitLabRunner-${CI_PROJECT_ID}-${CI_PIPELINE_ID}"
+      --web-identity-token ${AWS_OIDC}
+      --duration-seconds 3600
+      --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'
+      --output text))
+
+build_lamda_zip:
+  stage: build
+  image: node:latest
+  script:
+    - uname -a
+    - cd lambda-src
+    - npm ci
+    - cd ../cdk
+    - npm ci
+    - npm run build
+
+deploy:
+  stage: deploy
+  image: docker.io/andysturrock/node_plus_aws_cli
+  environment: production
+  id_tokens:
+    AWS_OIDC:
+      aud: https://gitlab.com
+  before_script:
+    - *aws-prep
+  script:
+    - cd cdk
+    - npm install -g aws-cdk
+    - cdk deploy --require-approval=never --all
