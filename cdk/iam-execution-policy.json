@@ -10,7 +10,15 @@
       "Resource": "arn:aws:ssm:eu-west-2:__ACCOUNTID__:parameter/cdk-bootstrap/*"
     },
     {
-      "Sid": "cloudformation",
+      "Sid": "cloudformation1",
+      "Effect": "Allow",
+      "Action": [
+        "cloudformation:ListStacks"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "cloudformation2",
       "Effect": "Allow",
       "Action": [
         "cloudformation:DescribeStacks",
