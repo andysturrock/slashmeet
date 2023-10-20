@@ -17,3 +17,11 @@ Slack slash command to create a GMeet meeting
 13. Add the custom domain name and R53 zone id to the [cdk/.env](cdk/env.template) file.
 14. The secret in AWS Secrets Manager should be called `SlashMeet` and should look like the file [slashmeet-secret.json](slashmeet-secret.json).
 15. The [cdk/.env](cdk/env.template) file should look like the file [cdk/env.template](cdk/env.template)
+
+# CICD setup in GitLab
+There is a simple .gitlab-ci.yml file provided.  It uses OIDC tokens to get temporary credentials.  The pipeline needs the following variables:
+ - GITLAB_ROLE_ARN - the AWS IAM role for running the pipeline.  See https://docs.gitlab.com/ee/ci/cloud_services/aws/index.html
+ - AWS_DEFAULT_REGION - the AWS deployment region.  May be overridden in the cdk code.
+ - LAMBDA_VERSION - see above
+ - R53_ZONE_ID - see above
+ - CUSTOM_DOMAIN_NAME - see above
