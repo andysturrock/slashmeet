@@ -1,10 +1,10 @@
 {
-  "extends": "@tsconfig/node16/tsconfig.json",
+  "extends": "@tsconfig/node20/tsconfig.json",
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
     "outDir": "dist",
-    // "rootDir": "ts-src", 
-    "moduleResolution": "node"
+    "module": "ES2022",
+    "moduleResolution": "Bundler"
   },
   "exclude": ["node_modules", "**/jest.config.ts"]
 }
