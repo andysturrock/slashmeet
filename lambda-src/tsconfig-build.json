@@ -1,10 +1,18 @@
 {
-  "extends": "@tsconfig/node20/tsconfig.json",
+  "extends": "@tsconfig/node18/tsconfig.json",
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
     "outDir": "dist",
-    "module": "ES2022",
-    "moduleResolution": "Bundler"
+    "target": "es2020",
+    "strict": true,
+    "preserveConstEnums": true,
+    "inlineSourceMap": true,
+    "module":"commonjs",
+    "moduleResolution":"node",
+    "esModuleInterop": true, 
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true, 
+    "isolatedModules": true,
   },
   "exclude": ["__tests__", "node_modules", "**/jest.config.ts"]
 }
