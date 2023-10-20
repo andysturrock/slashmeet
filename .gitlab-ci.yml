@@ -1,3 +1,10 @@
+stages:
+- test
+sast:
+  stage: test
+include:
+- template: Security/SAST.gitlab-ci.yml
+
 cache:
   paths:
     - lambda-src/dist/
