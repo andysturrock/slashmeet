@@ -23,8 +23,6 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@google-cloud/datastore": "^8.2.2",
-    "@google-cloud/functions-framework": "^3.3.0",
     "@slack/bolt": "^3.14.0",
     "googleapis": "^126.0.1",
     "ohm-js": "^17.1.0",
