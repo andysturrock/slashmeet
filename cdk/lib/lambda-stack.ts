@@ -18,20 +18,19 @@ export class LambdaStack extends Stack {
 
     // Common props for all lambdas, so define them once here.
     const allLambdaProps = {
-      bundling: {minify: true, sourceMap: true},
       environment: {
         NODE_OPTIONS: '--enable-source-maps',
       },
       logRetention: logs.RetentionDays.THREE_DAYS,
       runtime: lambda.Runtime.NODEJS_18_X,
-      timeout: Duration.seconds(10),
-      code: lambda.Code.fromAsset("../lambda-src/dist/lambda.zip"),
+      timeout: Duration.seconds(30),
     };
 
     // The lambda for handling the callback for the Slack install
     const handleSlackAuthRedirectLambda = new lambda.Function(this, "SlashMeetHandleSlackAuthRedirectLambda", {
       handler: "handleSlackAuthRedirect.handleSlackAuthRedirect",
       functionName: 'SlashMeet-handleSlackAuthRedirect',
+      code: lambda.Code.fromAsset("../lambda-src/dist/handleSlackAuthRedirect"),
       ...allLambdaProps
     });
     // Allow read access to the secret it needs
@@ -39,8 +38,9 @@ export class LambdaStack extends Stack {
 
     // Create the initial response lambda
     const initialResponseLambda = new lambda.Function(this, "SlashMeetInitialResponseLambda", {
-      handler: "aws/initialResponseLambda.lambdaHandler",
+      handler: "initialResponseLambda.lambdaHandler",
       functionName: 'SlashMeet-InitialResponseLambda',
+      code: lambda.Code.fromAsset("../lambda-src/dist/initialResponseLambda"),
       ...allLambdaProps
     });
     // Allow read access to the secret it needs
@@ -49,8 +49,10 @@ export class LambdaStack extends Stack {
     // Create the lambda which either creates the authentication response or creates the meeting.
     // This lambda is called from the initial response lambda, not via the API Gateway.
     const authenticateOrCreateMeetingLambda = new lambda.Function(this, "SlashMeetAuthenticateOrCreateMeetingLambda", {
-      handler: "aws/authenticateOrCreateMeetingLambda.lambdaHandler",
+      handler: "authenticateOrCreateMeetingLambda.lambdaHandler",
       functionName: 'SlashMeet-AuthenticateOrCreateMeetingLambda',
+      code: lambda.Code.fromAsset("../lambda-src/dist/authenticateOrCreateMeetingLambda"),
+      memorySize: 512,
       ...allLambdaProps
     });
     // This function is going to be invoked asynchronously, so set some extra config for that
@@ -68,8 +70,10 @@ export class LambdaStack extends Stack {
 
     // Create the lambda which handles the redirect from the Google auth
     const authenticationCallbackLambda = new lambda.Function(this, "SlashMeetAuthenticationCallbackLambda", {
-      handler: "aws/authenticationCallbackLambda.lambdaHandler",
+      handler: "authenticationCallbackLambda.lambdaHandler",
       functionName: 'SlashMeet-AuthenticationCallbackLambda',
+      code: lambda.Code.fromAsset("../lambda-src/dist/authenticationCallbackLambda"),
+      memorySize: 512,
       ...allLambdaProps
     });
     // Allow write access to the DyanamoDB table

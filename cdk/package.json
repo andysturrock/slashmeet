@@ -8,7 +8,7 @@
   "scripts": {
     "watch": "tsc -w",
     "test": "jest",
-    "build": "bash buildLambdaZip.sh",
+    "build": "bash buildLambdaBundles.sh",
     "deploy": "cdk deploy --require-approval=never --all"
   },
   "devDependencies": {
@@ -21,6 +21,7 @@
     "@typescript-eslint/parser": "^6.4.1",
     "adm-zip": "^0.5.10",
     "dotenv": "^16.3.1",
+    "esbuild": "^0.19.5",
     "eslint": "^8.47.0",
     "glob-promise": "^6.0.3",
     "jest": "^28.1.1",
