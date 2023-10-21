@@ -25,7 +25,7 @@ cache:
       --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'
       --output text))
 
-build_lamda_zip:
+build_lamda_bundles:
   stage: package
   image: node:latest
   script:
@@ -38,6 +38,9 @@ build_lamda_zip:
     - npm run build
 
 deploy:
+  rules:
+    # Only run the deploy from main
+    - if: $CI_COMMIT_BRANCH == "main"
   stage: deploy
   image: docker.io/andysturrock/node_plus_aws_cli
   environment: production
