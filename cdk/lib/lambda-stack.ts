@@ -27,8 +27,8 @@ export class LambdaStack extends Stack {
     };
 
     // The lambda for handling the callback for the Slack install
-    const handleSlackAuthRedirectLambda = new lambda.Function(this, "SlashMeetHandleSlackAuthRedirectLambda", {
-      handler: "handleSlackAuthRedirect.handleSlackAuthRedirect",
+    const handleSlackAuthRedirectLambda = new lambda.Function(this, "handleSlackAuthRedirectLambda", {
+      handler: "handleSlackAuthRedirect.lambdaHandler",
       functionName: 'SlashMeet-handleSlackAuthRedirect',
       code: lambda.Code.fromAsset("../lambda-src/dist/handleSlackAuthRedirect"),
       ...allLambdaProps
@@ -37,49 +37,49 @@ export class LambdaStack extends Stack {
     props.slashMeetSecret.grantRead(handleSlackAuthRedirectLambda);
 
     // Create the initial response lambda
-    const initialResponseLambda = new lambda.Function(this, "SlashMeetInitialResponseLambda", {
-      handler: "initialResponseLambda.lambdaHandler",
-      functionName: 'SlashMeet-InitialResponseLambda',
-      code: lambda.Code.fromAsset("../lambda-src/dist/initialResponseLambda"),
+    const handleSlashCommand = new lambda.Function(this, "handleSlashCommand", {
+      handler: "handleSlashCommand.lambdaHandler",
+      functionName: 'SlashMeet-handleSlashCommand',
+      code: lambda.Code.fromAsset("../lambda-src/dist/handleSlashCommand"),
       ...allLambdaProps
     });
     // Allow read access to the secret it needs
-    props.slashMeetSecret.grantRead(initialResponseLambda);
+    props.slashMeetSecret.grantRead(handleSlashCommand);
 
     // Create the lambda which either creates the authentication response or creates the meeting.
     // This lambda is called from the initial response lambda, not via the API Gateway.
-    const authenticateOrCreateMeetingLambda = new lambda.Function(this, "SlashMeetAuthenticateOrCreateMeetingLambda", {
-      handler: "authenticateOrCreateMeetingLambda.lambdaHandler",
-      functionName: 'SlashMeet-AuthenticateOrCreateMeetingLambda',
-      code: lambda.Code.fromAsset("../lambda-src/dist/authenticateOrCreateMeetingLambda"),
+    const handleMeetCommandLambda = new lambda.Function(this, "handleMeetCommandLambda", {
+      handler: "handleMeetCommand.lambdaHandler",
+      functionName: 'SlashMeet-handleMeetCommandLambda',
+      code: lambda.Code.fromAsset("../lambda-src/dist/handleMeetCommand"),
       memorySize: 512,
       ...allLambdaProps
     });
     // This function is going to be invoked asynchronously, so set some extra config for that
-    new lambda.EventInvokeConfig(this, 'AuthenticateOrCreateMeetingLambdaEventInvokeConfig', {
-      function: authenticateOrCreateMeetingLambda,
+    new lambda.EventInvokeConfig(this, 'handleMeetCommandLambdaEventInvokeConfig', {
+      function: handleMeetCommandLambda,
       maxEventAge: Duration.minutes(2),
       retryAttempts: 2,
     });
     // Give the initial response lambda permission to invoke this one
-    authenticateOrCreateMeetingLambda.grantInvoke(initialResponseLambda);
+    handleMeetCommandLambda.grantInvoke(handleSlashCommand);
     // Allow read access to the DyanamoDB table
-    props.slackIdToGCalTokenTable.grantReadData(authenticateOrCreateMeetingLambda);
+    props.slackIdToGCalTokenTable.grantReadData(handleMeetCommandLambda);
     // Allow read access to the secret it needs
-    props.slashMeetSecret.grantRead(authenticateOrCreateMeetingLambda);
+    props.slashMeetSecret.grantRead(handleMeetCommandLambda);
 
     // Create the lambda which handles the redirect from the Google auth
-    const authenticationCallbackLambda = new lambda.Function(this, "SlashMeetAuthenticationCallbackLambda", {
-      handler: "authenticationCallbackLambda.lambdaHandler",
-      functionName: 'SlashMeet-AuthenticationCallbackLambda',
-      code: lambda.Code.fromAsset("../lambda-src/dist/authenticationCallbackLambda"),
+    const handleGoogleAuthRedirectLambda = new lambda.Function(this, "handleGoogleAuthRedirectLambda", {
+      handler: "handleGoogleAuthRedirect.lambdaHandler",
+      functionName: 'SlashMeet-handleGoogleAuthRedirectLambda',
+      code: lambda.Code.fromAsset("../lambda-src/dist/handleGoogleAuthRedirect"),
       memorySize: 512,
       ...allLambdaProps
     });
     // Allow write access to the DyanamoDB table
-    props.slackIdToGCalTokenTable.grantReadWriteData(authenticationCallbackLambda);
+    props.slackIdToGCalTokenTable.grantReadWriteData(handleGoogleAuthRedirectLambda);
     // Allow read access to the secret it needs
-    props.slashMeetSecret.grantRead(authenticationCallbackLambda);
+    props.slashMeetSecret.grantRead(handleGoogleAuthRedirectLambda);
 
     // Get hold of the hosted zone which has previously been created
     const zone = route53.HostedZone.fromHostedZoneAttributes(this, 'R53Zone', {
@@ -128,10 +128,10 @@ export class LambdaStack extends Stack {
     const handleSlackAuthRedirectLambdaIntegration = new apigateway.LambdaIntegration(handleSlackAuthRedirectLambda, {
       requestTemplates: {"application/json": '{ "statusCode": "200" }'}
     });
-    const initialResponseLambdaIntegration = new apigateway.LambdaIntegration(initialResponseLambda, {
+    const handleSlashCommandLambdaIntegration = new apigateway.LambdaIntegration(handleSlashCommand, {
       requestTemplates: {"application/json": '{ "statusCode": "200" }'}
     });
-    const authenticationCallbackLambdaIntegration = new apigateway.LambdaIntegration(authenticationCallbackLambda, {
+    const handleGoogleAuthRedirectLambdaIntegration = new apigateway.LambdaIntegration(handleGoogleAuthRedirectLambda, {
       requestTemplates: {"application/json": '{ "statusCode": "200" }'}
     });
     const initialResponseResource = api.root.addResource('meet');
@@ -139,8 +139,8 @@ export class LambdaStack extends Stack {
     const handleSlackAuthRedirectResource = api.root.addResource('slack-oauth-redirect');
     // And add the methods.
     // TODO add authorizer lambda
-    initialResponseResource.addMethod("POST", initialResponseLambdaIntegration);
-    authenticationCallbackResource.addMethod("GET", authenticationCallbackLambdaIntegration);
+    initialResponseResource.addMethod("POST", handleSlashCommandLambdaIntegration);
+    authenticationCallbackResource.addMethod("GET", handleGoogleAuthRedirectLambdaIntegration);
     handleSlackAuthRedirectResource.addMethod("GET", handleSlackAuthRedirectLambdaIntegration);
 
     // Create the R53 "A" record to map from the custom domain to the actual API URL

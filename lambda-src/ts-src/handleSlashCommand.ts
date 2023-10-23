@@ -37,7 +37,7 @@ async function lambdaHandler(event: APIGatewayProxyEvent): Promise<APIGatewayPro
 
     const lambdaClient = new LambdaClient(configuration);
     const input: InvokeCommandInput = {
-      FunctionName: 'SlashMeet-AuthenticateOrCreateMeetingLambda',
+      FunctionName: 'SlashMeet-handleMeetCommandLambda',
       InvocationType: InvocationType.Event,
       Payload: new TextEncoder().encode(JSON.stringify(body))
     };
@@ -45,7 +45,7 @@ async function lambdaHandler(event: APIGatewayProxyEvent): Promise<APIGatewayPro
     const command = new InvokeCommand(input);
     const output = await lambdaClient.send(command);
     if(output.StatusCode != 202) {
-      throw new Error(`Failed to invoke SlashMeet-AuthenticateOrCreateMeetingLambda - error:${util.inspect(output.FunctionError)}`);
+      throw new Error(`Failed to invoke SlashMeet-handleMeetCommandLambda - error:${util.inspect(output.FunctionError)}`);
     }
 
     return result;
