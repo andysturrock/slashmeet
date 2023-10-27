@@ -4,7 +4,7 @@ import {Auth} from 'googleapis';
 import {saveToken} from './tokenStorage';
 import {getSecretValue} from './awsAPI';
 
-export async function lambdaHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+export async function handleGoogleAuthRedirect(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
   
   if(!event || !event.queryStringParameters) {
     throw new Error("No query string parameters in redirect URI");

@@ -6,7 +6,7 @@ import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda";
 import {verifySlackRequest} from "./verifySlackRequest";
 import {getSecretValue} from "./awsAPI";
 
-async function lambdaHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+export async function handleSlashCommand(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
 
   try {
     if(!event.body) {
@@ -71,4 +71,3 @@ async function lambdaHandler(event: APIGatewayProxyEvent): Promise<APIGatewayPro
   }
 }
 
-export {lambdaHandler};

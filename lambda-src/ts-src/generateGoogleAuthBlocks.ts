@@ -13,7 +13,7 @@ export function generateGoogleAuthBlocks(oauth2Client: Auth.OAuth2Client, userId
   };
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-  const authorizeUrl = oauth2Client.generateAuthUrl({
+  const url = oauth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: scopes.join(' '),
     state: encodeURIComponent(JSON.stringify(state)),
@@ -21,14 +21,32 @@ export function generateGoogleAuthBlocks(oauth2Client: Auth.OAuth2Client, userId
   });
 
   const blocks = {
-    blocks: [
+    "blocks": [
       {
         type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `Please sign in with your Google ID at ${authorizeUrl}`
-        }
+        fields: [
+          {
+            type: "plain_text",
+            text: "Sign in to Google"
+          }
+        ]
       },
+      {
+        type: "actions",
+        block_id: "signInButton",
+        elements: [
+          {
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: "Sign in to Google"
+            },
+            url,
+            style: "primary",
+            action_id: 'googleSignInButton'
+          }
+        ]
+      }
     ]
   };
   return blocks;

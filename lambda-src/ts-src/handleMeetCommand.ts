@@ -24,7 +24,7 @@ interface SlackEvent {
   trigger_id: string;
 }
 
-export async function lambdaHandler(event: SlackEvent): Promise<void> {
+export async function handleMeetCommand(event: SlackEvent): Promise<void> {
   const responseUrl = event.response_url;
 
   const gcpClientId = await getSecretValue('SlashMeet', 'gcpClientId');

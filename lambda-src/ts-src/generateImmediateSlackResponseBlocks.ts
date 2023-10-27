@@ -1,5 +1,6 @@
 export function generateImmediateSlackResponseBlocks() {
   const blocks = {
+    response_type: "ephemeral",
     blocks: [
       {
         type: "section",
