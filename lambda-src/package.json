@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@slack/bolt": "^3.14.0",
-    "googleapis": "^126.0.1",
+    "googleapis": "^128.0.0",
     "ohm-js": "^17.1.0",
     "util": "^0.12.5"
   },
