@@ -5,12 +5,16 @@ set -eo pipefail
 echo "Deleting old bundles..."
 rm -rf ../lambda-src/dist
 
-# For the commands below () means execute in subshell, so this script doesn't change directory itself
+lambdas="handleSlashCommand \
+ handleMeetCommand \
+ handleSlackAuthRedirect \
+ handleGoogleAuthRedirect \
+ handleInteractiveEndpoint"
 
-lambdas="handleSlashCommand handleMeetCommand handleSlackAuthRedirect handleGoogleAuthRedirect"
 for lambda in ${lambdas}
 do
   echo "Bundling ${lambda}..."
+  # The enclosing in () means "execute in subshell", so this script doesn't change directory itself
   ( cd ../lambda-src && \
     esbuild ./ts-src/${lambda}.ts \
     --bundle \

@@ -28,7 +28,7 @@ export class LambdaStack extends Stack {
 
     // The lambda for handling the callback for the Slack install
     const handleSlackAuthRedirectLambda = new lambda.Function(this, "handleSlackAuthRedirectLambda", {
-      handler: "handleSlackAuthRedirect.lambdaHandler",
+      handler: "handleSlackAuthRedirect.handleSlackAuthRedirect",
       functionName: 'SlashMeet-handleSlackAuthRedirect',
       code: lambda.Code.fromAsset("../lambda-src/dist/handleSlackAuthRedirect"),
       ...allLambdaProps
@@ -38,7 +38,7 @@ export class LambdaStack extends Stack {
 
     // Create the initial response lambda
     const handleSlashCommand = new lambda.Function(this, "handleSlashCommand", {
-      handler: "handleSlashCommand.lambdaHandler",
+      handler: "handleSlashCommand.handleSlashCommand",
       functionName: 'SlashMeet-handleSlashCommand',
       code: lambda.Code.fromAsset("../lambda-src/dist/handleSlashCommand"),
       ...allLambdaProps
@@ -49,7 +49,7 @@ export class LambdaStack extends Stack {
     // Create the lambda which either creates the authentication response or creates the meeting.
     // This lambda is called from the initial response lambda, not via the API Gateway.
     const handleMeetCommandLambda = new lambda.Function(this, "handleMeetCommandLambda", {
-      handler: "handleMeetCommand.lambdaHandler",
+      handler: "handleMeetCommand.handleMeetCommand",
       functionName: 'SlashMeet-handleMeetCommandLambda',
       code: lambda.Code.fromAsset("../lambda-src/dist/handleMeetCommand"),
       memorySize: 512,
@@ -70,7 +70,7 @@ export class LambdaStack extends Stack {
 
     // Create the lambda which handles the redirect from the Google auth
     const handleGoogleAuthRedirectLambda = new lambda.Function(this, "handleGoogleAuthRedirectLambda", {
-      handler: "handleGoogleAuthRedirect.lambdaHandler",
+      handler: "handleGoogleAuthRedirect.handleGoogleAuthRedirect",
       functionName: 'SlashMeet-handleGoogleAuthRedirectLambda',
       code: lambda.Code.fromAsset("../lambda-src/dist/handleGoogleAuthRedirect"),
       memorySize: 512,
@@ -80,6 +80,17 @@ export class LambdaStack extends Stack {
     props.slackIdToGCalTokenTable.grantReadWriteData(handleGoogleAuthRedirectLambda);
     // Allow read access to the secret it needs
     props.slashMeetSecret.grantRead(handleGoogleAuthRedirectLambda);
+
+    // Create the lambda for handling interactions.
+    const handleInteractiveEndpointLambda = new lambda.Function(this, "handleInteractiveEndpointLambda", {
+      handler: "handleInteractiveEndpoint.handleInteractiveEndpoint",
+      functionName: 'SlashMeet-handleInteractiveEndpoint',
+      code: lambda.Code.fromAsset("../lambda-src/dist/handleInteractiveEndpoint"),
+      memorySize: 512,
+      ...allLambdaProps
+    });
+    // Allow read access to the secret it needs
+    props.slashMeetSecret.grantRead(handleInteractiveEndpointLambda);
 
     // Get hold of the hosted zone which has previously been created
     const zone = route53.HostedZone.fromHostedZoneAttributes(this, 'R53Zone', {
@@ -124,7 +135,7 @@ export class LambdaStack extends Stack {
       stageName: lambdaVersionIdForURL
     });
 
-    // Connect the API Gateway to the initial response and auth redirect lambdas
+    // Connect the API Gateway to the lambdas
     const handleSlackAuthRedirectLambdaIntegration = new apigateway.LambdaIntegration(handleSlackAuthRedirectLambda, {
       requestTemplates: {"application/json": '{ "statusCode": "200" }'}
     });
@@ -134,14 +145,18 @@ export class LambdaStack extends Stack {
     const handleGoogleAuthRedirectLambdaIntegration = new apigateway.LambdaIntegration(handleGoogleAuthRedirectLambda, {
       requestTemplates: {"application/json": '{ "statusCode": "200" }'}
     });
+    const handleInteractiveEndpointLambdaIntegration = new apigateway.LambdaIntegration(handleInteractiveEndpointLambda, {
+      requestTemplates: {"application/json": '{ "statusCode": "200" }'}
+    });
     const initialResponseResource = api.root.addResource('meet');
     const authenticationCallbackResource = api.root.addResource('redirectUri');
     const handleSlackAuthRedirectResource = api.root.addResource('slack-oauth-redirect');
+    const handleInteractiveEndpointResource = api.root.addResource('interactive-endpoint');
     // And add the methods.
-    // TODO add authorizer lambda
     initialResponseResource.addMethod("POST", handleSlashCommandLambdaIntegration);
     authenticationCallbackResource.addMethod("GET", handleGoogleAuthRedirectLambdaIntegration);
     handleSlackAuthRedirectResource.addMethod("GET", handleSlackAuthRedirectLambdaIntegration);
+    handleInteractiveEndpointResource.addMethod("POST", handleInteractiveEndpointLambdaIntegration);
 
     // Create the R53 "A" record to map from the custom domain to the actual API URL
     new route53.ARecord(this, 'CustomDomainAliasRecord', {
