@@ -7,24 +7,9 @@ import {getSecretValue} from './awsAPI';
 import {getSlackUserTimeZone} from './getSlackUserTimeZone';
 import {createGoogleMeetMeeting as createGoogleCalendarMeeting} from './createGoogleCalendarMeeting';
 import {MeetingOptions, parseMeetingArgs} from './parseMeetingArgs';
+import {SlashCommandPayload} from './slackTypes';
 
-interface SlackEvent {
-  token: string;
-  team_id: string;
-  team_domain: string;
-  channel_id: string;
-  channel_name: string;
-  user_id: string;
-  user_name: string;
-  command: string;
-  text: string;
-  api_app_id: string;
-  is_enterprise_install: string;
-  response_url: string;
-  trigger_id: string;
-}
-
-export async function handleMeetCommand(event: SlackEvent): Promise<void> {
+export async function handleMeetCommand(event: SlashCommandPayload): Promise<void> {
   const responseUrl = event.response_url;
 
   const gcpClientId = await getSecretValue('SlashMeet', 'gcpClientId');
@@ -42,7 +27,7 @@ export async function handleMeetCommand(event: SlackEvent): Promise<void> {
   const refresh_token = await getToken(event.user_id);
   let blocks = {};
   if(!refresh_token) {
-    const blocks = generateGoogleAuthBlocks(oauth2Client, event.user_id);
+    const blocks = await generateGoogleAuthBlocks(oauth2Client, event.user_id, event.response_url);
     await postToResponseUrl(responseUrl, blocks);
     return;
   } else {
