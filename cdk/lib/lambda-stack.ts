@@ -63,8 +63,9 @@ export class LambdaStack extends Stack {
     });
     // Give the initial response lambda permission to invoke this one
     handleMeetCommandLambda.grantInvoke(handleSlashCommand);
-    // Allow read access to the DyanamoDB table
+    // Allow access to the DyanamoDB tables
     props.slackIdToGCalTokenTable.grantReadData(handleMeetCommandLambda);
+    props.stateTable.grantReadWriteData(handleMeetCommandLambda);
     // Allow read access to the secret it needs
     props.slashMeetSecret.grantRead(handleMeetCommandLambda);
 
@@ -76,8 +77,9 @@ export class LambdaStack extends Stack {
       memorySize: 512,
       ...allLambdaProps
     });
-    // Allow write access to the DyanamoDB table
+    // Allow access to the DyanamoDB tables
     props.slackIdToGCalTokenTable.grantReadWriteData(handleGoogleAuthRedirectLambda);
+    props.stateTable.grantReadWriteData(handleGoogleAuthRedirectLambda);
     // Allow read access to the secret it needs
     props.slashMeetSecret.grantRead(handleGoogleAuthRedirectLambda);
 
