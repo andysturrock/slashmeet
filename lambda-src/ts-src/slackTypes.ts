@@ -41,6 +41,13 @@ export type InteractionPayload = {
     id: string,
     name: string,
   },
+  message: {
+    type: 'message',
+    subtype: string,
+    text: string,
+    ts: string,
+    bot_id: string,
+  },
   response_url: string,
   actions: Action[]
 };

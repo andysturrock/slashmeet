@@ -1,4 +1,5 @@
 import * as util from 'util';
+import {WebClient, LogLevel} from "@slack/web-api";
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda";
 import {verifySlackRequest} from './verifySlackRequest';
 import {InteractionPayload} from './slackTypes';
@@ -27,10 +28,24 @@ export async function handleInteractiveEndpoint(event: APIGatewayProxyEvent): Pr
     body = body.replace('payload=', '');
     const payload = JSON.parse(body) as InteractionPayload;
 
+    const slackBotToken = await getSecretValue('SlashMeet', 'slackBotToken');
+    const client = new WebClient(slackBotToken, {
+      logLevel: LogLevel.INFO
+    });
+
     // TODO assume we only get one Action for now
     if(payload.actions[0].action_id == "googleSignInButton") {
       // Delete the original login card as it can't be used again without appearing like a CSRF replay attack.
+      // Use the POST api as per https://api.slack.com/interactivity/handling#deleting_message_response
+      // chat.delete doesn't seem to work here.
       await axios.post(payload.response_url, {delete_original: "true"});
+    } if(payload.actions[0].action_id == "joinMeetingButton") {
+      // Reply in a thread with who has joined the meeting.
+      await client.chat.postMessage({
+        channel: payload.channel.id,
+        thread_ts: payload.message.ts,
+        text: `<@${payload.user.id}> has joined the meeting`
+      });
     }
     else 
     {
