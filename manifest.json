@@ -26,12 +26,18 @@
     ],
     "scopes": {
       "bot": [
+        "chat:write",
         "commands",
-        "users:read"
+        "users:read",
+        "chat:write.public"
       ]
     }
   },
   "settings": {
+    "interactivity": {
+      "is_enabled": true,
+      "request_url": "https://slashmeet.slackapps.example.com/0_0_1/interactive-endpoint"
+    },
     "org_deploy_enabled": true,
     "socket_mode_enabled": false,
     "token_rotation_enabled": false
