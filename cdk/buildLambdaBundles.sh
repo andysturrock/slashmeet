@@ -9,7 +9,8 @@ lambdas="handleSlashCommand \
  handleMeetCommand \
  handleSlackAuthRedirect \
  handleGoogleAuthRedirect \
- handleInteractiveEndpoint"
+ handleInteractiveEndpoint \
+ handleEventsEndpoint"
 
 for lambda in ${lambdas}
 do
