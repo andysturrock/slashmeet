@@ -94,6 +94,17 @@ export class LambdaStack extends Stack {
     // Allow read access to the secret it needs
     props.slashMeetSecret.grantRead(handleInteractiveEndpointLambda);
 
+    // Create the lambda for handling events.
+    const handleEventsEndpointLambda = new lambda.Function(this, "handleEventsEndpointLambda", {
+      handler: "handleEventsEndpoint.handleEventsEndpoint",
+      functionName: 'SlashMeet-handleEventsEndpoint',
+      code: lambda.Code.fromAsset("../lambda-src/dist/handleEventsEndpoint"),
+      memorySize: 512,
+      ...allLambdaProps
+    });
+    // Allow read access to the secret it needs
+    props.slashMeetSecret.grantRead(handleEventsEndpointLambda);
+
     // Get hold of the hosted zone which has previously been created
     const zone = route53.HostedZone.fromHostedZoneAttributes(this, 'R53Zone', {
       zoneName: props.customDomainName,
@@ -150,15 +161,20 @@ export class LambdaStack extends Stack {
     const handleInteractiveEndpointLambdaIntegration = new apigateway.LambdaIntegration(handleInteractiveEndpointLambda, {
       requestTemplates: {"application/json": '{ "statusCode": "200" }'}
     });
+    const handleEventsEndpointLambdaIntegration = new apigateway.LambdaIntegration(handleEventsEndpointLambda, {
+      requestTemplates: {"application/json": '{ "statusCode": "200" }'}
+    });
     const initialResponseResource = api.root.addResource('meet');
     const authenticationCallbackResource = api.root.addResource('redirectUri');
     const handleSlackAuthRedirectResource = api.root.addResource('slack-oauth-redirect');
     const handleInteractiveEndpointResource = api.root.addResource('interactive-endpoint');
+    const handleEventsEndpointResource = api.root.addResource('events-endpoint');
     // And add the methods.
     initialResponseResource.addMethod("POST", handleSlashCommandLambdaIntegration);
     authenticationCallbackResource.addMethod("GET", handleGoogleAuthRedirectLambdaIntegration);
     handleSlackAuthRedirectResource.addMethod("GET", handleSlackAuthRedirectLambdaIntegration);
     handleInteractiveEndpointResource.addMethod("POST", handleInteractiveEndpointLambdaIntegration);
+    handleEventsEndpointResource.addMethod("POST", handleEventsEndpointLambdaIntegration);
 
     // Create the R53 "A" record to map from the custom domain to the actual API URL
     new route53.ARecord(this, 'CustomDomainAliasRecord', {
