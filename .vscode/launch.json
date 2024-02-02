@@ -1,0 +1,20 @@
+{
+  "version": "1.0.0",
+  "configurations": [
+    {
+      "name": "TS-Node",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceRoot}/lambda-src/node_modules/.bin/ts-node",
+      "runtimeArgs": [
+        "--transpile-only",
+        // if you use esm
+        "--esm" 
+      ],
+      "program": "${file}",
+      "cwd": "${workspaceRoot}/lambda-src",
+      "internalConsoleOptions": "openOnSessionStart",
+      "skipFiles": ["<node_internals>/**", "node_modules/**"]
+    }
+  ]
+}
