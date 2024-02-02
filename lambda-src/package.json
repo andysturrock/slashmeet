@@ -27,6 +27,5 @@
     "googleapis": "^128.0.0",
     "ohm-js": "^17.1.0",
     "util": "^0.12.5"
-  },
-  "main": "dist/gcp/slashmeet.js"
+  }
 }
