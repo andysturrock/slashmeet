@@ -12,7 +12,8 @@ const TableName = "SlashMeet_State";
 export type State = {
   nonce: string,
   slack_user_id: string,
-  response_url: string
+  response_url: string,
+  verifier?: string
 };
 
 /**
@@ -61,7 +62,7 @@ export async function deleteState(nonce: string) {
  * @param nonce Key for the table
  * @param state JSON value
  */
-export async function putState(nonce: string, state: string) {
+export async function putState(nonce: string, state: State) {
   const now = Date.now();
   const ttl = new Date(now + TTL_IN_MS);
 
@@ -69,7 +70,7 @@ export async function putState(nonce: string, state: string) {
     TableName,
     Item: {
       nonce: {S: nonce},
-      state: {S: state},
+      state: {S: JSON.stringify(state)},
       expiry: {N: `${Math.floor(ttl.getTime() / 1000)}`}
     }
   };
