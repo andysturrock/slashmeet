@@ -1,7 +1,7 @@
 import {generateGoogleAuthBlocks} from './generateGoogleAuthBlocks';
 import {postToResponseUrl} from './postToResponseUrl';
 import {Auth} from 'googleapis';
-import {getToken} from './tokenStorage';
+import {getGCalToken} from './tokenStorage';
 import {generateGoogleMeetURLBlocks} from './generateGoogleMeetURLBlocks';
 import {getSecretValue} from './awsAPI';
 import {getSlackUserTimeZone} from './getSlackUserTimeZone';
@@ -69,7 +69,7 @@ export async function handleMeetCommand(event: SlashCommandPayload): Promise<voi
   };
   const oauth2Client = new Auth.OAuth2Client(options);
 
-  const refresh_token = await getToken(event.user_id);
+  const refresh_token = await getGCalToken(event.user_id);
   let blocks = {};
   if(!refresh_token) {
     const googleAuthBlocks = await generateGoogleAuthBlocks(oauth2Client, event.user_id, event.response_url);

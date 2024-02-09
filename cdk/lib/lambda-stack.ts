@@ -92,7 +92,7 @@ export class LambdaStack extends Stack {
       ...allLambdaProps
     });
     // Allow access to the DynamoDB tables
-    props.slackIdToGCalTokenTable.grantReadWriteData(handleAADAuthRedirectLambda);
+    props.slackIdToAADTokenTable.grantReadWriteData(handleAADAuthRedirectLambda);
     props.stateTable.grantReadWriteData(handleAADAuthRedirectLambda);
     // Allow read access to the secret it needs
     props.slashMeetSecret.grantRead(handleAADAuthRedirectLambda);

@@ -1,7 +1,7 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from 'aws-lambda';
 import {generateLoggedInHTML} from './generateLoggedInHTML';
 import {Auth} from 'googleapis';
-import {saveToken} from './tokenStorage';
+import {saveGCalToken} from './tokenStorage';
 import {getSecretValue} from './awsAPI';
 import {deleteState, getState} from './stateTable';
 
@@ -38,7 +38,7 @@ export async function handleGoogleAuthRedirect(event: APIGatewayProxyEvent): Pro
     if(!refreshToken) {
       throw new Error("Failed to get refresh token from Google authentication service.");
     }
-    await saveToken(refreshToken, state.slack_user_id);
+    await saveGCalToken(refreshToken, state.slack_user_id);
 
     const html = generateLoggedInHTML("Google");
     const result: APIGatewayProxyResult = {

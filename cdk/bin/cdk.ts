@@ -28,6 +28,7 @@ const secretsManagerStack = new SecretsManagerStack(app, 'SlashMeetSecretsManage
 new LambdaStack(app, 'SlashMeetLambdaStack', {
   env: {region},
   slackIdToGCalTokenTable: dynamoDBStack.slackIdToGCalTokenTable,
+  slackIdToAADTokenTable: dynamoDBStack.slackIdToAADTokenTable,
   stateTable: dynamoDBStack.stateTable,
   slashMeetSecret: secretsManagerStack.slashMeetSecret,
   lambdaVersion,
