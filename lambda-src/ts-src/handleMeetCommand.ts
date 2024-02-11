@@ -110,8 +110,7 @@ export async function handleMeetCommand(event: SlashCommandPayload): Promise<voi
       return;
     }
   }
-  
-  
+
   // Create a nice looking "join meeting" message and schedule it to be sent when the meeting starts.
   try {
     const joinMeetingBlocks = generateGoogleMeetURLBlocks(meetingUrl, meetingOptions.name);
