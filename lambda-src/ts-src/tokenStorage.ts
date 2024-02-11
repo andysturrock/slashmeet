@@ -1,4 +1,4 @@
-import {DynamoDBClient, PutItemCommand, PutItemCommandInput, QueryCommand, QueryCommandInput} from '@aws-sdk/client-dynamodb';
+import {DeleteItemCommand, DeleteItemCommandInput, DynamoDBClient, PutItemCommand, PutItemCommandInput, QueryCommand, QueryCommandInput} from '@aws-sdk/client-dynamodb';
 
 const gcalTokenTableName = "SlashMeet_SlackIdToGCalToken";
 const aadTokenTableName = "SlashMeet_SlackIdToAADToken";
@@ -19,9 +19,15 @@ export async function saveAADToken(token:string, slackUserId:string) {
   return await saveToken(aadTokenTableName, token, slackUserId);
 }
 
-async function getToken(tableName: string, slackUserId: string) {
-  const ddbClient = new DynamoDBClient({});
+export async function deleteGCalToken(slackUserId:string) {
+  return await deleteToken(gcalTokenTableName, slackUserId);
+}
 
+export async function deleteAADToken(slackUserId:string) {
+  return await deleteToken(aadTokenTableName, slackUserId);
+}
+
+async function getToken(tableName: string, slackUserId: string) {
   const params: QueryCommandInput = {
     TableName: tableName,
     KeyConditionExpression: "slack_id = :slack_id",
@@ -29,6 +35,8 @@ async function getToken(tableName: string, slackUserId: string) {
       ":slack_id" : {"S" : slackUserId}
     }
   };
+
+  const ddbClient = new DynamoDBClient({});
   const data = await ddbClient.send(new QueryCommand(params));
   const items = data.Items;
   if(items && items[0] && items[0].refresh_token.S) {
@@ -58,6 +66,17 @@ async function saveToken(tableName: string, token:string, slackUserId:string) {
   };
 
   const ddbClient = new DynamoDBClient({});
-
   await ddbClient.send(new PutItemCommand(putItemCommandInput));
+}
+
+async function deleteToken(tableName: string, slackUserId:string) {
+  const deleteItemCommandInput: DeleteItemCommandInput = {
+    TableName: tableName,
+    Key: {
+      ":slack_id" : {"S" : slackUserId}
+    }
+  };
+
+  const ddbClient = new DynamoDBClient({});
+  await ddbClient.send(new DeleteItemCommand(deleteItemCommandInput));
 }

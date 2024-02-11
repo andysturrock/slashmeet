@@ -4,7 +4,7 @@ import {AuthorizationUrlRequest, ConfidentialClientApplication, CryptoProvider, 
 import {aadScopes} from './aadConfig';
 
 /**
- * Generate a button for Google login.
+ * Generate a button for Microsoft AAD/Entra login.
  * CSRF replay attacks are mitigated by using a nonce as the state param in the redirect URL.
  * The state is the primary key to the info in the SlashMeet_State table which is then queried in the redirect handler.
  * @param confidentialClientApplication initialised MSAL ConfidentialClientApplication object
@@ -35,7 +35,6 @@ export async function generateAADAuthBlocks(confidentialClientApplication: Confi
     prompt: 'consent'
   };
   const url = await confidentialClientApplication.getAuthCodeUrl(authorizationUrlRequest);
-  console.log(`URL: ${url}`);
 
   const blocks = {
     "blocks": [

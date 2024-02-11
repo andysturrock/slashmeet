@@ -72,7 +72,6 @@ export async function handleAADAuthRedirect(event: APIGatewayProxyEvent): Promis
     if(!refreshToken) {
       throw new Error("Failed to get refresh token from AAD Entra authentication service.");
     }
-    console.log(`refreshToken: ${refreshToken}`);
     await saveAADToken(refreshToken, state.slack_user_id);
 
     const html = generateLoggedInHTML("Microsoft");

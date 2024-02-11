@@ -6,6 +6,7 @@ export interface MeetingOptions {
   name: string
   startDate: Date,
   endDate: Date,
+  now: boolean,
   noCal: boolean
 }
 
@@ -23,6 +24,7 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
     name: '',
     startDate: new Date(defaultStartDate.getTime()),
     endDate: new Date(defaultStartDate.getTime() + 1000 * 60 * 60), // 1 hour later than start
+    now: false,
     noCal: false
   };
 
@@ -146,6 +148,7 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
       arg0.eval();
       // Start time already set to the default if start is "now"
       if(this.sourceString == 'now') {
+        meetingOptions.now = true;
         return meetingOptions;
       }
       
@@ -157,6 +160,8 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
       }
       meetingOptions.startDate.setHours(hours);
       meetingOptions.startDate.setMinutes(minutes);
+      meetingOptions.startDate.setSeconds(0);
+      meetingOptions.startDate.setMilliseconds(0);
       return meetingOptions;
     },
     FinishTimeExp(this: NonterminalNode, arg0: NonterminalNode) {
@@ -169,6 +174,8 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
       }
       meetingOptions.endDate.setHours(hours);
       meetingOptions.endDate.setMinutes(minutes);
+      meetingOptions.endDate.setSeconds(minutes);
+      meetingOptions.endDate.setMilliseconds(0);
       return meetingOptions;
     },
     amPm(this: NonterminalNode, arg0: TerminalNode) {

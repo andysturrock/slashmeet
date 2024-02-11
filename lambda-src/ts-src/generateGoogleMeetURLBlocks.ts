@@ -1,31 +1,28 @@
-export function generateGoogleMeetURLBlocks(meetingUrl: string) {
-  const blocks = {
-    response_type: 'in_channel',
-    "blocks": [
+import {ActionsBlock, SectionBlock} from "@slack/bolt";
+
+export function generateGoogleMeetURLBlocks(meetingUrl: string, meetingName: string) {
+  const sectionBlock: SectionBlock = {
+    type: "section",
+    text: {
+      type: "mrkdwn",
+      text: `Please join the "${meetingName}" meeting at ${meetingUrl}`
+    }
+  };
+  const actionsBlock: ActionsBlock = {
+    type: "actions",
+    block_id: "joinMeetingButton",
+    elements: [
       {
-        type: "section",
+        type: "button",
         text: {
-          type: "mrkdwn",
-          text: `Please join your meeting at ${meetingUrl}`
-        }
-      },
-      {
-        type: "actions",
-        block_id: "joinMeetingButton",
-        elements: [
-          {
-            type: "button",
-            text: {
-              type: "plain_text",
-              text: "Join Meeting"
-            },
-            url: meetingUrl,
-            style: "primary",
-            action_id: 'joinMeetingButton'
-          }
-        ]
+          type: "plain_text",
+          text: "Join Meeting"
+        },
+        url: meetingUrl,
+        style: "primary",
+        action_id: 'joinMeetingButton'
       }
     ]
   };
-  return blocks;
+  return [sectionBlock, actionsBlock];
 }

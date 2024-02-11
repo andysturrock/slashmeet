@@ -52,7 +52,7 @@ export class LambdaStack extends Stack {
       handler: "handleMeetCommand.handleMeetCommand",
       functionName: 'SlashMeet-handleMeetCommandLambda',
       code: lambda.Code.fromAsset("../lambda-src/dist/handleMeetCommand"),
-      memorySize: 512,
+      memorySize: 1024,
       ...allLambdaProps
     });
     // This function is going to be invoked asynchronously, so set some extra config for that
@@ -65,6 +65,7 @@ export class LambdaStack extends Stack {
     handleMeetCommandLambda.grantInvoke(handleSlashCommand);
     // Allow access to the DynamoDB tables
     props.slackIdToGCalTokenTable.grantReadData(handleMeetCommandLambda);
+    props.slackIdToAADTokenTable.grantReadData(handleMeetCommandLambda);
     props.stateTable.grantReadWriteData(handleMeetCommandLambda);
     // Allow read access to the secret it needs
     props.slashMeetSecret.grantRead(handleMeetCommandLambda);

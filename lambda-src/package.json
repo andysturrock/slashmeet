@@ -23,7 +23,9 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
+    "@azure/identity": "^4.0.1",
     "@azure/msal-node": "^2.6.2",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
     "@slack/bolt": "^3.14.0",
     "googleapis": "^128.0.0",
     "ohm-js": "^17.1.0",
