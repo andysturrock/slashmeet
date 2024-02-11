@@ -1,0 +1,98 @@
+{
+	"id": "alpha-num",
+	"acceptMappedClaims": null,
+	"accessTokenAcceptedVersion": null,
+	"addIns": [],
+	"allowPublicClient": null,
+	"appId": "alpha-num",
+	"appRoles": [],
+	"oauth2AllowUrlPathMatching": false,
+	"createdDateTime": "2024-02-02T15:56:30Z",
+	"description": null,
+	"certification": null,
+	"disabledByMicrosoftStatus": null,
+	"groupMembershipClaims": null,
+	"identifierUris": [],
+	"informationalUrls": {
+		"termsOfService": null,
+		"support": null,
+		"privacy": null,
+		"marketing": null
+	},
+	"keyCredentials": [],
+	"knownClientApplications": [],
+	"logoUrl": null,
+	"logoutUrl": null,
+	"name": "slashMeet",
+	"notes": null,
+	"oauth2AllowIdTokenImplicitFlow": false,
+	"oauth2AllowImplicitFlow": false,
+	"oauth2Permissions": [],
+	"oauth2RequirePostResponse": false,
+	"optionalClaims": null,
+	"orgRestrictions": [],
+	"parentalControlSettings": {
+		"countriesBlockedForMinors": [],
+		"legalAgeGroupRule": "Allow"
+	},
+	"passwordCredentials": [
+		{
+			"customKeyIdentifier": null,
+			"endDate": "2026-02-01T17:43:28.323Z",
+			"keyId": "4cc9f286-bf01-4c3f-901b-2c9edbdd5a4a",
+			"startDate": "2024-02-02T17:43:28.323Z",
+			"value": null,
+			"createdOn": "2024-02-02T17:44:27.1496818Z",
+			"hint": "F~C",
+			"displayName": "client secret used in handleMeetCommand.ts"
+		}
+	],
+	"preAuthorizedApplications": [],
+	"publisherDomain": "example.com",
+	"replyUrlsWithType": [
+		{
+			"url": "https://slashmeet.slackapps.example.com/0_0_1/aad-oauth-redirect",
+			"type": "Web"
+		}
+	],
+	"requiredResourceAccess": [
+		{
+			"resourceAppId": "00000003-0000-0000-c000-000000000000",
+			"resourceAccess": [
+				{
+					"id": "465a38f9-76ea-45b9-9f34-9e8b0d4b0b42",
+					"type": "Scope"
+				},
+				{
+					"id": "1ec239c2-d7c9-4623-a91a-a9775856bb36",
+					"type": "Scope"
+				},
+				{
+					"id": "64a6cdd6-aab1-4aaf-94b8-3cc8405e90d0",
+					"type": "Scope"
+				},
+				{
+					"id": "7427e0e9-2fba-42fe-b0c0-848c9e6a8182",
+					"type": "Scope"
+				},
+				{
+					"id": "37f7f235-527c-4136-accd-4a02d197296e",
+					"type": "Scope"
+				},
+				{
+					"id": "14dad69e-099b-42c9-810b-d002981feec1",
+					"type": "Scope"
+				},
+				{
+					"id": "e1fe6dd8-ba31-4d61-89e7-88639da4683d",
+					"type": "Scope"
+				}
+			]
+		}
+	],
+	"samlMetadataUrl": null,
+	"signInUrl": null,
+	"signInAudience": "AzureADMyOrg",
+	"tags": [],
+	"tokenEncryptionKeyId": null
+}

@@ -13,7 +13,7 @@ import {
 
 export interface MeetArgsActionDict<T> extends BaseActionDict<T> {
   Exp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  MeetingWithArgsExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
+  MeetingWithArgsExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: IterationNode) => T;
   MeetingArgsExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   StartEndTimeExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   StartDurationExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
@@ -34,6 +34,7 @@ export interface MeetArgsActionDict<T> extends BaseActionDict<T> {
   amPm?: (this: NonterminalNode, arg0: TerminalNode) => T;
   DurationExp?: (this: NonterminalNode, arg0: IterationNode, arg1: NonterminalNode) => T;
   minOrHourExp?: (this: NonterminalNode, arg0: TerminalNode) => T;
+  noCal?: (this: NonterminalNode, arg0: TerminalNode) => T;
 }
 
 export interface MeetArgsSemantics extends Semantics {

@@ -32,7 +32,7 @@ const duration = '25m';
       expect(meetingOptions.name).toBe(unquotedName);
       expect(meetingOptions.startDate).toStrictEqual(startDate);
       const endDate = new Date(startDate.getTime() + 1000 * 60 * 60);
-      expect(meetingOptions.endDate).toStrictEqual(endDate);
+      expect(meetingOptions.endDate).toStrictEqual<Date>(endDate);
     });
   }
 }
@@ -44,9 +44,9 @@ const duration = '25m';
     const meetingOptions = parseMeetingArgs(`${name} ${duration}`, startDate);
     expect(meetingOptions.name).toBe(name);
 
-    expect(meetingOptions.startDate).toStrictEqual(startDate);
+    expect(meetingOptions.startDate).toStrictEqual<Date>(startDate);
     const endDate = new Date(startDate.getTime() + 1000 * 60 * 60);
-    expect(meetingOptions.endDate).toStrictEqual(endDate);
+    expect(meetingOptions.endDate).toStrictEqual<Date>(endDate);
   });
 }
 
@@ -56,9 +56,9 @@ const duration = '25m';
     const meetingOptions = parseMeetingArgs(`${name} ${duration}`, startDate);
     expect(meetingOptions.name).toBe(name);
 
-    expect(meetingOptions.startDate).toStrictEqual(startDate);
+    expect(meetingOptions.startDate).toStrictEqual<Date>(startDate);
     const endDate = new Date(startDate.getTime() + 1000 * 60 * 25);
-    expect(meetingOptions.endDate).toStrictEqual(endDate);
+    expect(meetingOptions.endDate).toStrictEqual<Date>(endDate);
   });
 }
 
@@ -70,7 +70,7 @@ const duration = '25m';
     expect(meetingOptions.name).toBe(name);
     expect(meetingOptions.startDate).toStrictEqual<Date>(startDate);
     const endDate = new Date(startDate.getTime() + 1000 * 60 * 25);
-    expect(meetingOptions.endDate).toStrictEqual(endDate);
+    expect(meetingOptions.endDate).toStrictEqual<Date>(endDate);
   });
 }
 
@@ -80,9 +80,9 @@ const duration = '25m';
     const startDate = new Date(2023, 6, 19, 14, 0, 0, 0);
     const meetingOptions = parseMeetingArgs(`${name} ${startTime} ${duration}`, startDate);
     expect(meetingOptions.name).toBe(name);
-    expect(meetingOptions.startDate).toStrictEqual(startDate);
+    expect(meetingOptions.startDate).toStrictEqual<Date>(startDate);
     const endDate = new Date(startDate.getTime() + 1000 * 60 * 25);
-    expect(meetingOptions.endDate).toStrictEqual(endDate);
+    expect(meetingOptions.endDate).toStrictEqual<Date>(endDate);
   });
 }
 
@@ -92,9 +92,9 @@ const duration = '25m';
     const startDate = new Date(2023, 6, 19, 23, 0, 0, 0);
     const meetingOptions = parseMeetingArgs(`${name} ${startTime} ${duration}`, startDate);
     expect(meetingOptions.name).toBe(name);
-    expect(meetingOptions.startDate).toStrictEqual(startDate);
+    expect(meetingOptions.startDate).toStrictEqual<Date>(startDate);
     const endDate = new Date(startDate.getTime() + 1000 * 60 * 25);
-    expect(meetingOptions.endDate).toStrictEqual(endDate);
+    expect(meetingOptions.endDate).toStrictEqual<Date>(endDate);
   });
 }
 
@@ -104,9 +104,9 @@ const duration = '25m';
     const startDate = new Date(2023, 6, 19, 13, 12, 0, 0);
     const meetingOptions = parseMeetingArgs(`${name} ${startTime} ${duration}`, startDate);
     expect(meetingOptions.name).toBe(name);
-    expect(meetingOptions.startDate).toStrictEqual(startDate);
+    expect(meetingOptions.startDate).toStrictEqual<Date>(startDate);
     const endDate = new Date(startDate.getTime() + 1000 * 60 * 25);
-    expect(meetingOptions.endDate).toStrictEqual(endDate);
+    expect(meetingOptions.endDate).toStrictEqual<Date>(endDate);
   });
 }
 
@@ -116,9 +116,9 @@ const duration = '25m';
     const startDate = new Date(2023, 6, 19, 22, 23, 0, 0);
     const meetingOptions = parseMeetingArgs(`${name} ${startTime} ${duration}`, startDate);
     expect(meetingOptions.name).toBe(name);
-    expect(meetingOptions.startDate).toStrictEqual(startDate);
+    expect(meetingOptions.startDate).toStrictEqual<Date>(startDate);
     const endDate = new Date(startDate.getTime() + 1000 * 60 * 25);
-    expect(meetingOptions.endDate).toStrictEqual(endDate);
+    expect(meetingOptions.endDate).toStrictEqual<Date>(endDate);
   });
 }
 
@@ -131,8 +131,8 @@ const duration = '25m';
     expect(meetingOptions.name).toBe(name);
     const endDate = new Date(startDate);
     endDate.setHours(17, 0);
-    expect(meetingOptions.startDate).toStrictEqual(startDate);
-    expect(meetingOptions.endDate).toStrictEqual(endDate);
+    expect(meetingOptions.startDate).toStrictEqual<Date>(startDate);
+    expect(meetingOptions.endDate).toStrictEqual<Date>(endDate);
   });
 }
 
@@ -145,8 +145,8 @@ const duration = '25m';
     expect(meetingOptions.name).toBe(name);
     const endDate = new Date(startDate);
     endDate.setHours(17, 0);
-    expect(meetingOptions.startDate).toStrictEqual(startDate);
-    expect(meetingOptions.endDate).toStrictEqual(endDate);
+    expect(meetingOptions.startDate).toStrictEqual<Date>(startDate);
+    expect(meetingOptions.endDate).toStrictEqual<Date>(endDate);
   });
 }
 
@@ -159,8 +159,8 @@ const duration = '25m';
     expect(meetingOptions.name).toBe(name);
     const endDate = new Date(startDate);
     endDate.setHours(23, 0);
-    expect(meetingOptions.startDate).toStrictEqual(startDate);
-    expect(meetingOptions.endDate).toStrictEqual(endDate);
+    expect(meetingOptions.startDate).toStrictEqual<Date>(startDate);
+    expect(meetingOptions.endDate).toStrictEqual<Date>(endDate);
   });
 }
 
@@ -174,8 +174,8 @@ const duration = '25m';
     const endDate = new Date(startDate.getTime());
     endDate.setHours(13);
     endDate.setMinutes(23);
-    expect(meetingOptions.startDate).toStrictEqual(startDate);
-    expect(meetingOptions.endDate).toStrictEqual(endDate);
+    expect(meetingOptions.startDate).toStrictEqual<Date>(startDate);
+    expect(meetingOptions.endDate).toStrictEqual<Date>(endDate);
   });
 }
 
@@ -189,8 +189,8 @@ const duration = '25m';
     const endDate = new Date(startDate.getTime());
     endDate.setHours(23);
     endDate.setMinutes(23);
-    expect(meetingOptions.startDate).toStrictEqual(startDate);
-    expect(meetingOptions.endDate).toStrictEqual(endDate);
+    expect(meetingOptions.startDate).toStrictEqual<Date>(startDate);
+    expect(meetingOptions.endDate).toStrictEqual<Date>(endDate);
   });
 }
 
@@ -202,7 +202,7 @@ const duration = '25m';
     expect(meetingOptions.name).toBe(name);
     expect(meetingOptions.startDate).toStrictEqual<Date>(startDate);
     const endDate = new Date(startDate.getTime() + 1000 * 60 * 25);
-    expect(meetingOptions.endDate).toStrictEqual(endDate);
+    expect(meetingOptions.endDate).toStrictEqual<Date>(endDate);
   });
 }
 
@@ -215,7 +215,7 @@ const duration = '25m';
     expect(meetingOptions.name).toBe(name);
     expect(meetingOptions.startDate).toStrictEqual<Date>(startDate);
     const endDate = new Date(startDate.getTime() + 1000 * 60 * 60);
-    expect(meetingOptions.endDate).toStrictEqual(endDate);
+    expect(meetingOptions.endDate).toStrictEqual<Date>(endDate);
   });
 }
 
@@ -223,5 +223,19 @@ const duration = '25m';
   test(`should throw an error when meeting args are empty`, () => {
     const startDate = new Date(2023, 6, 19, 22, 50, 0, 0);
     expect(() => parseMeetingArgs('', startDate)).toThrowError("cannot apply Semantics to [match failed at position 0]");
+  });
+}
+
+{
+  test(`nocal option parsed correctly`, () => {
+    const startDate = new Date(2024, 2, 2, 11, 47, 0, 0);
+    const meetingOptions = parseMeetingArgs("foo 25m nocal", startDate);
+    expect(meetingOptions.noCal).toBeTruthy();
+  });
+
+  test(`nocal option parsed correctly when missing`, () => {
+    const startDate = new Date(2024, 2, 2, 11, 47, 0, 0);
+    const meetingOptions = parseMeetingArgs("foo 25m", startDate);
+    expect(meetingOptions.noCal).toBeFalsy();
   });
 }

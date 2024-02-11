@@ -1,39 +1,40 @@
-import {Auth} from 'googleapis';
 import crypto from 'crypto';
 import {State, putState} from './stateTable';
+import {AuthorizationUrlRequest, ConfidentialClientApplication, CryptoProvider, ResponseMode} from '@azure/msal-node';
+import {aadScopes} from './aadConfig';
 
 /**
- * Generate a button for Google login.
+ * Generate a button for Microsoft AAD/Entra login.
  * CSRF replay attacks are mitigated by using a nonce as the state param in the redirect URL.
  * The state is the primary key to the info in the SlashMeet_State table which is then queried in the redirect handler.
- * @param oauth2Client Initialised Google SDK OAuth2Client object
+ * @param confidentialClientApplication initialised MSAL ConfidentialClientApplication object
  * @param slack_user_id Slack user id for the user signing in
  * @param response_url Response URL for use in the redirect handler to send messages to the Slack user
  * @returns blocks containing the "Sign in to Google" button
  */
-export async function generateGoogleAuthBlocks(oauth2Client: Auth.OAuth2Client, slack_user_id: string, response_url: string) {
-  const scopes = [
-    'https://www.googleapis.com/auth/calendar.events',
-    'profile',
-  ];
-
+export async function generateAADAuthBlocks(confidentialClientApplication: ConfidentialClientApplication, redirectUri: string, slack_user_id: string, response_url: string) {
+  const cryptoProvider = new CryptoProvider();
+  const {verifier, challenge} = await cryptoProvider.generatePkceCodes();
   // Using a nonce for the state mitigates CSRF attacks.
   const nonce = crypto.randomBytes(16).toString('hex');
   const state: State = {
     nonce,
     slack_user_id,
-    response_url
+    response_url,
+    verifier
   };
-
   await putState(nonce, state);
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-  const url = oauth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: scopes.join(' '),
+  const authorizationUrlRequest: AuthorizationUrlRequest = {
     state: nonce,
+    scopes: aadScopes,
+    redirectUri,
+    responseMode: ResponseMode.FORM_POST,
+    codeChallenge: challenge,
+    codeChallengeMethod: 'S256',
     prompt: 'consent'
-  });
+  };
+  const url = await confidentialClientApplication.getAuthCodeUrl(authorizationUrlRequest);
 
   const blocks = {
     "blocks": [
@@ -42,7 +43,7 @@ export async function generateGoogleAuthBlocks(oauth2Client: Auth.OAuth2Client, 
         fields: [
           {
             type: "plain_text",
-            text: "Sign in to Google"
+            text: "Sign in to Microsoft"
           }
         ]
       },
@@ -54,11 +55,11 @@ export async function generateGoogleAuthBlocks(oauth2Client: Auth.OAuth2Client, 
             type: "button",
             text: {
               type: "plain_text",
-              text: "Sign in to Google"
+              text: "Sign in to Microsoft"
             },
             url,
             style: "primary",
-            action_id: 'googleSignInButton'
+            action_id: 'microsoftSignInButton'
           }
         ]
       }

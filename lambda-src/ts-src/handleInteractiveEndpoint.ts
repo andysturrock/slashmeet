@@ -34,12 +34,13 @@ export async function handleInteractiveEndpoint(event: APIGatewayProxyEvent): Pr
     });
 
     // TODO assume we only get one Action for now
-    if(payload.actions[0].action_id == "googleSignInButton") {
+    if(payload.actions[0].action_id === "googleSignInButton" || payload.actions[0].action_id === "microsoftSignInButton") {
       // Delete the original login card as it can't be used again without appearing like a CSRF replay attack.
       // Use the POST api as per https://api.slack.com/interactivity/handling#deleting_message_response
       // chat.delete doesn't seem to work here.
       await axios.post(payload.response_url, {delete_original: "true"});
-    } if(payload.actions[0].action_id == "joinMeetingButton") {
+    }
+    else if(payload.actions[0].action_id == "joinMeetingButton") {
       // Reply in a thread with who has joined the meeting.
       await client.chat.postMessage({
         channel: payload.channel.id,

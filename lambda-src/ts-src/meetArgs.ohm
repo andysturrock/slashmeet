@@ -1,33 +1,34 @@
 MeetArgs {
   Exp = MeetingWithArgsExp | MeetingNameExp
-  
-  MeetingWithArgsExp = MeetingNameExp MeetingArgsExp
-  
+
+  MeetingWithArgsExp = MeetingNameExp MeetingArgsExp noCal*
+
   MeetingArgsExp = StartEndTimeExp | StartDurationExp | DurationExp | StartTimeExp
   StartEndTimeExp = (StartTimeExp FinishTimeExp)
-  
+
   StartDurationExp = (StartTimeExp DurationExp)
-  
+
   MeetingNameExp = meetingNamePartNoQuote | meetingNamePartQuote
   meetingNamePartNoQuote = (alnum|"-"|"_"|"'"|"?"|"!"|"/") (alnum|"-"|"_"|"'"|"?"|"!"|"/")*
   meetingNamePartQuote = "\"" (space|alnum|"-"|"_"|"'"|"?"|"!"|"/") (space|alnum|"-"|"_"|"'"|"?"|"!"|"/")* "\""
-    
+
   StartTimeExp = TimeExp | "now"
   FinishTimeExp =TimeExp
-  
+
   TimeExp = twentyFourHourClockExp | twelveHourClockExp
   twentyFourHourClockExp = digit digit ":" digit digit ~amPm
-  
+
   twelveHourClockExp = hourOnlyExp | hourMinuteExp
   hourOnlyExp = oneDigitHourOnlyExp | twoDigitHourOnlyExp
   oneDigitHourOnlyExp = digit amPm
   twoDigitHourOnlyExp = digit digit amPm
-  
+
   hourMinuteExp = (twoDigitHourAndMinutes | oneDigitHourAndMinutes) amPm
   twoDigitHourAndMinutes = digit digit ":" digit digit
   oneDigitHourAndMinutes = digit ":" digit digit
   amPm  = "am" | "pm"
-  
+
   DurationExp = digit+ minOrHourExp
   minOrHourExp = "m" | "h"
+  noCal = "nocal"
 }

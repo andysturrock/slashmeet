@@ -9,6 +9,7 @@ lambdas="handleSlashCommand \
  handleMeetCommand \
  handleSlackAuthRedirect \
  handleGoogleAuthRedirect \
+ handleAADAuthRedirect \
  handleInteractiveEndpoint \
  handleEventsEndpoint"
 

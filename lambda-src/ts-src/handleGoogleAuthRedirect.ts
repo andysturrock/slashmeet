@@ -1,7 +1,7 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from 'aws-lambda';
 import {generateLoggedInHTML} from './generateLoggedInHTML';
 import {Auth} from 'googleapis';
-import {saveToken} from './tokenStorage';
+import {saveGCalToken} from './tokenStorage';
 import {getSecretValue} from './awsAPI';
 import {deleteState, getState} from './stateTable';
 
@@ -25,12 +25,12 @@ export async function handleGoogleAuthRedirect(event: APIGatewayProxyEvent): Pro
     const gcpClientId = await getSecretValue('SlashMeet', 'gcpClientId');
     const gcpClientSecret = await getSecretValue('SlashMeet', 'gcpClientSecret');
     const slashMeetUrl = await getSecretValue('SlashMeet', 'slashMeetUrl');
-    const redirectUri = `${slashMeetUrl}/redirectUri`;
+    const redirectUri = `${slashMeetUrl}/google-oauth-redirect`;
 
     const options: Auth.OAuth2ClientOptions = {
       clientId: gcpClientId,
       clientSecret: gcpClientSecret,
-      redirectUri: redirectUri
+      redirectUri
     };
     const oauth2Client = new Auth.OAuth2Client(options);
     const {tokens} = await oauth2Client.getToken(queryStringParameters.code);
@@ -38,9 +38,9 @@ export async function handleGoogleAuthRedirect(event: APIGatewayProxyEvent): Pro
     if(!refreshToken) {
       throw new Error("Failed to get refresh token from Google authentication service.");
     }
-    await saveToken(refreshToken, state.slack_user_id);
+    await saveGCalToken(refreshToken, state.slack_user_id);
 
-    const html = generateLoggedInHTML();
+    const html = generateLoggedInHTML("Google");
     const result: APIGatewayProxyResult = {
       body: html,
       statusCode: 200,

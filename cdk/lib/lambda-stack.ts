@@ -52,7 +52,7 @@ export class LambdaStack extends Stack {
       handler: "handleMeetCommand.handleMeetCommand",
       functionName: 'SlashMeet-handleMeetCommandLambda',
       code: lambda.Code.fromAsset("../lambda-src/dist/handleMeetCommand"),
-      memorySize: 512,
+      memorySize: 1024,
       ...allLambdaProps
     });
     // This function is going to be invoked asynchronously, so set some extra config for that
@@ -63,8 +63,9 @@ export class LambdaStack extends Stack {
     });
     // Give the initial response lambda permission to invoke this one
     handleMeetCommandLambda.grantInvoke(handleSlashCommand);
-    // Allow access to the DyanamoDB tables
+    // Allow access to the DynamoDB tables
     props.slackIdToGCalTokenTable.grantReadData(handleMeetCommandLambda);
+    props.slackIdToAADTokenTable.grantReadData(handleMeetCommandLambda);
     props.stateTable.grantReadWriteData(handleMeetCommandLambda);
     // Allow read access to the secret it needs
     props.slashMeetSecret.grantRead(handleMeetCommandLambda);
@@ -77,11 +78,25 @@ export class LambdaStack extends Stack {
       memorySize: 512,
       ...allLambdaProps
     });
-    // Allow access to the DyanamoDB tables
+    // Allow access to the DynamoDB tables
     props.slackIdToGCalTokenTable.grantReadWriteData(handleGoogleAuthRedirectLambda);
     props.stateTable.grantReadWriteData(handleGoogleAuthRedirectLambda);
     // Allow read access to the secret it needs
     props.slashMeetSecret.grantRead(handleGoogleAuthRedirectLambda);
+
+    // Create the lambda which handles the redirect from the AAD/Entra auth
+    const handleAADAuthRedirectLambda = new lambda.Function(this, "handleAADAuthRedirectLambda", {
+      handler: "handleAADAuthRedirect.handleAADAuthRedirect",
+      functionName: 'SlashMeet-handleAADAuthRedirectLambda',
+      code: lambda.Code.fromAsset("../lambda-src/dist/handleAADAuthRedirect"),
+      memorySize: 512,
+      ...allLambdaProps
+    });
+    // Allow access to the DynamoDB tables
+    props.slackIdToAADTokenTable.grantReadWriteData(handleAADAuthRedirectLambda);
+    props.stateTable.grantReadWriteData(handleAADAuthRedirectLambda);
+    // Allow read access to the secret it needs
+    props.slashMeetSecret.grantRead(handleAADAuthRedirectLambda);
 
     // Create the lambda for handling interactions.
     const handleInteractiveEndpointLambda = new lambda.Function(this, "handleInteractiveEndpointLambda", {
@@ -158,6 +173,9 @@ export class LambdaStack extends Stack {
     const handleGoogleAuthRedirectLambdaIntegration = new apigateway.LambdaIntegration(handleGoogleAuthRedirectLambda, {
       requestTemplates: {"application/json": '{ "statusCode": "200" }'}
     });
+    const handleAADAuthRedirectLambdaIntegration = new apigateway.LambdaIntegration(handleAADAuthRedirectLambda, {
+      requestTemplates: {"application/json": '{ "statusCode": "200" }'}
+    });
     const handleInteractiveEndpointLambdaIntegration = new apigateway.LambdaIntegration(handleInteractiveEndpointLambda, {
       requestTemplates: {"application/json": '{ "statusCode": "200" }'}
     });
@@ -165,13 +183,15 @@ export class LambdaStack extends Stack {
       requestTemplates: {"application/json": '{ "statusCode": "200" }'}
     });
     const initialResponseResource = api.root.addResource('meet');
-    const authenticationCallbackResource = api.root.addResource('redirectUri');
+    const gcpAuthenticationCallbackResource = api.root.addResource('google-oauth-redirect');
+    const aadAuthenticationCallbackResource = api.root.addResource('aad-oauth-redirect');
     const handleSlackAuthRedirectResource = api.root.addResource('slack-oauth-redirect');
     const handleInteractiveEndpointResource = api.root.addResource('interactive-endpoint');
     const handleEventsEndpointResource = api.root.addResource('events-endpoint');
     // And add the methods.
     initialResponseResource.addMethod("POST", handleSlashCommandLambdaIntegration);
-    authenticationCallbackResource.addMethod("GET", handleGoogleAuthRedirectLambdaIntegration);
+    gcpAuthenticationCallbackResource.addMethod("GET", handleGoogleAuthRedirectLambdaIntegration);
+    aadAuthenticationCallbackResource.addMethod("POST", handleAADAuthRedirectLambdaIntegration);
     handleSlackAuthRedirectResource.addMethod("GET", handleSlackAuthRedirectLambdaIntegration);
     handleInteractiveEndpointResource.addMethod("POST", handleInteractiveEndpointLambdaIntegration);
     handleEventsEndpointResource.addMethod("POST", handleEventsEndpointLambdaIntegration);

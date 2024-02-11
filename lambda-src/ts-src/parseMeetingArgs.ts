@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import {IterationNode, NonterminalNode, TerminalNode} from 'ohm-js';
+import {IterationNode, Node, NonterminalNode, TerminalNode} from 'ohm-js';
 import grammar, {MeetArgsActionDict, MeetArgsSemantics} from './meetArgs.ohm-bundle';
 
 export interface MeetingOptions {
   name: string
   startDate: Date,
-  endDate: Date
+  endDate: Date,
+  now: boolean,
+  noCal: boolean
 }
 
 /**
@@ -21,7 +23,9 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
   const meetingOptions : MeetingOptions = {
     name: '',
     startDate: new Date(defaultStartDate.getTime()),
-    endDate: new Date(defaultStartDate.getTime() + 1000 * 60 * 60) // 1 hour later than start
+    endDate: new Date(defaultStartDate.getTime() + 1000 * 60 * 60), // 1 hour later than start
+    now: false,
+    noCal: false
   };
 
   let amPm: string | undefined = undefined;
@@ -30,9 +34,10 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
   let minutes = 0;
 
   const actions: MeetArgsActionDict<MeetingOptions> = {
-    MeetingWithArgsExp(this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) {
+    MeetingWithArgsExp(this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: IterationNode) {
       arg0.eval();
       arg1.eval();
+      arg2.eval();
       return meetingOptions;
     },
     MeetingNameExp(this: NonterminalNode, arg0: NonterminalNode) {
@@ -143,6 +148,7 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
       arg0.eval();
       // Start time already set to the default if start is "now"
       if(this.sourceString == 'now') {
+        meetingOptions.now = true;
         return meetingOptions;
       }
       
@@ -154,6 +160,8 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
       }
       meetingOptions.startDate.setHours(hours);
       meetingOptions.startDate.setMinutes(minutes);
+      meetingOptions.startDate.setSeconds(0);
+      meetingOptions.startDate.setMilliseconds(0);
       return meetingOptions;
     },
     FinishTimeExp(this: NonterminalNode, arg0: NonterminalNode) {
@@ -166,6 +174,8 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
       }
       meetingOptions.endDate.setHours(hours);
       meetingOptions.endDate.setMinutes(minutes);
+      meetingOptions.endDate.setSeconds(minutes);
+      meetingOptions.endDate.setMilliseconds(0);
       return meetingOptions;
     },
     amPm(this: NonterminalNode, arg0: TerminalNode) {
@@ -185,11 +195,18 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
       }
       return meetingOptions;
     },
+    noCal(this: NonterminalNode, arg0: TerminalNode) {
+      arg0.eval();
+      meetingOptions.noCal = true;
+      return meetingOptions;
+    },
     _terminal(this: TerminalNode) {
       return meetingOptions;
     },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _iter(...children) {
+    _iter(...children: Node[]) {
+      for(const node of children) {
+        node.eval();
+      }
       return meetingOptions;
     }
   };

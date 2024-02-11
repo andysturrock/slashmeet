@@ -4,6 +4,7 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 
 export class DynamoDBStack extends Stack {
   public readonly slackIdToGCalTokenTable: dynamodb.Table;
+  public readonly slackIdToAADTokenTable: dynamodb.Table;
   public readonly stateTable: dynamodb.Table;
 
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -12,7 +13,16 @@ export class DynamoDBStack extends Stack {
     this.slackIdToGCalTokenTable = new dynamodb.Table(this, 'SlashMeet_SlackIdToGCalToken', {
       tableName: "SlashMeet_SlackIdToGCalToken",
       partitionKey: {name: 'slack_id', type: dynamodb.AttributeType.STRING},
-      sortKey: {name: "gcal_token", type: dynamodb.AttributeType.STRING},
+      sortKey: {name: "refresh_token", type: dynamodb.AttributeType.STRING},
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      timeToLiveAttribute: 'ttl',
+      removalPolicy: RemovalPolicy.DESTROY
+    });
+
+    this.slackIdToAADTokenTable = new dynamodb.Table(this, 'SlashMeet_SlackIdToAADToken', {
+      tableName: "SlashMeet_SlackIdToAADToken",
+      partitionKey: {name: 'slack_id', type: dynamodb.AttributeType.STRING},
+      sortKey: {name: "refresh_token", type: dynamodb.AttributeType.STRING},
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       timeToLiveAttribute: 'ttl',
       removalPolicy: RemovalPolicy.DESTROY
@@ -28,6 +38,7 @@ export class DynamoDBStack extends Stack {
 
     // Create exports from the CF template so that CF knows that other stacks depend on this stack.
     this.exportValue(this.slackIdToGCalTokenTable.tableArn);
+    this.exportValue(this.slackIdToAADTokenTable.tableArn);
     this.exportValue(this.stateTable.tableArn);
   }
 }
