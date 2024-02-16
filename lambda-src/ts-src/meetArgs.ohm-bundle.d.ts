@@ -13,6 +13,8 @@ import {
 
 export interface MeetArgsActionDict<T> extends BaseActionDict<T> {
   Exp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  Login?: (this: NonterminalNode, arg0: TerminalNode) => T;
+  Logout?: (this: NonterminalNode, arg0: TerminalNode) => T;
   MeetingWithArgsExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: IterationNode) => T;
   MeetingArgsExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   StartEndTimeExp?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;

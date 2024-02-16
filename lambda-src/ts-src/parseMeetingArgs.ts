@@ -7,26 +7,36 @@ export interface MeetingOptions {
   startDate: Date,
   endDate: Date,
   now: boolean,
-  noCal: boolean
+  noCal: boolean,
+  login?: boolean,
+  logout?: boolean
 }
 
 /**
  * Parses userInput into a {@link MeetingOptions} object.
  * @param userInput The string to parse.
- * @param defaultStartDate Default start date and time of the meeting if not provided in userInput or start time is passed as "now"
+ * @param nowDate Date to use as "now" if start is not specified or is specified as "now".
+ * Also used to set the day, month and year when a time is given for the start and end of the meeting.
  * @returns A {@link MeetingOptions} object with name, startDate and endDate populated.
  * @throws {Error} on invalid userInput.
  * @see {@link meetArgs.ohm} for grammar.
  */
-export function parseMeetingArgs(userInput: string, defaultStartDate: Date): MeetingOptions {
+export function parseMeetingArgs(userInput: string, nowDate: Date): MeetingOptions {
 
   const meetingOptions : MeetingOptions = {
     name: '',
-    startDate: new Date(defaultStartDate.getTime()),
-    endDate: new Date(defaultStartDate.getTime() + 1000 * 60 * 60), // 1 hour later than start
-    now: false,
-    noCal: false
+    startDate: new Date(nowDate.getTime()),
+    endDate: new Date(nowDate.getTime() + 1000 * 60 * 60), // 1 hour later than start
+    now: true,
+    noCal: false,
+    login: false,
+    logout: false
   };
+
+  meetingOptions.startDate.setSeconds(0);
+  meetingOptions.startDate.setMilliseconds(0);
+  meetingOptions.endDate.setSeconds(0);
+  meetingOptions.endDate.setMilliseconds(0);
 
   let amPm: string | undefined = undefined;
   let durationUnit: 'h' | 'm' | undefined = undefined;
@@ -34,6 +44,18 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
   let minutes = 0;
 
   const actions: MeetArgsActionDict<MeetingOptions> = {
+    Login(this: NonterminalNode, arg0: TerminalNode) {
+      arg0.eval();
+      meetingOptions.now = false;
+      meetingOptions.login = true;
+      return meetingOptions;
+    },
+    Logout(this: NonterminalNode, arg0: TerminalNode) {
+      arg0.eval();
+      meetingOptions.now = false;
+      meetingOptions.logout = true;
+      return meetingOptions;
+    },
     MeetingWithArgsExp(this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: IterationNode) {
       arg0.eval();
       arg1.eval();
@@ -160,8 +182,7 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
       }
       meetingOptions.startDate.setHours(hours);
       meetingOptions.startDate.setMinutes(minutes);
-      meetingOptions.startDate.setSeconds(0);
-      meetingOptions.startDate.setMilliseconds(0);
+      meetingOptions.now = false;
       return meetingOptions;
     },
     FinishTimeExp(this: NonterminalNode, arg0: NonterminalNode) {
@@ -174,8 +195,6 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
       }
       meetingOptions.endDate.setHours(hours);
       meetingOptions.endDate.setMinutes(minutes);
-      meetingOptions.endDate.setSeconds(minutes);
-      meetingOptions.endDate.setMilliseconds(0);
       return meetingOptions;
     },
     amPm(this: NonterminalNode, arg0: TerminalNode) {
