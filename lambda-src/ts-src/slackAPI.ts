@@ -1,6 +1,8 @@
 import {WebClient, LogLevel} from "@slack/web-api";
 import {getSecretValue} from './awsAPI';
 import {Block, KnownBlock} from "@slack/bolt";
+import util from 'util';
+import axios from 'axios';
 
 async function createClient() {
   const slackBotToken = await getSecretValue('SlashMeet', 'slackBotToken');
@@ -71,6 +73,32 @@ export async function postMessage(channelId: string, text:string, blocks: (Known
     text,
     blocks
   });
+}
+
+export async function postToResponseUrl(responseUrl: string, response_type: "ephemeral" | "in_channel", text: string, blocks: KnownBlock[]) {
+  const messageBody = {
+    response_type,
+    text,
+    blocks
+  };
+  const result = await axios.post(responseUrl, messageBody);
+  if(result.status !== 200) {
+    throw new Error(`Error ${util.inspect(result.statusText)} posting response: ${util.inspect(result.data)}`);
+  }
+  return result;
+}
+
+export async function postErrorMessageToResponseUrl(responseUrl: string, text: string) {
+  const blocks: KnownBlock[] = [
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text
+      }
+    }
+  ];
+  await postToResponseUrl(responseUrl, "ephemeral", text, blocks);
 }
 
 export type SlashCommandPayload = {

@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import {State, putState} from './stateTable';
 import {AuthorizationUrlRequest, ConfidentialClientApplication, CryptoProvider, ResponseMode} from '@azure/msal-node';
 import {aadScopes} from './aadConfig';
+import {ActionsBlock, KnownBlock, SectionBlock} from '@slack/bolt';
 
 /**
  * Generate a button for Microsoft AAD/Entra login.
@@ -36,34 +37,33 @@ export async function generateAADAuthBlocks(confidentialClientApplication: Confi
   };
   const url = await confidentialClientApplication.getAuthCodeUrl(authorizationUrlRequest);
 
-  const blocks = {
-    "blocks": [
+  const blocks: KnownBlock[] = [];
+  const sectionBlock: SectionBlock = {
+    type: "section",
+    fields: [
       {
-        type: "section",
-        fields: [
-          {
-            type: "plain_text",
-            text: "Sign in to Microsoft"
-          }
-        ]
-      },
-      {
-        type: "actions",
-        block_id: "signInButton",
-        elements: [
-          {
-            type: "button",
-            text: {
-              type: "plain_text",
-              text: "Sign in to Microsoft"
-            },
-            url,
-            style: "primary",
-            action_id: 'microsoftSignInButton'
-          }
-        ]
+        type: "plain_text",
+        text: "Sign in to Microsoft"
       }
     ]
   };
+  blocks.push(sectionBlock);
+  const actionsBlock: ActionsBlock = {
+    type: "actions",
+    block_id: "signInButton",
+    elements: [
+      {
+        type: "button",
+        text: {
+          type: "plain_text",
+          text: "Sign in to Microsoft"
+        },
+        url,
+        style: "primary",
+        action_id: 'microsoftSignInButton'
+      }
+    ]
+  };
+  blocks.push(actionsBlock);
   return blocks;
 }

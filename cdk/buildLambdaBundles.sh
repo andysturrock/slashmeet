@@ -7,6 +7,8 @@ rm -rf ../lambda-src/dist
 
 lambdas="handleSlashCommand \
  handleMeetCommand \
+ handleLoginCommand \
+ handleLogoutCommand \
  handleSlackAuthRedirect \
  handleGoogleAuthRedirect \
  handleAADAuthRedirect \
