@@ -11,7 +11,7 @@
     "@aws-sdk/client-secrets-manager": "^3.511.0",
     "@ohm-js/cli": "^2.0.0",
     "@tsconfig/node18": "^18.2.2",
-    "@types/aws-lambda": "^8.10.119",
+    "@types/aws-lambda": "^8.10.136",
     "@types/jest": "^29.5.7",
     "@typescript-eslint/eslint-plugin": "^6.20.0",
     "@typescript-eslint/parser": "^6.21.0",
