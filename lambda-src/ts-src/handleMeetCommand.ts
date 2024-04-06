@@ -25,7 +25,7 @@ export async function handleMeetCommand(event: SlashCommandPayload): Promise<voi
       return;
     }
     
-    const aadRefreshToken = await getAADToken(event.user_id);
+    // const aadRefreshToken = await getAADToken(event.user_id);
     const gcalRefreshToken = await getGCalToken(event.user_id);
     // If we're not logged into AAD/Entra and Google then there's a logic error, but handle it gracefully anyway.
     // TODO for now make logging into AAD optional
@@ -41,18 +41,18 @@ export async function handleMeetCommand(event: SlashCommandPayload): Promise<voi
     const slashMeetUrl = await getSecretValue('SlashMeet', 'slashMeetUrl');
     const gcpRedirectUri = `${slashMeetUrl}/google-oauth-redirect`;
 
-    const aadClientId = await getSecretValue('SlashMeet', 'aadClientId');
-    const aadTenantId = await getSecretValue('SlashMeet', 'aadTenantId');
-    const aadClientSecret = await getSecretValue('SlashMeet', 'aadClientSecret');
+    // const aadClientId = await getSecretValue('SlashMeet', 'aadClientId');
+    // const aadTenantId = await getSecretValue('SlashMeet', 'aadTenantId');
+    // const aadClientSecret = await getSecretValue('SlashMeet', 'aadClientSecret');
 
-    const msalConfig: Configuration = {
-      auth: {
-        clientId: aadClientId,
-        authority: `https://login.microsoftonline.com/${aadTenantId}`,
-        clientSecret: aadClientSecret
-      }
-    };
-    const confidentialClientApplication = new ConfidentialClientApplication(msalConfig);
+    // const msalConfig: Configuration = {
+    //   auth: {
+    //     clientId: aadClientId,
+    //     authority: `https://login.microsoftonline.com/${aadTenantId}`,
+    //     clientSecret: aadClientSecret
+    //   }
+    // };
+    // const confidentialClientApplication = new ConfidentialClientApplication(msalConfig);
 
     const oAuth2ClientOptions: Auth.OAuth2ClientOptions = {
       clientId: gcpClientId,
@@ -91,17 +91,15 @@ export async function handleMeetCommand(event: SlashCommandPayload): Promise<voi
       return;
     }
 
-    // TODO logged into AAD is optional for now
-    if(!meetingOptions.noCal && aadRefreshToken) {
-      // if(!meetingOptions.noCal) {
-      try {
-        await createOutlookCalendarMeeting(confidentialClientApplication, aadRefreshToken, event.user_id, event.channel_id, meetingOptions, timeZone, meetingUrl);
-      } catch (error) {
-        console.error(error);
-        await postErrorMessageToResponseUrl(responseUrl, "Error creating Outlook Calendar Meeting.");
-        return;
-      }
-    }
+    // if(!meetingOptions.noCal) {
+    //   try {
+    //     await createOutlookCalendarMeeting(confidentialClientApplication, aadRefreshToken, event.user_id, event.channel_id, meetingOptions, timeZone, meetingUrl);
+    //   } catch (error) {
+    //     console.error(error);
+    //     await postErrorMessageToResponseUrl(responseUrl, "Error creating Outlook Calendar Meeting.");
+    //     return;
+    //   }
+    // }
 
     // Create a nice looking "join meeting" message and schedule it to be sent when the meeting starts.
     try {
@@ -113,8 +111,9 @@ export async function handleMeetCommand(event: SlashCommandPayload): Promise<voi
       }
     } catch (error) {
       console.error(error);
-      await postErrorMessageToResponseUrl(responseUrl, "Error scheduling join meeting message.");
-      return;
+      const errorMsg = "Error sending/scheduling join meeting message.\n" +
+        "I need to be a member of a private channel to send messages to it.";
+      await postErrorMessageToResponseUrl(responseUrl, errorMsg);
     }
 
     // Tell the meeting organiser what their meeting URL will be.

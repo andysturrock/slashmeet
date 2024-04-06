@@ -18,22 +18,22 @@ export async function handleLoginCommand(event: SlashCommandPayload): Promise<vo
     const slashMeetUrl = await getSecretValue('SlashMeet', 'slashMeetUrl');
     const gcpRedirectUri = `${slashMeetUrl}/google-oauth-redirect`;
 
-    const aadClientId = await getSecretValue('SlashMeet', 'aadClientId');
-    const aadTenantId = await getSecretValue('SlashMeet', 'aadTenantId');
-    const aadClientSecret = await getSecretValue('SlashMeet', 'aadClientSecret');
-    const aadRedirectUri = `${slashMeetUrl}/aad-oauth-redirect`;
+    // const aadClientId = await getSecretValue('SlashMeet', 'aadClientId');
+    // const aadTenantId = await getSecretValue('SlashMeet', 'aadTenantId');
+    // const aadClientSecret = await getSecretValue('SlashMeet', 'aadClientSecret');
+    // const aadRedirectUri = `${slashMeetUrl}/aad-oauth-redirect`;
 
-    const msalConfig: Configuration = {
-      auth: {
-        clientId: aadClientId,
-        authority: `https://login.microsoftonline.com/${aadTenantId}`,
-        clientSecret: aadClientSecret
-      }
-    };
-    const confidentialClientApplication = new ConfidentialClientApplication(msalConfig);
+    // const msalConfig: Configuration = {
+    //   auth: {
+    //     clientId: aadClientId,
+    //     authority: `https://login.microsoftonline.com/${aadTenantId}`,
+    //     clientSecret: aadClientSecret
+    //   }
+    // };
+    // const confidentialClientApplication = new ConfidentialClientApplication(msalConfig);
   
-    const aadAuthBlocks = await generateAADAuthBlocks(confidentialClientApplication, aadRedirectUri, event.user_id, event.response_url);
-    await postToResponseUrl(responseUrl, "ephemeral", "Sign in to Microsoft", aadAuthBlocks);
+    // const aadAuthBlocks = await generateAADAuthBlocks(confidentialClientApplication, aadRedirectUri, event.user_id, event.response_url);
+    // await postToResponseUrl(responseUrl, "ephemeral", "Sign in to Microsoft", aadAuthBlocks);
 
     const oAuth2ClientOptions: Auth.OAuth2ClientOptions = {
       clientId: gcpClientId,

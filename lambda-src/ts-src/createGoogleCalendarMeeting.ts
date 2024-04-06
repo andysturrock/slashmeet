@@ -1,6 +1,6 @@
 import {Auth, calendar_v3, google} from 'googleapis';
 import {MeetingOptions} from './parseMeetingArgs';
-import util from 'util';
+
 /**
  * 
  * @param oauth2Client 

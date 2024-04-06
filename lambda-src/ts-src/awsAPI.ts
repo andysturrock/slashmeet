@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {SecretsManagerClient, GetSecretValueCommand, SecretsManagerClientConfig, GetSecretValueRequest} from "@aws-sdk/client-secrets-manager";
 
 /**
@@ -35,7 +32,7 @@ export async function getSecretValue(secretName: string, secretKey: string) {
   type SecretValue = {
     [key: string]: string;
  };
-  const secrets = JSON.parse(response.SecretString as string) as SecretValue;
+  const secrets = JSON.parse(response.SecretString) as SecretValue;
 
   const secret = secrets[secretKey];
   if(!secret) {

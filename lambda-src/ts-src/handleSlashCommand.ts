@@ -49,7 +49,7 @@ export async function handleSlashCommand(event: APIGatewayProxyEvent): Promise<A
     // const aadRefreshToken = await getAADToken(body.user_id);
     const gcalRefreshToken = await getGCalToken(body.user_id);
     // TODO for now make logging into AAD optional
-    // if(!aadRefreshToken || !gcalRefreshToken) {
+    // if(!aadRefreshToken || !gcalRefreshToken || meetingOptions.login) {
     if(!gcalRefreshToken || meetingOptions.login) {
       functionName = "SlashMeet-handleLoginCommandLambda";
     }
