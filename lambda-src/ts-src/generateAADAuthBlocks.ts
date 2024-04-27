@@ -11,7 +11,7 @@ import {ActionsBlock, KnownBlock, SectionBlock} from '@slack/bolt';
  * @param confidentialClientApplication initialised MSAL ConfidentialClientApplication object
  * @param slack_user_id Slack user id for the user signing in
  * @param response_url Response URL for use in the redirect handler to send messages to the Slack user
- * @returns blocks containing the "Sign in to Google" button
+ * @returns blocks containing the "Sign in to Microsoft" button
  */
 export async function generateAADAuthBlocks(confidentialClientApplication: ConfidentialClientApplication, redirectUri: string, slack_user_id: string, response_url: string) {
   const cryptoProvider = new CryptoProvider();

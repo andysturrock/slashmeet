@@ -15,5 +15,5 @@
     "forceConsistentCasingInFileNames": true, 
     "isolatedModules": true, 
   },
-  "exclude": ["node_modules", "**/jest.config.ts"]
+  "exclude": ["node_modules"]
 }

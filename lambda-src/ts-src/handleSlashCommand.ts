@@ -41,15 +41,15 @@ export async function handleSlashCommand(event: APIGatewayProxyEvent): Promise<A
     let meetingOptions: MeetingOptions;
     try {
       const meetingArgs = body.text.length == 0 ? '/meet' : body.text;
-      meetingOptions = parseMeetingArgs(meetingArgs, new Date());
+      meetingOptions = parseMeetingArgs(meetingArgs, new Date(), "Etc/UTC");
     } catch (error) {
       console.error(error);
       return createErrorResult("Usage: /meet ([name] [start|now] [end|duration] [nocal]) | [login] | [logout]");
     }
-    // const aadRefreshToken = await getAADToken(body.user_id);
+
     const gcalRefreshToken = await getGCalToken(body.user_id);
-    // TODO for now make logging into AAD optional
-    // if(!aadRefreshToken || !gcalRefreshToken || meetingOptions.login) {
+    // Logging into Google is mandatory so if we're not logged in then run the login Lambda.
+    // Also run the login lambda if the user has run the login subcommand.
     if(!gcalRefreshToken || meetingOptions.login) {
       functionName = "SlashMeet-handleLoginCommandLambda";
     }

@@ -39,7 +39,7 @@ describe('Check different names work', () => {
     test(`should be called ${unquotedName}`, () => {
       const startDate = new Date(fourteenHundredNinteenthJuneTwentyTwentyThree);
       const endDate = new Date(startDate.getTime() + 1000 * 60 * 60);
-      const actual = parseMeetingArgs(`${meetingName}`, startDate);
+      const actual = parseMeetingArgs(`${meetingName}`, startDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
       const expected: MeetingOptions = {
         name: unquotedName,
         startDate,
@@ -58,7 +58,7 @@ test(`should be called ${fooName} and duration ${oneHourDuration}`, () => {
   const startDate = new Date(fourteenHundredNinteenthJuneTwentyTwentyThree);
   const endDate = new Date(startDate.getTime() + 1000 * 60 * 60);
   const name = fooName;
-  const actual = parseMeetingArgs(`${name} ${oneHourDuration}`, startDate);
+  const actual = parseMeetingArgs(`${name} ${oneHourDuration}`, startDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
   const expected: MeetingOptions = {
     name,
     startDate,
@@ -75,7 +75,7 @@ test(`should be called ${fooName} and duration ${twentyFiveMinsDuration}`, () =>
   const startDate = new Date(fourteenHundredNinteenthJuneTwentyTwentyThree);
   const endDate = new Date(startDate.getTime() + 1000 * 60 * 25);
   const name = fooName;
-  const actual = parseMeetingArgs(`${name} ${twentyFiveMinsDuration}`, startDate);
+  const actual = parseMeetingArgs(`${name} ${twentyFiveMinsDuration}`, startDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
   const expected: MeetingOptions = {
     name,
     startDate,
@@ -88,11 +88,28 @@ test(`should be called ${fooName} and duration ${twentyFiveMinsDuration}`, () =>
   expect(actual).toStrictEqual<MeetingOptions>(expected);
 });
 
+test(`should be called ${fooName} with start ${fourteenHundred} and default duration`, () => {
+  const startDate = new Date(fourteenHundredNinteenthJuneTwentyTwentyThree);
+  const endDate = new Date(startDate.getTime() + 1000 * 60 * 60);
+  const name = fooName;
+  const actual = parseMeetingArgs(`${name} ${fourteenHundred}`, startDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
+  const expected: MeetingOptions = {
+    name,
+    startDate,
+    endDate,
+    now: false,
+    noCal: false,
+    login: false,
+    logout: false
+  };
+  expect(actual).toStrictEqual<MeetingOptions>(expected);
+});
+
 test(`should be called ${fooName} with start ${fourteenHundred} and duration ${twentyFiveMinsDuration}`, () => {
   const startDate = new Date(fourteenHundredNinteenthJuneTwentyTwentyThree);
   const endDate = new Date(startDate.getTime() + 1000 * 60 * 25);
   const name = fooName;
-  const actual = parseMeetingArgs(`${name} ${fourteenHundred} ${twentyFiveMinsDuration}`, startDate);
+  const actual = parseMeetingArgs(`${name} ${fourteenHundred} ${twentyFiveMinsDuration}`, startDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
   const expected: MeetingOptions = {
     name,
     startDate,
@@ -109,7 +126,7 @@ test(`should be called ${fooName} with start ${twoPM} and duration ${twentyFiveM
   const startDate = new Date(fourteenHundredNinteenthJuneTwentyTwentyThree);
   const endDate = new Date(startDate.getTime() + 1000 * 60 * 25);
   const name = fooName;
-  const actual = parseMeetingArgs(`${name} ${twoPM} ${twentyFiveMinsDuration}`, startDate);
+  const actual = parseMeetingArgs(`${name} ${twoPM} ${twentyFiveMinsDuration}`, startDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
   const expected: MeetingOptions = {
     name,
     startDate,
@@ -127,7 +144,7 @@ test(`should be called ${fooName} with start ${elevenPM} and duration ${twentyFi
   startDate.setHours(23);
   const endDate = new Date(startDate.getTime() + 1000 * 60 * 25);
   const name = fooName;
-  const actual = parseMeetingArgs(`${name} ${elevenPM} ${twentyFiveMinsDuration}`, startDate);
+  const actual = parseMeetingArgs(`${name} ${elevenPM} ${twentyFiveMinsDuration}`, startDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
   const expected: MeetingOptions = {
     name,
     startDate,
@@ -146,7 +163,7 @@ test(`should be called ${fooName} with start ${oneTwelvePM} and duration ${twent
   startDate.setMinutes(12);
   const endDate = new Date(startDate.getTime() + 1000 * 60 * 25);
   const name = fooName;
-  const actual = parseMeetingArgs(`${name} ${oneTwelvePM} ${twentyFiveMinsDuration}`, startDate);
+  const actual = parseMeetingArgs(`${name} ${oneTwelvePM} ${twentyFiveMinsDuration}`, startDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
   const expected: MeetingOptions = {
     name,
     startDate,
@@ -165,7 +182,7 @@ test(`should be called ${fooName} with start ${tenTwentyThreePM} and duration ${
   startDate.setMinutes(23);
   const endDate = new Date(startDate.getTime() + 1000 * 60 * 25);
   const name = fooName;
-  const actual = parseMeetingArgs(`${name} ${tenTwentyThreePM} ${twentyFiveMinsDuration}`, startDate);
+  const actual = parseMeetingArgs(`${name} ${tenTwentyThreePM} ${twentyFiveMinsDuration}`, startDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
   const expected: MeetingOptions = {
     name,
     startDate,
@@ -186,7 +203,7 @@ test(`should be called ${fooName} with start ${tenTwentyThreePM} and end ${seven
   endDate.setHours(17);
   endDate.setMinutes(0);
   const name = fooName;
-  const actual = parseMeetingArgs(`${name} ${tenTwentyThreePM} ${seventeenHundred}`, startDate);
+  const actual = parseMeetingArgs(`${name} ${tenTwentyThreePM} ${seventeenHundred}`, startDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
   const expected: MeetingOptions = {
     name,
     startDate,
@@ -207,7 +224,7 @@ test(`should be called ${fooName} with start ${fivePM} and end ${tenTwentyThreeP
   endDate.setHours(22);
   endDate.setMinutes(23);
   const name = fooName;
-  const actual = parseMeetingArgs(`${name} ${fivePM} ${tenTwentyThreePM}`, startDate);
+  const actual = parseMeetingArgs(`${name} ${fivePM} ${tenTwentyThreePM}`, startDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
   const expected: MeetingOptions = {
     name,
     startDate,
@@ -227,7 +244,7 @@ test(`should be called ${fooName} with start ${tenTwentyThreePM} and end ${eleve
   const endDate = new Date(startDate);
   endDate.setHours(23, 0);
   const name = fooName;
-  const actual = parseMeetingArgs(`${name} ${tenTwentyThreePM} ${elevenPM}`, startDate);
+  const actual = parseMeetingArgs(`${name} ${tenTwentyThreePM} ${elevenPM}`, startDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
   const expected: MeetingOptions = {
     name,
     startDate,
@@ -248,7 +265,7 @@ test(`should be called ${fooName} with start ${tenTwentyThreePM} and end ${oneTw
   endDate.setHours(13);
   endDate.setMinutes(23);
   const name = fooName;
-  const actual = parseMeetingArgs(`${name} ${tenTwentyThreePM} ${oneTwentyThreePM}`, startDate);
+  const actual = parseMeetingArgs(`${name} ${tenTwentyThreePM} ${oneTwentyThreePM}`, startDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
   const expected: MeetingOptions = {
     name,
     startDate,
@@ -269,7 +286,7 @@ test(`should be called ${fooName} with start ${tenTwentyThreePM} and end ${eleve
   endDate.setHours(23);
   endDate.setMinutes(23);
   const name = fooName;
-  const actual = parseMeetingArgs(`${name} ${tenTwentyThreePM} ${elevenTwentyThreePM}`, startDate);
+  const actual = parseMeetingArgs(`${name} ${tenTwentyThreePM} ${elevenTwentyThreePM}`, startDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
   const expected: MeetingOptions = {
     name,
     startDate,
@@ -286,7 +303,7 @@ test(`should be called ${fooName} with start ${now} and duration ${twentyFiveMin
   const startDate = new Date(fourteenHundredNinteenthJuneTwentyTwentyThree);
   const endDate = new Date(startDate.getTime() + 1000 * 60 * 25);
   const name = fooName;
-  const actual = parseMeetingArgs(`${name} ${now} ${twentyFiveMinsDuration}`, startDate);
+  const actual = parseMeetingArgs(`${name} ${now} ${twentyFiveMinsDuration}`, startDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
   const expected: MeetingOptions = {
     name,
     startDate,
@@ -303,7 +320,7 @@ test(`should be called "${fooName}" with start ${now} (${fourteenHundredNinteent
   const startDate = new Date(fourteenHundredNinteenthJuneTwentyTwentyThree);
   const endDate = new Date(startDate.getTime() + 1000 * 60 * 60);
   const name = fooName;
-  const actual = parseMeetingArgs(name, startDate);
+  const actual = parseMeetingArgs(name, startDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
   const expected: MeetingOptions = {
     name,
     startDate,
@@ -318,14 +335,14 @@ test(`should be called "${fooName}" with start ${now} (${fourteenHundredNinteent
 
 test(`should throw an error when meeting args are empty`, () => {
   const startDate = new Date(fourteenHundredNinteenthJuneTwentyTwentyThree);
-  expect(() => parseMeetingArgs('', startDate)).toThrow("cannot apply Semantics to [match failed at position 0]");
+  expect(() => parseMeetingArgs('', startDate, Intl.DateTimeFormat().resolvedOptions().timeZone)).toThrow("cannot apply Semantics to [match failed at position 0]");
 });
 
 test(`nocal option parsed correctly when present`, () => {
   const startDate = new Date(fourteenHundredNinteenthJuneTwentyTwentyThree);
   const endDate = new Date(startDate.getTime() + 1000 * 60 * 60);
   const name = fooName;
-  const actual = parseMeetingArgs(`${name} ${now} nocal`, startDate);
+  const actual = parseMeetingArgs(`${name} ${now} nocal`, startDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
   const expected: MeetingOptions = {
     name,
     startDate,
@@ -342,7 +359,7 @@ test(`login option parsed correctly`, () => {
   const startDate = new Date(fourteenHundredNinteenthJuneTwentyTwentyThree);
   const endDate = new Date(startDate.getTime() + 1000 * 60 * 60);
   const name = "";
-  const actual = parseMeetingArgs("login", startDate);
+  const actual = parseMeetingArgs("login", startDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
   const expected: MeetingOptions = {
     name,
     startDate,
@@ -359,7 +376,7 @@ test(`logout option parsed correctly`, () => {
   const startDate = new Date(fourteenHundredNinteenthJuneTwentyTwentyThree);
   const endDate = new Date(startDate.getTime() + 1000 * 60 * 60);
   const name = "";
-  const actual = parseMeetingArgs("logout", startDate);
+  const actual = parseMeetingArgs("logout", startDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
   const expected: MeetingOptions = {
     name,
     startDate,
@@ -368,6 +385,29 @@ test(`logout option parsed correctly`, () => {
     noCal: false,
     login: false,
     logout: true
+  };
+  expect(actual).toStrictEqual<MeetingOptions>(expected);
+});
+
+test(`Deals with timezones correctly`, () => {
+  process.env.TZ = "Etc/UTC";
+  const startDate = new Date(fourteenHundredNinteenthJuneTwentyTwentyThree);
+  // 14:00 EST is 19:00 UTC
+  startDate.setHours(19);
+  const endDate = new Date(startDate);
+  // 15:30 EST is 20:30 UTC
+  endDate.setHours(20);
+  endDate.setMinutes(30);
+  const name = fooName;
+  const actual = parseMeetingArgs(`${name} 14:00 15:30`, startDate, "EST");
+  const expected: MeetingOptions = {
+    name,
+    startDate,
+    endDate,
+    now: false,
+    noCal: false,
+    login: false,
+    logout: false
   };
   expect(actual).toStrictEqual<MeetingOptions>(expected);
 });

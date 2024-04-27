@@ -9,7 +9,7 @@ import {MeetingOptions} from './parseMeetingArgs';
  * @returns URL of the meeting
  * @throws if meeting creation fails or cannot get the timezone from the Slack user.
  */
-export async function createGoogleMeetMeeting(oauth2Client: Auth.OAuth2Client, meetingOptions: MeetingOptions, timeZone: string) {
+export async function createGoogleMeetMeeting(oauth2Client: Auth.OAuth2Client, meetingOptions: MeetingOptions) {
   const calendar = google.calendar('v3');
   google.options({auth: oauth2Client});
 
@@ -22,21 +22,15 @@ export async function createGoogleMeetMeeting(oauth2Client: Auth.OAuth2Client, m
     createRequest: createRequest
   };
 
-  // Convert time to RFC3339 format, without the milliseconds or Z bit as we will specify the timezone.
-  const startDate = meetingOptions.startDate?.toISOString().substring(0, 19);
-  const endDate = meetingOptions.endDate?.toISOString().substring(0, 19);
-
   const event: calendar_v3.Schema$Event = {
     conferenceData: conferenceData,
     summary: meetingOptions.name,
     description: 'Generated /meet event from Slack',
     start: {
-      dateTime: startDate,
-      timeZone
+      dateTime: meetingOptions.startDate.toISOString()
     },
     end: {
-      dateTime: endDate,
-      timeZone
+      dateTime: meetingOptions.endDate.toISOString()
     }
   };
   const meetingParams: calendar_v3.Params$Resource$Events$Insert = {

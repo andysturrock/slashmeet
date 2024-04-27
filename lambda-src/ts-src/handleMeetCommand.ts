@@ -13,46 +13,53 @@ export async function handleMeetCommand(event: SlashCommandPayload): Promise<voi
   const responseUrl = event.response_url;
   try {
 
+    let timeZone = "Etc/UTC";
+    try {
+      timeZone = await getSlackUserTimeZone(event.user_id);
+    } catch (error) {
+      console.error(error);
+      await postErrorMessageToResponseUrl(responseUrl, "Error getting user's timezone.");
+      return;
+    }
+
     // Give a default name for the meeting if not provided.
     const meetingArgs = event.text.length == 0 ? '/meet' : event.text;
     const now = new Date();
     let meetingOptions: MeetingOptions;
     try {
-      meetingOptions = parseMeetingArgs(meetingArgs, now);
+      meetingOptions = parseMeetingArgs(meetingArgs, now, timeZone);
     } catch (error) {
       console.error(error);
       await postErrorMessageToResponseUrl(responseUrl, "Error parsing meeting options.");
       return;
     }
     
-    // const aadRefreshToken = await getAADToken(event.user_id);
+    const aadRefreshToken = await getAADToken(event.user_id);
     const gcalRefreshToken = await getGCalToken(event.user_id);
-    // If we're not logged into AAD/Entra and Google then there's a logic error, but handle it gracefully anyway.
-    // TODO for now make logging into AAD optional
-    // if(!aadRefreshToken || !gcalRefreshToken) {
+    // If we're not logged into Google then there's a logic error, but handle it gracefully anyway.
+    // Logging into AAD is optional.
     if(!gcalRefreshToken) {
       await postErrorMessageToResponseUrl(responseUrl, "Run the /meet login command to log in.");
       return;
     }
 
-    // User is logged into both AAD and Google so now we can use those APIs to create the meeting.
     const gcpClientId = await getSecretValue('SlashMeet', 'gcpClientId');
     const gcpClientSecret = await getSecretValue('SlashMeet', 'gcpClientSecret');
     const slashMeetUrl = await getSecretValue('SlashMeet', 'slashMeetUrl');
     const gcpRedirectUri = `${slashMeetUrl}/google-oauth-redirect`;
 
-    // const aadClientId = await getSecretValue('SlashMeet', 'aadClientId');
-    // const aadTenantId = await getSecretValue('SlashMeet', 'aadTenantId');
-    // const aadClientSecret = await getSecretValue('SlashMeet', 'aadClientSecret');
+    const aadClientId = await getSecretValue('SlashMeet', 'aadClientId');
+    const aadTenantId = await getSecretValue('SlashMeet', 'aadTenantId');
+    const aadClientSecret = await getSecretValue('SlashMeet', 'aadClientSecret');
 
-    // const msalConfig: Configuration = {
-    //   auth: {
-    //     clientId: aadClientId,
-    //     authority: `https://login.microsoftonline.com/${aadTenantId}`,
-    //     clientSecret: aadClientSecret
-    //   }
-    // };
-    // const confidentialClientApplication = new ConfidentialClientApplication(msalConfig);
+    const msalConfig: Configuration = {
+      auth: {
+        clientId: aadClientId,
+        authority: `https://login.microsoftonline.com/${aadTenantId}`,
+        clientSecret: aadClientSecret
+      }
+    };
+    const confidentialClientApplication = new ConfidentialClientApplication(msalConfig);
 
     const oAuth2ClientOptions: Auth.OAuth2ClientOptions = {
       clientId: gcpClientId,
@@ -65,41 +72,29 @@ export async function handleMeetCommand(event: SlashCommandPayload): Promise<voi
       refresh_token: gcalRefreshToken
     });
 
-    let timeZone: string;
-    // If the user specified a startDate then grab their timezone.
-    // If they didn't specify (or they used "now"), then AWS uses GMT.
-    // We'll pass the timezone to Google and MS Graph APIs later.
-    if(meetingOptions.startDate.getTime() == now.getTime()) {
-      timeZone = "Etc/GMT";
-    }
-    else {
-      try {
-        timeZone = await getSlackUserTimeZone(event.user_id);
-      } catch (error) {
-        console.error(error);
-        await postErrorMessageToResponseUrl(responseUrl, "Error getting user's timezone.");
-        return;
-      }
-    }
-
     let meetingUrl: string;
     try {
-      meetingUrl = await createGoogleCalendarMeeting(oauth2Client, meetingOptions, timeZone);  
+      meetingUrl = await createGoogleCalendarMeeting(oauth2Client, meetingOptions);  
     } catch (error) {
       console.error(error);
       await postErrorMessageToResponseUrl(responseUrl, "Error creating Google Calendar Meeting.");
       return;
     }
 
-    // if(!meetingOptions.noCal) {
-    //   try {
-    //     await createOutlookCalendarMeeting(confidentialClientApplication, aadRefreshToken, event.user_id, event.channel_id, meetingOptions, timeZone, meetingUrl);
-    //   } catch (error) {
-    //     console.error(error);
-    //     await postErrorMessageToResponseUrl(responseUrl, "Error creating Outlook Calendar Meeting.");
-    //     return;
-    //   }
-    // }
+    if(!meetingOptions.noCal) {
+      if(aadRefreshToken) {
+        try {
+          await createOutlookCalendarMeeting(confidentialClientApplication, aadRefreshToken, event.user_id, event.channel_id, meetingOptions, timeZone, meetingUrl);
+        } catch (error) {
+          console.error(error);
+          await postErrorMessageToResponseUrl(responseUrl, "Error creating Outlook Calendar Meeting.");
+          return;
+        }
+      }
+      else {
+        await postErrorMessageToResponseUrl(responseUrl, "Not logged into AAD so skipping creating Outlook Calendar Meeting.");
+      }
+    }
 
     // Create a nice looking "join meeting" message and schedule it to be sent when the meeting starts.
     try {
@@ -111,7 +106,7 @@ export async function handleMeetCommand(event: SlashCommandPayload): Promise<voi
       }
     } catch (error) {
       console.error(error);
-      const errorMsg = "Error sending/scheduling join meeting message.\n" +
+      const errorMsg = "Can't send or schedule join meeting message.\n" +
         "I need to be a member of a private channel to send messages to it.";
       await postErrorMessageToResponseUrl(responseUrl, errorMsg);
     }

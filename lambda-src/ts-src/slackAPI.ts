@@ -58,12 +58,15 @@ export async function getChannelMembers(channelId: string) {
 
 export async function scheduleMessage(channelId: string, text:string, blocks: (KnownBlock | Block)[], when: Date) {
   const client = await createClient();
-  await client.chat.scheduleMessage({
+  const response = await client.chat.scheduleMessage({
     channel: channelId,
     text,
     blocks,
     post_at: Math.floor(when.getTime() / 1000)
   });
+  if(response.error) {
+    throw new Error(`Error scheduling message: ${response.error}`);
+  }
 }
 
 export async function postMessage(channelId: string, text:string, blocks: (KnownBlock | Block)[]) {
