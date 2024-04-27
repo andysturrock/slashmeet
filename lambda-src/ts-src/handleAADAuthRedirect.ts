@@ -4,7 +4,7 @@ import {saveAADToken} from './tokenStorage';
 import {getSecretValue} from './awsAPI';
 import {deleteState, getState} from './stateTable';
 import querystring from 'querystring';
-import {AuthorizationCodePayload, AuthorizationCodeRequest, ConfidentialClientApplication, Configuration, LogLevel} from '@azure/msal-node';
+import {AuthorizationCodePayload, AuthorizationCodeRequest, ConfidentialClientApplication, Configuration} from '@azure/msal-node';
 import {aadScopes} from './aadConfig';
 
 export async function handleAADAuthRedirect(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {

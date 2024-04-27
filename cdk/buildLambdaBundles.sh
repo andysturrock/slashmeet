@@ -5,8 +5,15 @@ set -eo pipefail
 echo "Deleting old bundles..."
 rm -rf ../lambda-src/dist
 
+echo "Typechecking files..."
+( cd ../lambda-src &&
+ tsc --noEmit --project ./tsconfig-build.json
+)
+
 lambdas="handleSlashCommand \
  handleMeetCommand \
+ handleLoginCommand \
+ handleLogoutCommand \
  handleSlackAuthRedirect \
  handleGoogleAuthRedirect \
  handleAADAuthRedirect \

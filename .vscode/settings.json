@@ -3,5 +3,7 @@
     "source.fixAll.eslint": "explicit"
   },
   "eslint.codeActionsOnSave.mode": "all",
-  "eslint.debug": true
+  "eslint.debug": true,
+  "jest.jestCommandLine": "npm run test --",
+  "jest.rootPath": "lambda-src"
 }

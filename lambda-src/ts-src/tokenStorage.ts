@@ -73,7 +73,7 @@ async function deleteToken(tableName: string, slackUserId:string) {
   const deleteItemCommandInput: DeleteItemCommandInput = {
     TableName: tableName,
     Key: {
-      ":slack_id" : {"S" : slackUserId}
+      slack_id: {S : slackUserId}
     }
   };
 

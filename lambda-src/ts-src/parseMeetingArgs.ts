@@ -1,39 +1,75 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import {IterationNode, Node, NonterminalNode, TerminalNode} from 'ohm-js';
 import grammar, {MeetArgsActionDict, MeetArgsSemantics} from './meetArgs.ohm-bundle';
+import {DateTime} from 'luxon';
 
 export interface MeetingOptions {
   name: string
   startDate: Date,
   endDate: Date,
   now: boolean,
-  noCal: boolean
+  noCal: boolean,
+  login?: boolean,
+  logout?: boolean
 }
 
 /**
  * Parses userInput into a {@link MeetingOptions} object.
  * @param userInput The string to parse.
- * @param defaultStartDate Default start date and time of the meeting if not provided in userInput or start time is passed as "now"
+ * @param nowDate Date to use as "now" if start is not specified or is specified as "now".
+ * Also used to set the day, month and year when a time is given for the start and end of the meeting.
+ * @param timeZone The timezone the user is in, which may be different from the timezone this code executes in.
+ * Let's say the code is executing in UTC (eg AWS Lambda always uses UTC) but the user's timezone is "America/New_York".
+ * If the user specifies 10:00 as the start time for the meeting they mean 10am NY time, not 10am UTC.
+ * Thus the resulting startDate will contain 05:00 UTC when EST is in place or 06:00 UTC when EDT is in place.
+ * The day in UTC may even shift.  If it's 27th April 6am in Asia/Singapore that's 26th April 6pm Etc/UTC.
+ * If the "login" or "logout" options are used the values of the other fields is not defined.
  * @returns A {@link MeetingOptions} object with name, startDate and endDate populated.
  * @throws {Error} on invalid userInput.
  * @see {@link meetArgs.ohm} for grammar.
  */
-export function parseMeetingArgs(userInput: string, defaultStartDate: Date): MeetingOptions {
+export function parseMeetingArgs(userInput: string, nowDate: Date, timeZone: string): MeetingOptions {
 
   const meetingOptions : MeetingOptions = {
     name: '',
-    startDate: new Date(defaultStartDate.getTime()),
-    endDate: new Date(defaultStartDate.getTime() + 1000 * 60 * 60), // 1 hour later than start
-    now: false,
-    noCal: false
+    // Default start is nowDate
+    startDate: new Date(nowDate.getTime()),
+    // Default end is 1 hour after nowDate
+    endDate: new Date(nowDate.getTime() + 1000 * 60 * 60), 
+    now: true,
+    noCal: false,
+    login: false,
+    logout: false
   };
+
+  meetingOptions.startDate.setSeconds(0);
+  meetingOptions.startDate.setMilliseconds(0);
+  meetingOptions.endDate.setSeconds(0);
+  meetingOptions.endDate.setMilliseconds(0);
 
   let amPm: string | undefined = undefined;
   let durationUnit: 'h' | 'm' | undefined = undefined;
   let hours = 0;
   let minutes = 0;
+  let startHour: number | null = null;
+  let startMinute = 0;
+  let endHour: number | null = null;
+  let endMinute = 0;
+  let durationMinutes: number | null = null;
 
   const actions: MeetArgsActionDict<MeetingOptions> = {
+    Login(this: NonterminalNode, arg0: TerminalNode) {
+      arg0.eval();
+      meetingOptions.now = false;
+      meetingOptions.login = true;
+      return meetingOptions;
+    },
+    Logout(this: NonterminalNode, arg0: TerminalNode) {
+      arg0.eval();
+      meetingOptions.now = false;
+      meetingOptions.logout = true;
+      return meetingOptions;
+    },
     MeetingWithArgsExp(this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: IterationNode) {
       arg0.eval();
       arg1.eval();
@@ -84,7 +120,6 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
     DurationExp(this: NonterminalNode, arg0: IterationNode, arg1: NonterminalNode) {
       arg0.eval();
       arg1.eval();
-      let durationMinutes = 0;
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       const regexp = new RegExp(`([0-9]+)${durationUnit}`);
       const match = this.sourceString.match(regexp);
@@ -94,7 +129,6 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
           durationMinutes *= 60;
         }
       }
-      meetingOptions.endDate?.setTime(meetingOptions.startDate.getTime() + durationMinutes * 60 * 1000);
       return meetingOptions;
     },
     oneDigitHourOnlyExp(this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) {
@@ -158,10 +192,9 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
         }
         amPm = undefined;
       }
-      meetingOptions.startDate.setHours(hours);
-      meetingOptions.startDate.setMinutes(minutes);
-      meetingOptions.startDate.setSeconds(0);
-      meetingOptions.startDate.setMilliseconds(0);
+      startHour = hours;
+      startMinute = minutes;
+      meetingOptions.now = false;
       return meetingOptions;
     },
     FinishTimeExp(this: NonterminalNode, arg0: NonterminalNode) {
@@ -172,10 +205,8 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
         }
         amPm = undefined;
       }
-      meetingOptions.endDate.setHours(hours);
-      meetingOptions.endDate.setMinutes(minutes);
-      meetingOptions.endDate.setSeconds(minutes);
-      meetingOptions.endDate.setMilliseconds(0);
+      endHour = hours;
+      endMinute = minutes;
       return meetingOptions;
     },
     amPm(this: NonterminalNode, arg0: TerminalNode) {
@@ -216,7 +247,47 @@ export function parseMeetingArgs(userInput: string, defaultStartDate: Date): Mee
 
   const matchResult = grammar.match(userInput);
   const semanticsResult = semantics(matchResult);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const evalResult = semanticsResult.eval();
-  return evalResult as MeetingOptions;
+  //eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const evalResult = semanticsResult.eval() as MeetingOptions;
+
+  // Now create the start and end datetimes interpreted in the right timezone.
+  // If the start was specified as "now" (or no start was specified, which is the same thing)
+  // then we don't need to worry about timezones as now is just now wherever we are.
+  // But if the user has specified a date they expect it to be in their timezone.
+  if(!evalResult.now) {
+    // So first shift the nowDate into the user's timezone.
+    // Note this may shift the date forward or back a day.
+    const nowInUserTimeZone = DateTime.fromJSDate(nowDate).setZone(timeZone);
+    // Now construct the new start date.
+    // If we're not "now" and haven't seen a startHour then use the shifted nowDate.
+    if(!startHour) {
+      startHour = nowInUserTimeZone.hour;
+      startMinute = nowInUserTimeZone.minute;
+    }
+    const startDateObj = {
+      year: nowInUserTimeZone.year,
+      month: nowInUserTimeZone.month,
+      day: nowInUserTimeZone.day,
+      hour: startHour,
+      minute: startMinute
+    };
+    evalResult.startDate = DateTime.fromObject(startDateObj, {zone: timeZone}).toJSDate();
+  }
+  // Construct the end date.  This could either be specified or given by duration.
+  if(durationMinutes) {      
+    evalResult.endDate = new Date(evalResult.startDate.getTime() + durationMinutes * 60 * 1000);
+  }
+  else if(endHour) {
+    const nowInUserTimeZone = DateTime.fromJSDate(nowDate).setZone(timeZone);
+    const endDateObj = {
+      year: nowInUserTimeZone.year,
+      month: nowInUserTimeZone.month,
+      day: nowInUserTimeZone.day,
+      hour: endHour,
+      minute: endMinute
+    };
+    evalResult.endDate = DateTime.fromObject(endDateObj, {zone: timeZone}).toJSDate();
+  }
+
+  return evalResult;
 }

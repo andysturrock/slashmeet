@@ -1,6 +1,7 @@
 import {Auth} from 'googleapis';
 import crypto from 'crypto';
 import {State, putState} from './stateTable';
+import {ActionsBlock, KnownBlock, SectionBlock} from '@slack/bolt';
 
 /**
  * Generate a button for Google login.
@@ -35,34 +36,33 @@ export async function generateGoogleAuthBlocks(oauth2Client: Auth.OAuth2Client, 
     prompt: 'consent'
   });
 
-  const blocks = {
-    "blocks": [
+  const blocks: KnownBlock[] = [];
+  const sectionBlock: SectionBlock = {
+    type: "section",
+    fields: [
       {
-        type: "section",
-        fields: [
-          {
-            type: "plain_text",
-            text: "Sign in to Google"
-          }
-        ]
-      },
-      {
-        type: "actions",
-        block_id: "signInButton",
-        elements: [
-          {
-            type: "button",
-            text: {
-              type: "plain_text",
-              text: "Sign in to Google"
-            },
-            url,
-            style: "primary",
-            action_id: 'googleSignInButton'
-          }
-        ]
+        type: "plain_text",
+        text: "Sign in to Google"
       }
     ]
   };
+  blocks.push(sectionBlock);
+  const actionsBlock: ActionsBlock = {
+    type: "actions",
+    block_id: "signInButton",
+    elements: [
+      {
+        type: "button",
+        text: {
+          type: "plain_text",
+          text: "Sign in to Google"
+        },
+        url,
+        style: "primary",
+        action_id: 'googleSignInButton'
+      }
+    ]
+  };
+  blocks.push(actionsBlock);
   return blocks;
 }

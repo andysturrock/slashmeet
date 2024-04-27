@@ -15,7 +15,7 @@
         "command": "/meet",
         "url": "https://slashmeet.slackapps.example.com/0_0_1/meet",
         "description": "Create a GMeet meeting",
-        "usage_hint": "[name] [start|now] [end|duration] [nocal]",
+        "usage_hint": "([name] [start|now] [end|duration] [nocal]) | [login] | [logout]",
         "should_escape": false
       }
     ]

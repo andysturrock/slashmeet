@@ -1,5 +1,9 @@
 MeetArgs {
-  Exp = MeetingWithArgsExp | MeetingNameExp
+  Exp = Login | Logout | MeetingWithArgsExp | MeetingNameExp
+  
+  Login = "login"
+  
+  Logout = "logout"
 
   MeetingWithArgsExp = MeetingNameExp MeetingArgsExp noCal*
 

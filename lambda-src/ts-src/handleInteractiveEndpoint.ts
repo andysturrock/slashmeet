@@ -2,7 +2,7 @@ import * as util from 'util';
 import {WebClient, LogLevel} from "@slack/web-api";
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda";
 import {verifySlackRequest} from './verifySlackRequest';
-import {InteractionPayload} from './slackTypes';
+import {InteractionPayload} from './slackAPI';
 import axios from 'axios';
 import {getSecretValue} from './awsAPI';
 

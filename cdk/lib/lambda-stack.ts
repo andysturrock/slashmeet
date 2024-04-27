@@ -45,8 +45,11 @@ export class LambdaStack extends Stack {
     });
     // Allow read access to the secret it needs
     props.slashMeetSecret.grantRead(handleSlashCommand);
+    // Allow access to the DynamoDB tables
+    props.slackIdToGCalTokenTable.grantReadData(handleSlashCommand);
+    props.slackIdToAADTokenTable.grantReadData(handleSlashCommand);
 
-    // Create the lambda which either creates the authentication response or creates the meeting.
+    // Create the lambda which creates the meeting.
     // This lambda is called from the initial response lambda, not via the API Gateway.
     const handleMeetCommandLambda = new lambda.Function(this, "handleMeetCommandLambda", {
       handler: "handleMeetCommand.handleMeetCommand",
@@ -66,9 +69,55 @@ export class LambdaStack extends Stack {
     // Allow access to the DynamoDB tables
     props.slackIdToGCalTokenTable.grantReadData(handleMeetCommandLambda);
     props.slackIdToAADTokenTable.grantReadData(handleMeetCommandLambda);
-    props.stateTable.grantReadWriteData(handleMeetCommandLambda);
     // Allow read access to the secret it needs
     props.slashMeetSecret.grantRead(handleMeetCommandLambda);
+
+    // Create the lambda which handles the login to AAD/Entra and Google.
+    // This lambda is called from the initial response lambda, not via the API Gateway.
+    const handleLoginCommandLambda = new lambda.Function(this, "handleLoginCommandLambda", {
+      handler: "handleLoginCommand.handleLoginCommand",
+      functionName: 'SlashMeet-handleLoginCommandLambda',
+      code: lambda.Code.fromAsset("../lambda-src/dist/handleLoginCommand"),
+      memorySize: 1024,
+      ...allLambdaProps
+    });
+    // This function is going to be invoked asynchronously, so set some extra config for that
+    new lambda.EventInvokeConfig(this, 'handleLoginCommandLambdaEventInvokeConfig', {
+      function: handleLoginCommandLambda,
+      maxEventAge: Duration.minutes(2),
+      retryAttempts: 2,
+    });
+    // Give the initial response lambda permission to invoke this one
+    handleLoginCommandLambda.grantInvoke(handleSlashCommand);
+    // Allow access to the DynamoDB tables
+    props.slackIdToGCalTokenTable.grantReadData(handleLoginCommandLambda);
+    props.slackIdToAADTokenTable.grantReadData(handleLoginCommandLambda);
+    props.stateTable.grantReadWriteData(handleLoginCommandLambda);
+    // Allow read access to the secret it needs
+    props.slashMeetSecret.grantRead(handleLoginCommandLambda);
+
+    // Create the lambda which handles the logout from AAD/Entra and Google.
+    // This lambda is called from the initial response lambda, not via the API Gateway.
+    const handleLogoutCommandLambda = new lambda.Function(this, "handleLogoutCommandLambda", {
+      handler: "handleLogoutCommand.handleLogoutCommand",
+      functionName: 'SlashMeet-handleLogoutCommandLambda',
+      code: lambda.Code.fromAsset("../lambda-src/dist/handleLogoutCommand"),
+      memorySize: 1024,
+      ...allLambdaProps
+    });
+    // This function is going to be invoked asynchronously, so set some extra config for that
+    new lambda.EventInvokeConfig(this, 'handleLogoutCommandLambdaEventInvokeConfig', {
+      function: handleLogoutCommandLambda,
+      maxEventAge: Duration.minutes(2),
+      retryAttempts: 2,
+    });
+    // Give the initial response lambda permission to invoke this one
+    handleLogoutCommandLambda.grantInvoke(handleSlashCommand);
+    // Allow access to the DynamoDB tables
+    props.slackIdToGCalTokenTable.grantReadWriteData(handleLogoutCommandLambda);
+    props.slackIdToAADTokenTable.grantReadWriteData(handleLogoutCommandLambda);
+    // Allow read access to the secret it needs
+    props.slashMeetSecret.grantRead(handleLogoutCommandLambda);
 
     // Create the lambda which handles the redirect from the Google auth
     const handleGoogleAuthRedirectLambda = new lambda.Function(this, "handleGoogleAuthRedirectLambda", {

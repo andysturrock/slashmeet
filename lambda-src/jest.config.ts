@@ -1,12 +1,7 @@
-// /** @type {import('ts-jest').JestConfigWithTsJest} */
-// // eslint-disable-next-line no-undef
-// module.exports = {
-//   preset: 'ts-jest',
-//   testEnvironment: 'node',
-// };
+import type {JestConfigWithTsJest} from 'ts-jest';
 
-
-import type { JestConfigWithTsJest } from 'ts-jest'
+// The tests contain some timezone stuff, so fix the timezone for their execution to UTC.
+process.env.TZ = 'Etc/UTC';
 
 const jestConfig: JestConfigWithTsJest = {
   // [...]
@@ -14,6 +9,6 @@ const jestConfig: JestConfigWithTsJest = {
   // from the above list
   preset: 'ts-jest',
   testEnvironment: 'node',
-}
+};
 
-export default jestConfig
+export default jestConfig;
