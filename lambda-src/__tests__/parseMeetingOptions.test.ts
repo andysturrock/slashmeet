@@ -1,4 +1,5 @@
 import {MeetingOptions, parseMeetingArgs} from "../ts-src/parseMeetingArgs";
+import {DateTime} from 'luxon';
 
 const fourteenHundredNinteenthJuneTwentyTwentyThree = new Date(2023, 6, 19, 14, 0, 0, 0);
 const fourteenHundred = "14:00";
@@ -390,16 +391,35 @@ test(`logout option parsed correctly`, () => {
 });
 
 test(`Deals with timezones correctly`, () => {
-  process.env.TZ = "Etc/UTC";
-  const startDate = new Date(fourteenHundredNinteenthJuneTwentyTwentyThree);
-  // 14:00 EST is 19:00 UTC
-  startDate.setHours(19);
+  // Create a datetime in UTC at 19:00, which is 14:00 EST
+  const startDate = DateTime.utc(2023, 6, 19, 19, 0, 0, 0, {}).toJSDate();
   const endDate = new Date(startDate);
-  // 15:30 EST is 20:30 UTC
+  // 20:30 UTC is 15:30 EST
   endDate.setHours(20);
   endDate.setMinutes(30);
   const name = fooName;
   const actual = parseMeetingArgs(`${name} 14:00 15:30`, startDate, "EST");
+  const expected: MeetingOptions = {
+    name,
+    startDate,
+    endDate,
+    now: false,
+    noCal: false,
+    login: false,
+    logout: false
+  };
+  expect(actual).toStrictEqual<MeetingOptions>(expected);
+});
+
+test(`Deals with the date changing between timezones`, () => {
+  // Create a datetime in UTC at 01:00 on 19th June 2023, which is 20:00 EST on 18th June 2023
+  const startDate = DateTime.utc(2023, 6, 19, 1, 0, 0, 0, {}).toJSDate();
+  const endDate = new Date(startDate);
+  // 02:30 UTC is 21:30 EST
+  endDate.setHours(2);
+  endDate.setMinutes(30);
+  const name = fooName;
+  const actual = parseMeetingArgs(`${name} 8pm 9:30pm`, startDate, "EST");
   const expected: MeetingOptions = {
     name,
     startDate,
