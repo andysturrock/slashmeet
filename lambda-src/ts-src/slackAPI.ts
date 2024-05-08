@@ -27,6 +27,13 @@ export type ChannelMember = {
   slackId: string,
   email: string
 };
+/**
+ * Find user ids and email addresses of members of a channel.
+ * The calling bot must be a member of a private channel or DM
+ * and have the requisite scopes.
+ * @param channelId channel id
+ * @returns list of ChannelMember instances, empty
+ */
 export async function getChannelMembers(channelId: string) {
   const client = await createClient();
   const membersResult = await client.conversations.members({
