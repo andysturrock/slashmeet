@@ -22,9 +22,11 @@
       "Effect": "Allow",
       "Action": [
         "cloudformation:DescribeStacks",
-        "cloudformation:CreateChangeSet"
+        "cloudformation:CreateChangeSet",
+        "cloudformation:GetTemplate",
+        "cloudformation:DeleteChangeSet"
       ],
-      "Resource": "arn:aws:cloudformation:eu-west-2:__ACCOUNTID__:stack/SlashMeetDynamoDBStack/*"
+      "Resource": "arn:aws:cloudformation:eu-west-2:__ACCOUNTID__:stack/*/*"
     },
     {
       "Sid": "iam",
