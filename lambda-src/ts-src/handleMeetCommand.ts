@@ -87,8 +87,9 @@ export async function handleMeetCommand(event: SlashCommandPayload): Promise<voi
           await createOutlookCalendarMeeting(confidentialClientApplication, aadRefreshToken, event.user_id, event.channel_id, meetingOptions, timeZone, meetingUrl);
         } catch (error) {
           console.error(error);
-          await postErrorMessageToResponseUrl(responseUrl, "Error creating Outlook Calendar Meeting.");
-          return;
+          const errorMsg = "Can't create Outlook calendar entry.\n" +
+            "I need to be a member of a private channel or DM to list the members.";
+          await postErrorMessageToResponseUrl(responseUrl, errorMsg);
         }
       }
       else {
@@ -107,7 +108,7 @@ export async function handleMeetCommand(event: SlashCommandPayload): Promise<voi
     } catch (error) {
       console.error(error);
       const errorMsg = "Can't send or schedule join meeting message.\n" +
-        "I need to be a member of a private channel to send messages to it.";
+        "I need to be a member of a private channel or DM to send messages to it.";
       await postErrorMessageToResponseUrl(responseUrl, errorMsg);
     }
 
