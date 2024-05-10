@@ -1,13 +1,6 @@
-import {Auth} from 'googleapis';
-import {getAADToken, getGCalToken} from './tokenStorage';
-import {generateGoogleMeetURLBlocks} from './generateGoogleMeetURLBlocks';
-import {getSecretValue} from './awsAPI';
-import {getSlackUserTimeZone, postErrorMessageToResponseUrl, postMessage, postToResponseUrl, scheduleMessage, SlashCommandPayload} from './slackAPI';
-import {createGoogleMeetMeeting as createGoogleCalendarMeeting} from './createGoogleCalendarMeeting';
+import {ChannelMember, getChannelMembers, getSlackUserTimeZone, openView, postErrorMessageToResponseUrl, SlashCommandPayload} from './slackAPI';
 import {MeetingOptions, parseMeetingArgs} from './parseMeetingArgs';
-import {ConfidentialClientApplication, Configuration} from "@azure/msal-node";
-import {createOutlookCalendarMeeting} from './createOutlookCalendarMeeting';
-import {KnownBlock} from '@slack/bolt';
+import {InputBlock, KnownBlock, ModalView, Option} from '@slack/bolt';
 
 export async function handleMeetCommand(event: SlashCommandPayload): Promise<void> {
   const responseUrl = event.response_url;
@@ -33,99 +26,151 @@ export async function handleMeetCommand(event: SlashCommandPayload): Promise<voi
       await postErrorMessageToResponseUrl(responseUrl, "Error parsing meeting options.");
       return;
     }
-    
-    const aadRefreshToken = await getAADToken(event.user_id);
-    const gcalRefreshToken = await getGCalToken(event.user_id);
-    // If we're not logged into Google then there's a logic error, but handle it gracefully anyway.
-    // Logging into AAD is optional.
-    if(!gcalRefreshToken) {
-      await postErrorMessageToResponseUrl(responseUrl, "Run the /meet login command to log in.");
-      return;
-    }
 
-    const gcpClientId = await getSecretValue('SlashMeet', 'gcpClientId');
-    const gcpClientSecret = await getSecretValue('SlashMeet', 'gcpClientSecret');
-    const slashMeetUrl = await getSecretValue('SlashMeet', 'slashMeetUrl');
-    const gcpRedirectUri = `${slashMeetUrl}/google-oauth-redirect`;
-
-    const aadClientId = await getSecretValue('SlashMeet', 'aadClientId');
-    const aadTenantId = await getSecretValue('SlashMeet', 'aadTenantId');
-    const aadClientSecret = await getSecretValue('SlashMeet', 'aadClientSecret');
-
-    const msalConfig: Configuration = {
-      auth: {
-        clientId: aadClientId,
-        authority: `https://login.microsoftonline.com/${aadTenantId}`,
-        clientSecret: aadClientSecret
-      }
-    };
-    const confidentialClientApplication = new ConfidentialClientApplication(msalConfig);
-
-    const oAuth2ClientOptions: Auth.OAuth2ClientOptions = {
-      clientId: gcpClientId,
-      clientSecret: gcpClientSecret,
-      redirectUri: gcpRedirectUri
-    };
-    const oauth2Client = new Auth.OAuth2Client(oAuth2ClientOptions);
-  
-    oauth2Client.setCredentials({
-      refresh_token: gcalRefreshToken
-    });
-
-    let meetingUrl: string;
+    let channelMembers: ChannelMember[] = [];
     try {
-      meetingUrl = await createGoogleCalendarMeeting(oauth2Client, meetingOptions);  
-    } catch (error) {
+      channelMembers = await getChannelMembers(event.channel_id);
+    }
+    catch (error) {
       console.error(error);
-      await postErrorMessageToResponseUrl(responseUrl, "Error creating Google Calendar Meeting.");
-      return;
+      await postErrorMessageToResponseUrl(responseUrl, "I need to be a member of a private channel or DM to list the members.");
     }
-
-    if(!meetingOptions.noCal) {
-      if(aadRefreshToken) {
-        try {
-          await createOutlookCalendarMeeting(confidentialClientApplication, aadRefreshToken, event.user_id, event.channel_id, meetingOptions, timeZone, meetingUrl);
-        } catch (error) {
-          console.error(error);
-          const errorMsg = "Can't create Outlook calendar entry.\n" +
-            "I need to be a member of a private channel or DM to list the members.";
-          await postErrorMessageToResponseUrl(responseUrl, errorMsg);
-        }
-      }
-      else {
-        await postErrorMessageToResponseUrl(responseUrl, "Not logged into AAD so skipping creating Outlook Calendar Meeting.");
-      }
-    }
-
-    // Create a nice looking "join meeting" message and schedule it to be sent when the meeting starts.
-    try {
-      const joinMeetingBlocks = generateGoogleMeetURLBlocks(meetingUrl, meetingOptions.name);
-      if(meetingOptions.now) {
-        await postMessage(event.channel_id, `Please join your meeting at ${meetingUrl}`, joinMeetingBlocks);
-      } else {
-        await scheduleMessage(event.channel_id, `Please join your meeting at ${meetingUrl}`, joinMeetingBlocks, meetingOptions.startDate);
-      }
-    } catch (error) {
-      console.error(error);
-      const errorMsg = "Can't send or schedule join meeting message.\n" +
-        "I need to be a member of a private channel or DM to send messages to it.";
-      await postErrorMessageToResponseUrl(responseUrl, errorMsg);
-    }
-
-    // Tell the meeting organiser what their meeting URL will be.
-    const blocks: KnownBlock[] = [
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `Your meeting URL is ${meetingUrl}`
-        }
-      }
-    ];
-    await postToResponseUrl(responseUrl, "ephemeral", `Your meeting URL is ${meetingUrl}`, blocks);
+    const blocks = createModalBlocks(meetingOptions, channelMembers);
+    const modalView: ModalView = {
+      type: "modal",
+      title: {
+        type: "plain_text",
+        text: "/meet"
+      },
+      blocks,
+      close: {
+        type: "plain_text",
+        text: "Cancel"
+      },
+      submit: {
+        type: "plain_text",
+        text: "Create Meeting"
+      },
+      private_metadata: JSON.stringify({channelId: event.channel_id, now: meetingOptions.now}),
+      callback_id: "SlashMeetModal"
+    };
+    await openView(event.trigger_id, modalView);
   }
   catch (error) {
     console.error(error);
     await postErrorMessageToResponseUrl(responseUrl, "Failed to create GMeet meeting");
   }
+}
+
+
+function createModalBlocks(meetingOptions: MeetingOptions, channelMembers: ChannelMember[]) {
+  const blocks: KnownBlock[] = [];
+  let inputBlock: InputBlock = {
+    type: "input",
+    block_id: "title",
+    label: {
+      type: "plain_text",
+      text: "Title"
+    },
+    element: {
+      type: "plain_text_input",
+      action_id: "title",
+      placeholder: {
+        type: "plain_text",
+        text: "Meeting name"
+      },
+      initial_value: meetingOptions.name,
+      multiline: false
+    },
+    optional: false
+  };
+  blocks.push(inputBlock);
+
+  inputBlock = {
+    type: "input",
+    block_id: "participants",
+    label: {
+      type: "plain_text",
+      text: "Participants"
+    },
+    element: {
+      type: "multi_users_select",
+      action_id: "participants_text",
+      placeholder: {
+        type: "plain_text",
+        text: "Participant names"
+      },
+      initial_users: channelMembers.map((member) => {return member.slackId;}),
+    },
+    optional: false
+  };
+  blocks.push(inputBlock);
+
+  inputBlock = {
+    type: "input",
+    block_id: "meeting_start",
+    element: {
+      type: 'datetimepicker',
+      action_id: "meeting_start",
+      initial_date_time: meetingOptions.startDate.getTime() / 1000 // Slack wants this in seconds not ms
+    },
+    label: {
+      type: 'plain_text',
+      text: 'Meeting start',
+    },
+    hint: {
+      type: 'plain_text',
+      text: 'Meeting start date and time',
+    },
+  };
+  blocks.push(inputBlock);
+
+  inputBlock = {
+    type: "input",
+    block_id: "meeting_end",
+    element: {
+      type: 'datetimepicker',
+      action_id: "meeting_end",
+      initial_date_time: meetingOptions.endDate.getTime() / 1000 // Slack wants this in seconds not ms
+    },
+    label: {
+      type: 'plain_text',
+      text: 'Meeting end',
+    },
+    hint: {
+      type: 'plain_text',
+      text: 'Meeting end date and time',
+    },
+  };
+  blocks.push(inputBlock);
+
+  const options: Option[] = [
+    {
+      text: {
+        type: "plain_text",
+        text: "Create meeting request in Outlook",
+        emoji: true
+      },
+      value: "cal"
+    },
+  ];
+  const initial_options = meetingOptions.noCal? undefined : options;
+  inputBlock = {
+    type: "input",
+    block_id: "nocal",
+    element: {
+      type: "checkboxes",
+      action_id: "nocal",
+      initial_options,
+      options
+    },
+    "label": {
+      "type": "plain_text",
+      "text": "Create Outlook meeting?",
+      "emoji": true
+    }
+  };
+  blocks.push(inputBlock);
+
+  return blocks;
 }
