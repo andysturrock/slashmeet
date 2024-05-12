@@ -32,6 +32,14 @@ export async function getSlackUserTimeZone(userId: string) {
   return result.user.tz;
 }
 
+export async function getUserEmailAddress(userId: string) {
+  const client = await createClient();
+  const userResult = await client.users.info({
+    user: userId
+  });
+  return userResult.user?.profile?.email;
+}
+
 export type ChannelMember = {
   slackId: string,
   email: string

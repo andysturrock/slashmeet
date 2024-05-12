@@ -2,17 +2,11 @@ import * as util from 'util';
 import {WebClient, LogLevel} from "@slack/web-api";
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda";
 import {verifySlackRequest} from './verifySlackRequest';
-import {InteractionPayload, getSlackUserTimeZone, postEphemeralMessage, postEphmeralErrorMessage, postErrorMessageToResponseUrl, postMessage, postToResponseUrl, scheduleMessage} from './slackAPI';
 import axios from 'axios';
 import {getSecretValue} from './awsAPI';
-import {BlockAction, KnownBlock, ViewSubmitAction} from '@slack/bolt';
-import {getAADToken, getGCalToken} from './tokenStorage';
-import {ConfidentialClientApplication, Configuration} from '@azure/msal-node';
-import {Auth} from 'googleapis';
-import {createGoogleMeetMeeting} from "./createGoogleCalendarMeeting";
-import {createOutlookCalendarMeeting} from './createOutlookCalendarMeeting';
-import {generateGoogleMeetURLBlocks} from './generateGoogleMeetURLBlocks';
+import {BlockAction, ViewSubmitAction} from '@slack/bolt';
 import {MeetingOptions} from './parseMeetingArgs';
+import {InvocationType, InvokeCommand, InvokeCommandInput, LambdaClient, LambdaClientConfig} from '@aws-sdk/client-lambda';
 
 /**
  * Handle the interaction posts from Slack.
@@ -41,8 +35,32 @@ export async function handleInteractiveEndpoint(event: APIGatewayProxyEvent): Pr
 
     switch(payload.type) {
     case "view_submission": {
+      // We only get three seconds to respond to a view submission.
+      // So just grab the values from the Modal and then async invoke
+      // another lambda to call the Google and MS APIs.
       const viewSubmitAction: ViewSubmitAction = payload as ViewSubmitAction;
-      await handleViewSubmission(viewSubmitAction);
+      const {meetingOptions, participants} = handleViewSubmission(viewSubmitAction);
+      const configuration: LambdaClientConfig = {
+        region: 'eu-west-2'
+      };
+      const handleCreateMeetingsInput = {
+        meetingOptions,
+        participants,
+        viewSubmitAction
+      };
+  
+      const lambdaClient = new LambdaClient(configuration);
+      const input: InvokeCommandInput = {
+        FunctionName: "SlashMeet-handleCreateMeetingsLambda",
+        InvocationType: InvocationType.Event,
+        Payload: new TextEncoder().encode(JSON.stringify(handleCreateMeetingsInput))
+      };
+  
+      const command = new InvokeCommand(input);
+      const output = await lambdaClient.send(command);
+      if(output.StatusCode != 202) {
+        throw new Error(`Failed to invoke SlashMeet-handleCreateMeetingsLambda - error:${util.inspect(output.FunctionError)}`);
+      }
       break;
     }
     case "block_actions": {
@@ -54,19 +72,18 @@ export async function handleInteractiveEndpoint(event: APIGatewayProxyEvent): Pr
       break;
     }
 
-    // Empty 200 tells Slack to close the dialog view if this was a view_submission event.
     const result: APIGatewayProxyResult = {
-      body: "",
-      statusCode: 200
+      statusCode: 200,
+      body: ""
     };
 
     return result;
   }
   catch (error) {
-    console.error(`Caught error: ${util.inspect(error)}`);
+    console.error(error);
 
     const json = {
-      error: JSON.stringify(util.inspect(error))
+      error: "Error handling interaction.  Check logs for details."
     };
 
     const result: APIGatewayProxyResult = {
@@ -107,150 +124,40 @@ async function handleBlockAction(blockAction: BlockAction) {
   }
 }
 
-async function handleViewSubmission(viewSubmitAction: ViewSubmitAction) {
-  console.log(`viewSubmitAction: ${util.inspect(viewSubmitAction, false, null)}`);
+function handleViewSubmission(viewSubmitAction: ViewSubmitAction) {
   type PrivateMetaData = {
     channelId: string,
     now: boolean};
   const privateMetaData = JSON.parse(viewSubmitAction.view.private_metadata) as PrivateMetaData;
-  const userId = viewSubmitAction.user.id;
-
-  if(viewSubmitAction.type == 'view_submission') {
-    await postEphmeralErrorMessage(privateMetaData.channelId, userId, "This command is disabled currently.");
-    return;
-  }
-
   const state = viewSubmitAction.view.state;
 
-  try {
-    // Create a meetingOptions object from the values set in the dialog.
-    const name = state.values["title"]["title"].value;
-    if(!name) {
-      throw new Error("Cannot find meeting name from dialog values");
-    }
-    const startDateSeconds = state.values["meeting_start"]["meeting_start"].value;
-    if(!startDateSeconds) {
-      throw new Error("Cannot find meeting start time from dialog values");
-    }
-    const endDateSeconds = state.values["meeting_end"]["meeting_end"].value;
-    if(!endDateSeconds) {
-      throw new Error("Cannot find meeting end time from dialog values");
-    }
-    const noCalString = state.values["nocal"]["nocal"].value;
-    if(!noCalString) {
-      throw new Error("Cannot find meeting end time from dialog values");
-    }
-    const noCal = (noCalString != "cal");
-    const meetingOptions: MeetingOptions = {
-      name,
-      startDate: new Date(Number.parseInt(startDateSeconds) * 1000),
-      endDate: new Date(Number.parseInt(endDateSeconds) * 1000),
-      now: privateMetaData.now,
-      noCal
-    };
-    console.log(`meetingOptions: ${util.inspect(meetingOptions, false, null)}`);
-
-    const aadRefreshToken = await getAADToken(viewSubmitAction.user.id);
-    const gcalRefreshToken = await getGCalToken(viewSubmitAction.user.id);
-    // If we're not logged into Google then there's a logic error, but handle it gracefully anyway.
-    // Logging into AAD is optional.
-    if(!gcalRefreshToken && viewSubmitAction.response_urls) {
-      await postEphmeralErrorMessage(privateMetaData.channelId, userId, "Run the '/meet login' command to log in.");
-      return;
-    }
-  
-    const gcpClientId = await getSecretValue('SlashMeet', 'gcpClientId');
-    const gcpClientSecret = await getSecretValue('SlashMeet', 'gcpClientSecret');
-    const slashMeetUrl = await getSecretValue('SlashMeet', 'slashMeetUrl');
-    const gcpRedirectUri = `${slashMeetUrl}/google-oauth-redirect`;
-
-    const aadClientId = await getSecretValue('SlashMeet', 'aadClientId');
-    const aadTenantId = await getSecretValue('SlashMeet', 'aadTenantId');
-    const aadClientSecret = await getSecretValue('SlashMeet', 'aadClientSecret');
-
-    const msalConfig: Configuration = {
-      auth: {
-        clientId: aadClientId,
-        authority: `https://login.microsoftonline.com/${aadTenantId}`,
-        clientSecret: aadClientSecret
-      }
-    };
-    const confidentialClientApplication = new ConfidentialClientApplication(msalConfig);
-
-    const oAuth2ClientOptions: Auth.OAuth2ClientOptions = {
-      clientId: gcpClientId,
-      clientSecret: gcpClientSecret,
-      redirectUri: gcpRedirectUri
-    };
-    const oauth2Client = new Auth.OAuth2Client(oAuth2ClientOptions);
-
-    oauth2Client.setCredentials({
-      refresh_token: gcalRefreshToken
-    });
-
-    let meetingUrl: string;
-    try {
-      meetingUrl = await createGoogleMeetMeeting(oauth2Client, meetingOptions);  
-    } catch (error) {
-      console.error(error);
-      await postEphmeralErrorMessage(privateMetaData.channelId, userId, "Error creating Google Calendar Meeting.");
-      return;
-    }
-
-    let timeZone = "Etc/UTC";
-    try {
-      timeZone = await getSlackUserTimeZone(userId);
-    } catch (error) {
-      console.error(error);
-      await postEphmeralErrorMessage(privateMetaData.channelId, userId, "Error getting user's timezone.");
-      return;
-    }
-
-    if(!meetingOptions.noCal) {
-      if(aadRefreshToken) {
-        try {
-          await createOutlookCalendarMeeting(confidentialClientApplication, aadRefreshToken, userId, privateMetaData.channelId, meetingOptions, timeZone, meetingUrl);
-        } catch (error) {
-          console.error(error);
-          const errorMsg = "Can't create Outlook calendar entry.\n" +
-            "I need to be a member of a private channel or DM to list the members.";
-          await postEphmeralErrorMessage(privateMetaData.channelId, userId, errorMsg);
-        }
-      }
-      else {
-        await postEphmeralErrorMessage(privateMetaData.channelId, userId, "Not logged into AAD so skipping creating Outlook Calendar Meeting.");
-      }
-    }
-
-    // Create a nice looking "join meeting" message and schedule it to be sent when the meeting starts.
-    try {
-      const joinMeetingBlocks = generateGoogleMeetURLBlocks(meetingUrl, meetingOptions.name);
-      if(meetingOptions.now) {
-        await postMessage(privateMetaData.channelId, `Please join your meeting at ${meetingUrl}`, joinMeetingBlocks);
-      } else {
-        await scheduleMessage(privateMetaData.channelId, `Please join your meeting at ${meetingUrl}`, joinMeetingBlocks, meetingOptions.startDate);
-      }
-    } catch (error) {
-      console.error(error);
-      const errorMsg = "Can't send or schedule join meeting message.\n" +
-        "I need to be a member of a private channel or DM to send messages to it.";
-      await postEphmeralErrorMessage(privateMetaData.channelId, userId, errorMsg);
-    }
-
-    // Tell the meeting organiser what their meeting URL will be.
-    const blocks: KnownBlock[] = [
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `Your meeting URL is ${meetingUrl}`
-        }
-      }
-    ];
-    await postEphemeralMessage(privateMetaData.channelId, userId, `Your meeting URL is ${meetingUrl}`, blocks);
+  // Create a meetingOptions object from the values set in the dialog.
+  const name = state.values["title"]["title"].value;
+  if(!name) {
+    throw new Error("Cannot find meeting name from dialog values");
   }
-  catch (error) {
-    console.error(error);
-    await postEphmeralErrorMessage(privateMetaData.channelId, userId, "Failed to create GMeet meeting");
+  const startDateSeconds = state.values["meeting_start"]["meeting_start"].selected_date_time;
+  if(!startDateSeconds) {
+    throw new Error("Cannot find meeting start time from dialog values");
   }
+  const endDateSeconds = state.values["meeting_end"]["meeting_end"].selected_date_time;
+  if(!endDateSeconds) {
+    throw new Error("Cannot find meeting end time from dialog values");
+  }
+  const noCalString = state.values["nocal"]["nocal"].selected_option?.value;
+  if(!noCalString) {
+    throw new Error("Cannot find 'nocal' value from dialog values");
+  }
+  const participants = state.values["participants"]["participants"].selected_users;
+  if(!noCalString) {
+    throw new Error("Cannot find 'nocal' value from dialog values");
+  }
+  const meetingOptions: MeetingOptions = {
+    name,
+    startDate: new Date(startDateSeconds * 1000),
+    endDate: new Date(endDateSeconds * 1000),
+    now: privateMetaData.now,
+    noCal: (noCalString == "nocal")
+  };
+  return {meetingOptions, participants};
 }

@@ -18,7 +18,8 @@ lambdas="handleSlashCommand \
  handleGoogleAuthRedirect \
  handleAADAuthRedirect \
  handleInteractiveEndpoint \
- handleEventsEndpoint"
+ handleEventsEndpoint \
+ handleCreateMeetings"
 
 for lambda in ${lambdas}
 do

@@ -62,7 +62,6 @@ export async function handleMeetCommand(event: SlashCommandPayload): Promise<voi
   }
 }
 
-
 function createModalBlocks(meetingOptions: MeetingOptions, channelMembers: ChannelMember[]) {
   const blocks: KnownBlock[] = [];
   let inputBlock: InputBlock = {
@@ -95,7 +94,7 @@ function createModalBlocks(meetingOptions: MeetingOptions, channelMembers: Chann
     },
     element: {
       type: "multi_users_select",
-      action_id: "participants_text",
+      action_id: "participants",
       placeholder: {
         type: "plain_text",
         text: "Participant names"
@@ -148,20 +147,28 @@ function createModalBlocks(meetingOptions: MeetingOptions, channelMembers: Chann
     {
       text: {
         type: "plain_text",
-        text: "Create meeting request in Outlook",
+        text: "Yes",
         emoji: true
       },
       value: "cal"
     },
+    {
+      text: {
+        type: "plain_text",
+        text: "No",
+        emoji: true
+      },
+      value: "nocal"
+    },
   ];
-  const initial_options = meetingOptions.noCal? undefined : options;
+  const initial_option = meetingOptions.noCal? options[1] : options[0];
   inputBlock = {
     type: "input",
     block_id: "nocal",
     element: {
-      type: "checkboxes",
+      type: "radio_buttons",
       action_id: "nocal",
-      initial_options,
+      initial_option,
       options
     },
     "label": {

@@ -1,12 +1,16 @@
 import {ConfidentialClientApplication, RefreshTokenRequest} from '@azure/msal-node';
 import {aadScopes} from './aadConfig';
-import {deleteAADToken} from './tokenStorage';
 import {AuthProviderCallback, Client, Options} from '@microsoft/microsoft-graph-client';
 import {MeetingOptions} from './parseMeetingArgs';
-import {getChannelMembers} from './slackAPI';
+
+export class AuthenticationError extends Error {
+  constructor(message?: string) {
+    super(message);
+  }
+}
 
 export async function createOutlookCalendarMeeting(confidentialClientApplication: ConfidentialClientApplication,
-  refreshToken: string, slackUserId: string, channelId: string, meetingOptions: MeetingOptions, timeZone: string, meetingUrl: string) {
+  refreshToken: string, attendeeEmailAddresses: string[], meetingOptions: MeetingOptions, timeZone: string, meetingUrl: string) {
   
   const refreshTokenRequest: RefreshTokenRequest = {
     scopes: aadScopes,
@@ -15,27 +19,24 @@ export async function createOutlookCalendarMeeting(confidentialClientApplication
   const authenticationResult = await confidentialClientApplication.acquireTokenByRefreshToken(refreshTokenRequest);
 
   if(!authenticationResult) {
-    // Something has gone wrong so delete the token which will allow the user to login again.
-    await deleteAADToken(slackUserId);
-    throw new Error("Failed to get new access token from refresh token");
+    throw new AuthenticationError("Failed to get new access token from refresh token");
   }
 
-  const channelMembers = await getChannelMembers(channelId);
   type Attendee = {
     emailAddress: {
       address: string
     },
     type: 'required' | 'optional'
   };
-  const attendees: Attendee[] = [];
-  for(const channelMember of channelMembers) {
-    attendees.push({
+  const attendees: Attendee[] = attendeeEmailAddresses.map((address) => {
+    const attendee: Attendee = {
       emailAddress: {
-        address: channelMember.email
+        address
       },
       type: 'required'
-    });
-  }
+    };
+    return attendee;
+  });
 
   const options: Options = {
     authProvider: function (done: AuthProviderCallback): void {
