@@ -77,7 +77,7 @@ export async function handleSlashCommand(event: APIGatewayProxyEvent): Promise<A
     return result;
   }
   catch (error) {
-    console.error(`Caught error: ${util.inspect(error)}`);
+    console.error(error);
     return createErrorResult("There was an error.  Please contact support.");
   }
 }

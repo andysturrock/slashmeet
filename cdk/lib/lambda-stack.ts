@@ -49,7 +49,7 @@ export class LambdaStack extends Stack {
     props.slackIdToGCalTokenTable.grantReadData(handleSlashCommand);
     props.slackIdToAADTokenTable.grantReadData(handleSlashCommand);
 
-    // Create the lambda which creates the meeting.
+    // Create the lambda which creates the dialog box.
     // This lambda is called from the initial response lambda, not via the API Gateway.
     const handleMeetCommandLambda = new lambda.Function(this, "handleMeetCommandLambda", {
       handler: "handleMeetCommand.handleMeetCommand",
@@ -66,9 +66,6 @@ export class LambdaStack extends Stack {
     });
     // Give the initial response lambda permission to invoke this one
     handleMeetCommandLambda.grantInvoke(handleSlashCommand);
-    // Allow access to the DynamoDB tables
-    props.slackIdToGCalTokenTable.grantReadData(handleMeetCommandLambda);
-    props.slackIdToAADTokenTable.grantReadData(handleMeetCommandLambda);
     // Allow read access to the secret it needs
     props.slashMeetSecret.grantRead(handleMeetCommandLambda);
 
@@ -157,6 +154,29 @@ export class LambdaStack extends Stack {
     });
     // Allow read access to the secret it needs
     props.slashMeetSecret.grantRead(handleInteractiveEndpointLambda);
+
+    // Create the lambda which calls the Google and MS APIs to create the meetings
+    const handleCreateMeetingsLambda = new lambda.Function(this, "handleCreateMeetingsLambda", {
+      handler: "handleCreateMeetings.handleCreateMeetings",
+      functionName: 'SlashMeet-handleCreateMeetingsLambda',
+      code: lambda.Code.fromAsset("../lambda-src/dist/handleCreateMeetings"),
+      memorySize: 1024,
+      ...allLambdaProps
+    });
+    // This function is going to be invoked asynchronously, so set some extra config for that
+    new lambda.EventInvokeConfig(this, 'handleCreateMeetingsLambdaEventInvokeConfig', {
+      function: handleCreateMeetingsLambda,
+      maxEventAge: Duration.minutes(2),
+      retryAttempts: 2,
+    });
+    // Give the handle interactive response lambda permission to invoke this one
+    handleCreateMeetingsLambda.grantInvoke(handleInteractiveEndpointLambda);
+    // Allow read access to the secret it needs
+    props.slashMeetSecret.grantRead(handleCreateMeetingsLambda);
+    // Allow access to the DynamoDB tables
+    props.slackIdToGCalTokenTable.grantReadData(handleCreateMeetingsLambda);
+    // Needs to be able to delete from this table in event of failed authorisation.
+    props.slackIdToAADTokenTable.grantReadWriteData(handleCreateMeetingsLambda);
 
     // Create the lambda for handling events.
     const handleEventsEndpointLambda = new lambda.Function(this, "handleEventsEndpointLambda", {

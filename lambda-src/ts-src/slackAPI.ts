@@ -1,6 +1,6 @@
-import {WebClient, LogLevel} from "@slack/web-api";
+import {WebClient, LogLevel, ViewsOpenArguments} from "@slack/web-api";
 import {getSecretValue} from './awsAPI';
-import {Block, KnownBlock} from "@slack/bolt";
+import {Block, KnownBlock, ModalView} from "@slack/bolt";
 import util from 'util';
 import axios from 'axios';
 
@@ -12,6 +12,15 @@ async function createClient() {
   });
 }
 
+export async function openView(trigger_id: string, modalView: ModalView) {
+  const client = await createClient();
+  const viewsOpenArguments: ViewsOpenArguments = {
+    trigger_id,
+    view: modalView
+  };
+  await client.views.open(viewsOpenArguments);
+}
+
 export async function getSlackUserTimeZone(userId: string) {
   const client = await createClient();
   const result = await client.users.info({
@@ -21,6 +30,14 @@ export async function getSlackUserTimeZone(userId: string) {
     throw new Error("Cannot get timezone from user object");
   }
   return result.user.tz;
+}
+
+export async function getUserEmailAddress(userId: string) {
+  const client = await createClient();
+  const userResult = await client.users.info({
+    user: userId
+  });
+  return userResult.user?.profile?.email;
 }
 
 export type ChannelMember = {
@@ -109,6 +126,29 @@ export async function postErrorMessageToResponseUrl(responseUrl: string, text: s
     }
   ];
   await postToResponseUrl(responseUrl, "ephemeral", text, blocks);
+}
+
+export async function postEphemeralMessage(channelId: string, userId: string, text:string, blocks: (KnownBlock | Block)[]) {
+  const client = await createClient();
+  await client.chat.postEphemeral({
+    user: userId,
+    channel: channelId,
+    text,
+    blocks
+  });  
+}
+
+export async function postEphmeralErrorMessage(channelId: string, userId:string, text: string) {
+  const blocks: KnownBlock[] = [
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text
+      }
+    }
+  ];
+  await postEphemeralMessage(channelId, userId, text, blocks);
 }
 
 export type SlashCommandPayload = {

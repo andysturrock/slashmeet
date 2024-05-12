@@ -1,4 +1,3 @@
-import * as util from 'util';
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda";
 
 /**
@@ -33,10 +32,10 @@ export function handleEventsEndpoint(event: APIGatewayProxyEvent): APIGatewayPro
     return result;
   }
   catch (error) {
-    console.error(`Caught error: ${util.inspect(error)}`);
+    console.error(error);
 
     const json = {
-      error: JSON.stringify(util.inspect(error))
+      error: "Error - see logs for details"
     };
 
     const result: APIGatewayProxyResult = {
