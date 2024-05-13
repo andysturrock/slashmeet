@@ -7,7 +7,7 @@
   },
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.569.0",
-    "@aws-sdk/client-lambda": "^3.441.0",
+    "@aws-sdk/client-lambda": "^3.575.0",
     "@aws-sdk/client-secrets-manager": "^3.511.0",
     "@ohm-js/cli": "^2.0.0",
     "@tsconfig/node18": "^18.2.2",
