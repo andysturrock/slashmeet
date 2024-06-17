@@ -3,7 +3,7 @@
     "name": "slashmeet",
     "description": "Create a GMeet meeting",
     "background_color": "#614b79",
-    "long_description": "Create a Google Meet meeting from Slack.  Usage:\r\n/meet\r\n/meet [meeting name]\r\n/meet meeting_name start_time|now\r\n/meet meeting_name start_time|now duration\r\n/meet meeting_name start_time|now end time\r\n/meet meeting_name start_time|now end time nocal\r\n\r\nMeeting name can be put in quotes if it contains a space.  It can contain alphanumeric characters, underscores, exclamation marks and dashes, eg \"My super-special_meeting!\"\r\nTimes can be in format hour:minute followed by am or pm, eg 12:34pm or 24 hour format eg 12:34.\r\nDurations are an integer followed by h or m, eg 35m.\r\nA meeting request for all members of the channel/DM will be created in their Outlook calendars unless the \"nocal\" option is used."
+    "long_description": "Create a Google Meet meeting from Slack.  Usage:\r\n/meet\r\n/meet [meeting title]\r\n/meet meeting_name start_time|now\r\n/meet meeting_name start_time|now duration\r\n/meet meeting_name start_time|now end time\r\n/meet meeting_name start_time|now end time nocal\r\n\r\nMeeting name can be put in quotes if it contains a space.  It can contain alphanumeric characters, underscores, exclamation marks and dashes, eg \"My super-special_meeting!\"\r\nTimes can be in format hour:minute followed by am or pm, eg 12:34pm or 24 hour format eg 12:34.\r\nDurations are an integer followed by h or m, eg 35m.\r\nA meeting request for all members of the channel/DM will be created in their Outlook calendars unless the \"nocal\" option is used."
   },
   "features": {
     "bot_user": {
