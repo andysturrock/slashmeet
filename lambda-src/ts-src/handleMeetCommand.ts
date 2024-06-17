@@ -1,6 +1,7 @@
 import {ChannelMember, getChannelMembers, getSlackUserTimeZone, openView, postErrorMessageToResponseUrl, SlashCommandPayload} from './slackAPI';
 import {MeetingOptions, parseMeetingArgs} from './parseMeetingArgs';
-import {InputBlock, KnownBlock, ModalView, Option} from '@slack/bolt';
+import {InputBlock, KnownBlock, ModalView, Option, SectionBlock} from '@slack/bolt';
+import {getAADToken} from './tokenStorage';
 
 export async function handleMeetCommand(event: SlashCommandPayload): Promise<void> {
   const responseUrl = event.response_url;
@@ -27,6 +28,9 @@ export async function handleMeetCommand(event: SlashCommandPayload): Promise<voi
       return;
     }
 
+    // Populate the meeting attendees with the channel members.
+    // We can only get members of private channels/DMs where
+    // we are a member or in public channels.
     let channelMembers: ChannelMember[] = [];
     try {
       channelMembers = await getChannelMembers(event.channel_id);
@@ -35,7 +39,11 @@ export async function handleMeetCommand(event: SlashCommandPayload): Promise<voi
       console.error(error);
       await postErrorMessageToResponseUrl(responseUrl, "I need to be a member of a private channel or DM to list the members.");
     }
-    const blocks = createModalBlocks(meetingOptions, channelMembers);
+
+    // Check if the user is logged into AAD.  If not then we won't give them the option
+    // to create the Outlook meeting.
+    const isLoggedIntoAad = await getAADToken(event.user_id) != undefined;
+    const blocks = createModalBlocks(meetingOptions, channelMembers, isLoggedIntoAad);
     const modalView: ModalView = {
       type: "modal",
       title: {
@@ -62,7 +70,7 @@ export async function handleMeetCommand(event: SlashCommandPayload): Promise<voi
   }
 }
 
-function createModalBlocks(meetingOptions: MeetingOptions, channelMembers: ChannelMember[]) {
+function createModalBlocks(meetingOptions: MeetingOptions, channelMembers: ChannelMember[], isLoggedIntoAad: boolean) {
   const blocks: KnownBlock[] = [];
   let inputBlock: InputBlock = {
     type: "input",
@@ -143,41 +151,55 @@ function createModalBlocks(meetingOptions: MeetingOptions, channelMembers: Chann
   };
   blocks.push(inputBlock);
 
-  const options: Option[] = [
-    {
-      text: {
-        type: "plain_text",
-        text: "Yes",
-        emoji: true
+  if(isLoggedIntoAad) {
+    const options: Option[] = [
+      {
+        text: {
+          type: "plain_text",
+          text: "Yes",
+          emoji: true
+        },
+        value: "cal"
       },
-      value: "cal"
-    },
-    {
-      text: {
-        type: "plain_text",
-        text: "No",
-        emoji: true
+      {
+        text: {
+          type: "plain_text",
+          text: "No",
+          emoji: true
+        },
+        value: "nocal"
       },
-      value: "nocal"
-    },
-  ];
-  const initial_option = meetingOptions.noCal? options[1] : options[0];
-  inputBlock = {
-    type: "input",
-    block_id: "nocal",
-    element: {
-      type: "radio_buttons",
-      action_id: "nocal",
-      initial_option,
-      options
-    },
-    "label": {
-      "type": "plain_text",
-      "text": "Create Outlook meeting?",
-      "emoji": true
-    }
-  };
-  blocks.push(inputBlock);
+    ];
+    const initial_option = meetingOptions.noCal? options[1] : options[0];
+    inputBlock = {
+      type: "input",
+      block_id: "nocal",
+      element: {
+        type: "radio_buttons",
+        action_id: "nocal",
+        initial_option,
+        options
+      },
+      "label": {
+        "type": "plain_text",
+        "text": "Create Outlook meeting?",
+        "emoji": true
+      }
+    };
+    blocks.push(inputBlock);
+  }
+  else {
+    const sectionBlock: SectionBlock = {
+      type: "section",
+      fields: [
+        {
+          type: "plain_text",
+          text: "Cannot create meeting as not logged into Microsoft.  Use /meet login."
+        }
+      ]
+    };
+    blocks.push(sectionBlock);
+  }
 
   return blocks;
 }

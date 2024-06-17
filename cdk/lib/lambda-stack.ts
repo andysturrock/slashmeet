@@ -68,6 +68,8 @@ export class LambdaStack extends Stack {
     handleMeetCommandLambda.grantInvoke(handleSlashCommand);
     // Allow read access to the secret it needs
     props.slashMeetSecret.grantRead(handleMeetCommandLambda);
+    // It needs to check whether the user is logged into AAD
+    props.slackIdToAADTokenTable.grantReadData(handleMeetCommandLambda);
 
     // Create the lambda which handles the login to AAD/Entra and Google.
     // This lambda is called from the initial response lambda, not via the API Gateway.
