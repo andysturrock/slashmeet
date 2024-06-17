@@ -44,7 +44,7 @@ export async function handleSlashCommand(event: APIGatewayProxyEvent): Promise<A
       meetingOptions = parseMeetingArgs(meetingArgs, new Date(), "Etc/UTC");
     } catch (error) {
       console.error(error);
-      return createErrorResult("Usage: /meet ([name] [start|now] [end|duration] [nocal]) | [login] | [logout]");
+      return createErrorResult("Usage: /meet ([meeting title] [start|now] [end|duration] [nocal]) | [login] | [logout]");
     }
 
     const gcalRefreshToken = await getGCalToken(body.user_id);
