@@ -7,6 +7,7 @@ import {getSecretValue} from './awsAPI';
 import {BlockAction, ViewSubmitAction} from '@slack/bolt';
 import {MeetingOptions} from './parseMeetingArgs';
 import {InvocationType, InvokeCommand, InvokeCommandInput, LambdaClient, LambdaClientConfig} from '@aws-sdk/client-lambda';
+import {PrivateMetaData} from './common';
 
 /**
  * Handle the interaction posts from Slack.
@@ -125,9 +126,6 @@ async function handleBlockAction(blockAction: BlockAction) {
 }
 
 function handleViewSubmission(viewSubmitAction: ViewSubmitAction) {
-  type PrivateMetaData = {
-    channelId: string,
-    now: boolean};
   const privateMetaData = JSON.parse(viewSubmitAction.view.private_metadata) as PrivateMetaData;
   const state = viewSubmitAction.view.state;
 
@@ -152,11 +150,16 @@ function handleViewSubmission(viewSubmitAction: ViewSubmitAction) {
   if(!noCalString) {
     throw new Error("Cannot find 'nocal' value from dialog values");
   }
+  // If the user originally explicitly set the start date to "now" or implicitly (by not specififying)
+  // but has since changed the date via the startDate picker then the meeting isn't "now".
+  const userSelectedStartDate = new Date(startDateSeconds * 1000);
+  const originalStartDate = new Date(privateMetaData.startDate);
+  const now = privateMetaData.now && (userSelectedStartDate.getTime() == originalStartDate.getTime());
   const meetingOptions: MeetingOptions = {
     name,
-    startDate: new Date(startDateSeconds * 1000),
+    startDate: userSelectedStartDate,
     endDate: new Date(endDateSeconds * 1000),
-    now: privateMetaData.now,
+    now,
     noCal: (noCalString == "nocal")
   };
   return {meetingOptions, participants};

@@ -2,6 +2,7 @@ import {ChannelMember, getChannelMembers, getSlackUserTimeZone, openView, postEr
 import {MeetingOptions, parseMeetingArgs} from './parseMeetingArgs';
 import {InputBlock, KnownBlock, ModalView, Option, SectionBlock} from '@slack/bolt';
 import {getAADToken} from './tokenStorage';
+import {PrivateMetaData} from './common';
 
 export async function handleMeetCommand(event: SlashCommandPayload): Promise<void> {
   const responseUrl = event.response_url;
@@ -44,6 +45,10 @@ export async function handleMeetCommand(event: SlashCommandPayload): Promise<voi
     // to create the Outlook meeting.
     const isLoggedIntoAad = await getAADToken(event.user_id) != undefined;
     const blocks = createModalBlocks(meetingOptions, channelMembers, isLoggedIntoAad);
+    const privateMetadata: PrivateMetaData = {
+      channelId: event.channel_id,
+      ...meetingOptions
+    };
     const modalView: ModalView = {
       type: "modal",
       title: {
@@ -59,7 +64,7 @@ export async function handleMeetCommand(event: SlashCommandPayload): Promise<voi
         type: "plain_text",
         text: "Create Meeting"
       },
-      private_metadata: JSON.stringify({channelId: event.channel_id, now: meetingOptions.now}),
+      private_metadata: JSON.stringify(privateMetadata),
       callback_id: "SlashMeetModal"
     };
     await openView(event.trigger_id, modalView);
