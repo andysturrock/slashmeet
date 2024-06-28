@@ -1,8 +1,8 @@
-import crypto from 'crypto';
-import {State, putState} from './stateTable';
 import {AuthorizationUrlRequest, ConfidentialClientApplication, CryptoProvider, ResponseMode} from '@azure/msal-node';
-import {aadScopes} from './aadConfig';
 import {ActionsBlock, KnownBlock, SectionBlock} from '@slack/bolt';
+import crypto from 'crypto';
+import {aadScopes} from './aadConfig';
+import {State, putState} from './stateTable';
 
 /**
  * Generate a button for Microsoft AAD/Entra login.
@@ -33,7 +33,7 @@ export async function generateAADAuthBlocks(confidentialClientApplication: Confi
     responseMode: ResponseMode.FORM_POST,
     codeChallenge: challenge,
     codeChallengeMethod: 'S256',
-    prompt: 'consent'
+    prompt: 'select_account'
   };
   const url = await confidentialClientApplication.getAuthCodeUrl(authorizationUrlRequest);
 

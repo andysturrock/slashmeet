@@ -1,4 +1,4 @@
-import * as util from 'util';
+import util from 'util';
 import {WebClient, LogLevel} from "@slack/web-api";
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda";
 import {verifySlackRequest} from './verifySlackRequest';
@@ -142,13 +142,11 @@ function handleViewSubmission(viewSubmitAction: ViewSubmitAction) {
   if(!endDateSeconds) {
     throw new Error("Cannot find meeting end time from dialog values");
   }
-  const noCalString = state.values["nocal"]["nocal"].selected_option?.value;
-  if(!noCalString) {
-    throw new Error("Cannot find 'nocal' value from dialog values");
-  }
+  // This will not be present if the user is not logged into MS
+  const noCalString = state.values["nocal"] && state.values["nocal"]["nocal"].selected_option?.value;
   const participants = state.values["participants"]["participants"].selected_users;
-  if(!noCalString) {
-    throw new Error("Cannot find 'nocal' value from dialog values");
+  if(!participants) {
+    throw new Error("Cannot find meeting participants from dialog values");
   }
   // If the user originally explicitly set the start date to "now" or implicitly (by not specififying)
   // but has since changed the date via the startDate picker then the meeting isn't "now".
