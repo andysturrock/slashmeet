@@ -274,6 +274,6 @@ export class LambdaStack extends Stack {
       target: route53.RecordTarget.fromAlias(new targets.ApiGatewayDomain(customDomain))
     });
     // And path mapping to the API
-    customDomain.addBasePathMapping(api, {basePath: `${lambdaVersionIdForURL}`, stage: stage});
+    customDomain.addBasePathMapping(api, {basePath: lambdaVersionIdForURL, stage: stage});
   }
 }

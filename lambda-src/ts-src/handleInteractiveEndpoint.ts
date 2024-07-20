@@ -1,13 +1,13 @@
-import util from 'util';
-import {WebClient, LogLevel} from "@slack/web-api";
-import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda";
-import {verifySlackRequest} from './verifySlackRequest';
+import { InvocationType, InvokeCommand, InvokeCommandInput, LambdaClient, LambdaClientConfig } from '@aws-sdk/client-lambda';
+import { BlockAction, ViewSubmitAction } from '@slack/bolt';
+import { LogLevel, WebClient } from "@slack/web-api";
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import axios from 'axios';
-import {getSecretValue} from './awsAPI';
-import {BlockAction, ViewSubmitAction} from '@slack/bolt';
-import {MeetingOptions} from './parseMeetingArgs';
-import {InvocationType, InvokeCommand, InvokeCommandInput, LambdaClient, LambdaClientConfig} from '@aws-sdk/client-lambda';
-import {PrivateMetaData} from './common';
+import util from 'util';
+import { getSecretValue } from './awsAPI';
+import { PrivateMetaData } from './common';
+import { MeetingOptions } from './parseMeetingArgs';
+import { verifySlackRequest } from './verifySlackRequest';
 
 /**
  * Handle the interaction posts from Slack.
@@ -106,7 +106,8 @@ async function handleBlockAction(blockAction: BlockAction) {
     // Delete the original login card as it can't be used again without appearing like a CSRF replay attack.
     // Use the POST api as per https://api.slack.com/interactivity/handling#deleting_message_response
     // chat.delete doesn't seem to work here.
-    await axios.post(blockAction.response_url, {delete_original: "true"});
+    const result = await axios.post(blockAction.response_url, {delete_original: "true"});
+    console.log(`result : ${util.inspect(result, false, null)}`);
   }
   else if(blockAction.actions[0].action_id == "joinMeetingButton") {
     // These can be undefined according to the type system but won't be
@@ -130,21 +131,21 @@ function handleViewSubmission(viewSubmitAction: ViewSubmitAction) {
   const state = viewSubmitAction.view.state;
 
   // Create a meetingOptions object from the values set in the dialog.
-  const name = state.values["title"]["title"].value;
+  const name = state.values.title.title.value;
   if(!name) {
     throw new Error("Cannot find meeting name from dialog values");
   }
-  const startDateSeconds = state.values["meeting_start"]["meeting_start"].selected_date_time;
+  const startDateSeconds = state.values.meeting_start.meeting_start.selected_date_time;
   if(!startDateSeconds) {
     throw new Error("Cannot find meeting start time from dialog values");
   }
-  const endDateSeconds = state.values["meeting_end"]["meeting_end"].selected_date_time;
+  const endDateSeconds = state.values.meeting_end.meeting_end.selected_date_time;
   if(!endDateSeconds) {
     throw new Error("Cannot find meeting end time from dialog values");
   }
   // This will not be present if the user is not logged into MS
-  const noCalString = state.values["nocal"] && state.values["nocal"]["nocal"].selected_option?.value;
-  const participants = state.values["participants"]["participants"].selected_users;
+  const noCalString = state.values.nocal.nocal.selected_option?.value;
+  const participants = state.values.participants.participants.selected_users;
   if(!participants) {
     throw new Error("Cannot find meeting participants from dialog values");
   }

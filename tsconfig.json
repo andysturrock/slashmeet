@@ -1,8 +1,8 @@
 {
   "extends": "@tsconfig/node20/tsconfig.json",
   "compilerOptions": {
-    "moduleResolution": "Node16",
-    "module": "Node16"
+    "moduleResolution": "bundler",
+    "module": "preserve"
   },
   "include": ["cdk/**/*", "lambda-src/**/*", "eslint.config.js"],
   "exclude": ["**/node_modules", "**/dist", "**/cdk.out"]

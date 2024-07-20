@@ -8,7 +8,7 @@ export async function getGCalToken(slackUserId: string) {
 }
 
 export async function saveGCalToken(token:string, slackUserId:string) {
-  return await saveToken(gcalTokenTableName, token, slackUserId);
+  await saveToken(gcalTokenTableName, token, slackUserId);
 }
 
 export async function getAADToken(slackUserId: string) {
@@ -16,15 +16,15 @@ export async function getAADToken(slackUserId: string) {
 }
 
 export async function saveAADToken(token:string, slackUserId:string) {
-  return await saveToken(aadTokenTableName, token, slackUserId);
+  await saveToken(aadTokenTableName, token, slackUserId);
 }
 
 export async function deleteGCalToken(slackUserId:string) {
-  return await deleteToken(gcalTokenTableName, slackUserId);
+  await deleteToken(gcalTokenTableName, slackUserId);
 }
 
 export async function deleteAADToken(slackUserId:string) {
-  return await deleteToken(aadTokenTableName, slackUserId);
+  await deleteToken(aadTokenTableName, slackUserId);
 }
 
 async function getToken(tableName: string, slackUserId: string) {
@@ -39,7 +39,7 @@ async function getToken(tableName: string, slackUserId: string) {
   const ddbClient = new DynamoDBClient({});
   const data = await ddbClient.send(new QueryCommand(params));
   const items = data.Items;
-  if(items && items[0] && items[0].refresh_token.S) {
+  if(items?.[0]?.refresh_token.S) {
     return items[0].refresh_token.S;
   }
   else {

@@ -1,5 +1,5 @@
-import {MeetingOptions, parseMeetingArgs} from "../ts-src/parseMeetingArgs";
-import {DateTime} from 'luxon';
+import { DateTime } from 'luxon';
+import { MeetingOptions, parseMeetingArgs } from "../ts-src/parseMeetingArgs";
 
 const fourteenHundredNinteenthJuneTwentyTwentyThree = new Date(2023, 6, 19, 14, 0, 0, 0);
 const fourteenHundred = "14:00";
@@ -40,7 +40,7 @@ describe('Check different names work', () => {
     test(`should be called ${unquotedName}`, () => {
       const startDate = new Date(fourteenHundredNinteenthJuneTwentyTwentyThree);
       const endDate = new Date(startDate.getTime() + 1000 * 60 * 60);
-      const actual = parseMeetingArgs(`${meetingName}`, startDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
+      const actual = parseMeetingArgs(meetingName, startDate, Intl.DateTimeFormat().resolvedOptions().timeZone);
       const expected: MeetingOptions = {
         name: unquotedName,
         startDate,
@@ -50,7 +50,7 @@ describe('Check different names work', () => {
         login: false,
         logout: false
       };
-      expect(actual).toStrictEqual<MeetingOptions>(expected);
+      expect<MeetingOptions>(actual).toStrictEqual(expected);
     });
   }
 });
@@ -69,7 +69,7 @@ test(`should be called ${fooName} and duration ${oneHourDuration}`, () => {
     login: false,
     logout: false
   };
-  expect(actual).toStrictEqual<MeetingOptions>(expected);
+  expect<MeetingOptions>(actual).toStrictEqual(expected);
 });
 
 test(`should be called ${fooName} and duration ${twentyFiveMinsDuration}`, () => {
@@ -86,7 +86,7 @@ test(`should be called ${fooName} and duration ${twentyFiveMinsDuration}`, () =>
     login: false,
     logout: false
   };
-  expect(actual).toStrictEqual<MeetingOptions>(expected);
+  expect<MeetingOptions>(actual).toStrictEqual(expected);
 });
 
 test(`should be called ${fooName} with start ${fourteenHundred} and default duration`, () => {
@@ -103,7 +103,7 @@ test(`should be called ${fooName} with start ${fourteenHundred} and default dura
     login: false,
     logout: false
   };
-  expect(actual).toStrictEqual<MeetingOptions>(expected);
+  expect<MeetingOptions>(actual).toStrictEqual(expected);
 });
 
 test(`should be called ${fooName} with start ${fourteenHundred} and duration ${twentyFiveMinsDuration}`, () => {
@@ -120,7 +120,7 @@ test(`should be called ${fooName} with start ${fourteenHundred} and duration ${t
     login: false,
     logout: false
   };
-  expect(actual).toStrictEqual<MeetingOptions>(expected);
+  expect<MeetingOptions>(actual).toStrictEqual(expected);
 });
 
 test(`should be called ${fooName} with start ${twoPM} and duration ${twentyFiveMinsDuration}`, () => {
@@ -137,7 +137,7 @@ test(`should be called ${fooName} with start ${twoPM} and duration ${twentyFiveM
     login: false,
     logout: false
   };
-  expect(actual).toStrictEqual<MeetingOptions>(expected);
+  expect<MeetingOptions>(actual).toStrictEqual(expected);
 });
 
 test(`should be called ${fooName} with start ${elevenPM} and duration ${twentyFiveMinsDuration}`, () => {
@@ -155,7 +155,7 @@ test(`should be called ${fooName} with start ${elevenPM} and duration ${twentyFi
     login: false,
     logout: false
   };
-  expect(actual).toStrictEqual<MeetingOptions>(expected);
+  expect<MeetingOptions>(actual).toStrictEqual(expected);
 });
 
 test(`should be called ${fooName} with start ${oneTwelvePM} and duration ${twentyFiveMinsDuration}`, () => {
@@ -174,7 +174,7 @@ test(`should be called ${fooName} with start ${oneTwelvePM} and duration ${twent
     login: false,
     logout: false
   };
-  expect(actual).toStrictEqual<MeetingOptions>(expected);
+  expect<MeetingOptions>(actual).toStrictEqual(expected);
 });
 
 test(`should be called ${fooName} with start ${tenTwentyThreePM} and duration ${twentyFiveMinsDuration}`, () => {
@@ -193,7 +193,7 @@ test(`should be called ${fooName} with start ${tenTwentyThreePM} and duration ${
     login: false,
     logout: false
   };
-  expect(actual).toStrictEqual<MeetingOptions>(expected);
+  expect<MeetingOptions>(actual).toStrictEqual(expected);
 });
 
 test(`should be called ${fooName} with start ${tenTwentyThreePM} and end ${seventeenHundred}`, () => {
@@ -214,7 +214,7 @@ test(`should be called ${fooName} with start ${tenTwentyThreePM} and end ${seven
     login: false,
     logout: false
   };
-  expect(actual).toStrictEqual<MeetingOptions>(expected);
+  expect<MeetingOptions>(actual).toStrictEqual(expected);
 });
 
 test(`should be called ${fooName} with start ${fivePM} and end ${tenTwentyThreePM}`, () => {
@@ -235,7 +235,7 @@ test(`should be called ${fooName} with start ${fivePM} and end ${tenTwentyThreeP
     login: false,
     logout: false
   };
-  expect(actual).toStrictEqual<MeetingOptions>(expected);
+  expect<MeetingOptions>(actual).toStrictEqual(expected);
 });
 
 test(`should be called ${fooName} with start ${tenTwentyThreePM} and end ${elevenPM}`, () => {
@@ -255,7 +255,7 @@ test(`should be called ${fooName} with start ${tenTwentyThreePM} and end ${eleve
     login: false,
     logout: false
   };
-  expect(actual).toStrictEqual<MeetingOptions>(expected);
+  expect<MeetingOptions>(actual).toStrictEqual(expected);
 });
 
 test(`should be called ${fooName} with start ${tenTwentyThreePM} and end ${oneTwentyThreePM}`, () => {
@@ -276,7 +276,7 @@ test(`should be called ${fooName} with start ${tenTwentyThreePM} and end ${oneTw
     login: false,
     logout: false
   };
-  expect(actual).toStrictEqual<MeetingOptions>(expected);
+  expect<MeetingOptions>(actual).toStrictEqual(expected);
 });
 
 test(`should be called ${fooName} with start ${tenTwentyThreePM} and end ${elevenTwentyThreePM}`, () => {
@@ -297,7 +297,7 @@ test(`should be called ${fooName} with start ${tenTwentyThreePM} and end ${eleve
     login: false,
     logout: false
   };
-  expect(actual).toStrictEqual<MeetingOptions>(expected);
+  expect<MeetingOptions>(actual).toStrictEqual(expected);
 });
 
 test(`should be called ${fooName} with start ${now} and duration ${twentyFiveMinsDuration}`, () => {
@@ -314,7 +314,7 @@ test(`should be called ${fooName} with start ${now} and duration ${twentyFiveMin
     login: false,
     logout: false
   };
-  expect(actual).toStrictEqual<MeetingOptions>(expected);
+  expect<MeetingOptions>(actual).toStrictEqual(expected);
 });
 
 test(`should be called "${fooName}" with start ${now} (${fourteenHundredNinteenthJuneTwentyTwentyThree.toISOString()}) and default (1 hour) duration`, () => {
@@ -331,7 +331,7 @@ test(`should be called "${fooName}" with start ${now} (${fourteenHundredNinteent
     login: false,
     logout: false
   };
-  expect(actual).toStrictEqual<MeetingOptions>(expected);
+  expect<MeetingOptions>(actual).toStrictEqual(expected);
 });
 
 test(`should throw an error when meeting args are empty`, () => {
@@ -353,7 +353,7 @@ test(`nocal option parsed correctly when present`, () => {
     login: false,
     logout: false
   };
-  expect(actual).toStrictEqual<MeetingOptions>(expected);
+  expect<MeetingOptions>(actual).toStrictEqual(expected);
 });
 
 test(`login option parsed correctly`, () => {
@@ -370,7 +370,7 @@ test(`login option parsed correctly`, () => {
     login: true,
     logout: false
   };
-  expect(actual).toStrictEqual<MeetingOptions>(expected);
+  expect<MeetingOptions>(actual).toStrictEqual(expected);
 });
 
 test(`logout option parsed correctly`, () => {
@@ -387,7 +387,7 @@ test(`logout option parsed correctly`, () => {
     login: false,
     logout: true
   };
-  expect(actual).toStrictEqual<MeetingOptions>(expected);
+  expect<MeetingOptions>(actual).toStrictEqual(expected);
 });
 
 test(`Deals with timezones correctly`, () => {
@@ -408,7 +408,7 @@ test(`Deals with timezones correctly`, () => {
     login: false,
     logout: false
   };
-  expect(actual).toStrictEqual<MeetingOptions>(expected);
+  expect<MeetingOptions>(actual).toStrictEqual(expected);
 });
 
 test(`Deals with the date changing between timezones`, () => {
@@ -429,5 +429,5 @@ test(`Deals with the date changing between timezones`, () => {
     login: false,
     logout: false
   };
-  expect(actual).toStrictEqual<MeetingOptions>(expected);
+  expect<MeetingOptions>(actual).toStrictEqual(expected);
 });

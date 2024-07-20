@@ -1,4 +1,4 @@
-import {SecretsManagerClient, GetSecretValueCommand, SecretsManagerClientConfig, GetSecretValueRequest} from "@aws-sdk/client-secrets-manager";
+import { GetSecretValueCommand, GetSecretValueRequest, SecretsManagerClient, SecretsManagerClientConfig } from "@aws-sdk/client-secrets-manager";
 
 /**
  * Get a secret value from AWS Secrets Manager
@@ -29,9 +29,7 @@ export async function getSecretValue(secretName: string, secretKey: string) {
     throw new Error(`Secret ${secretName} not found`);
   }
 
-  type SecretValue = {
-    [key: string]: string;
- };
+  type SecretValue = Record<string, string>;
   const secrets = JSON.parse(response.SecretString) as SecretValue;
 
   const secret = secrets[secretKey];
