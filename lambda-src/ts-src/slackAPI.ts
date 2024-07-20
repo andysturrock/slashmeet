@@ -1,8 +1,8 @@
-import {WebClient, LogLevel, ViewsOpenArguments} from "@slack/web-api";
-import {getSecretValue} from './awsAPI';
-import {Block, KnownBlock, ModalView} from "@slack/bolt";
-import util from 'util';
+import { Block, KnownBlock, ModalView } from "@slack/bolt";
+import { LogLevel, ViewsOpenArguments, WebClient } from "@slack/web-api";
 import axios from 'axios';
+import util from 'util';
+import { getSecretValue } from './awsAPI';
 
 async function createClient() {
   const slackBotToken = await getSecretValue('SlashMeet', 'slackBotToken');
@@ -18,7 +18,7 @@ export async function openView(trigger_id: string, modalView: ModalView) {
     trigger_id,
     view: modalView
   };
-  await client.views.open(viewsOpenArguments);
+  return await client.views.open(viewsOpenArguments);
 }
 
 export async function getSlackUserTimeZone(userId: string) {
@@ -68,7 +68,7 @@ export async function getChannelMembers(channelId: string) {
     if(userResult.user?.profile?.email) {
       channelMembers.push({
         slackId: member,
-        email: userResult.user?.profile?.email
+        email: userResult.user.profile.email
       });
     }
     else {

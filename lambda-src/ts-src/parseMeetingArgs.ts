@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import {IterationNode, Node, NonterminalNode, TerminalNode} from 'ohm-js';
-import grammar, {MeetArgsActionDict, MeetArgsSemantics} from './meetArgs.ohm-bundle';
-import {DateTime} from 'luxon';
+import { DateTime } from 'luxon';
+import { IterationNode, Node, NonterminalNode, TerminalNode } from 'ohm-js';
+import grammar, { MeetArgsActionDict, MeetArgsSemantics } from './meetArgs.ohm-bundle.js';
 
-export interface MeetingOptions {
+export type MeetingOptions = {
   name: string
   startDate: Date,
   endDate: Date,
@@ -11,7 +11,7 @@ export interface MeetingOptions {
   noCal: boolean,
   login?: boolean,
   logout?: boolean
-}
+};
 
 /**
  * Parses userInput into a {@link MeetingOptions} object.
@@ -51,11 +51,13 @@ export function parseMeetingArgs(userInput: string, nowDate: Date, timeZone: str
   let durationUnit: 'h' | 'm' | undefined = undefined;
   let hours = 0;
   let minutes = 0;
-  let startHour: number | null = null;
   let startMinute = 0;
-  let endHour: number | null = null;
   let endMinute = 0;
-  let durationMinutes: number | null = null;
+  // The slightly weird type assertions here are to help the linter.
+  // See https://typescript-eslint.io/rules/no-unnecessary-condition/#when-not-to-use-it
+  let startHour: number | null = null as number | null;
+  let endHour: number | null = null as number | null;
+  let durationMinutes: number | null = null as number | null;
 
   const actions: MeetArgsActionDict<MeetingOptions> = {
     Login(this: NonterminalNode, arg0: TerminalNode) {
@@ -120,7 +122,7 @@ export function parseMeetingArgs(userInput: string, nowDate: Date, timeZone: str
     DurationExp(this: NonterminalNode, arg0: IterationNode, arg1: NonterminalNode) {
       arg0.eval();
       arg1.eval();
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+       
       const regexp = new RegExp(`([0-9]+)${durationUnit}`);
       const match = this.sourceString.match(regexp);
       if(match) {
@@ -149,7 +151,7 @@ export function parseMeetingArgs(userInput: string, nowDate: Date, timeZone: str
     hourMinuteExp(this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) {
       arg0.eval();
       arg1.eval();
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+       
       const regexp = new RegExp(`([0-9]+):([0-9]+)${amPm}`);
       const match = this.sourceString.match(regexp);
       if(match) {
@@ -247,7 +249,7 @@ export function parseMeetingArgs(userInput: string, nowDate: Date, timeZone: str
 
   const matchResult = grammar.match(userInput);
   const semanticsResult = semantics(matchResult);
-  //eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+   
   const evalResult = semanticsResult.eval() as MeetingOptions;
 
   // Now create the start and end datetimes interpreted in the right timezone.

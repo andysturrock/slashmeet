@@ -33,7 +33,7 @@ export async function getState(nonce: string) : Promise<State | undefined>  {
   };
   const data = await ddbClient.send(new QueryCommand(params));
   const items = data.Items;
-  if(items && items[0] && items[0].state.S) {
+  if(items?.[0]?.state.S) {
     const state = JSON.parse(items[0].state.S) as State;
     return state;
   }

@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import {StackProps} from 'aws-cdk-lib';
+import { StackProps } from 'aws-cdk-lib';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 
@@ -22,7 +22,7 @@ export function getEnv(name: string, optional = false): string | undefined {
   return val;
 }
 
-export interface LambdaStackProps extends StackProps {
+export type LambdaStackProps = {
   readonly slackIdToGCalTokenTable: dynamodb.Table;
   readonly slackIdToAADTokenTable: dynamodb.Table;
   readonly stateTable: dynamodb.Table;
@@ -31,8 +31,8 @@ export interface LambdaStackProps extends StackProps {
   readonly customDomainName: string;
   readonly slashMeetDomainName: string;
   readonly route53ZoneId: string;
-}
+} & StackProps;
 
-export interface SecretsManagerStackProps extends StackProps {
+export type SecretsManagerStackProps = {
   readonly customDomainName: string;
-}
+} & StackProps;

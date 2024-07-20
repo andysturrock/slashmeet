@@ -1,12 +1,9 @@
-import {ConfidentialClientApplication, RefreshTokenRequest} from '@azure/msal-node';
-import {aadScopes} from './aadConfig';
-import {AuthProviderCallback, Client, Options} from '@microsoft/microsoft-graph-client';
-import {MeetingOptions} from './parseMeetingArgs';
+import { ConfidentialClientApplication, RefreshTokenRequest } from '@azure/msal-node';
+import { AuthProviderCallback, Client, Options } from '@microsoft/microsoft-graph-client';
+import { aadScopes } from './aadConfig';
+import { MeetingOptions } from './parseMeetingArgs';
 
 export class AuthenticationError extends Error {
-  constructor(message?: string) {
-    super(message);
-  }
 }
 
 export async function createOutlookCalendarMeeting(confidentialClientApplication: ConfidentialClientApplication,
@@ -50,7 +47,7 @@ export async function createOutlookCalendarMeeting(confidentialClientApplication
   <a href="${meetingUrl}">Join here</a> or copy ${meetingUrl} to your browser.
   `;
   const event = {
-    subject: `${meetingOptions.name}`,
+    subject: meetingOptions.name,
     body: {
       contentType: 'HTML',
       content
@@ -60,7 +57,7 @@ export async function createOutlookCalendarMeeting(confidentialClientApplication
       timeZone
     },
     end: {
-      dateTime: meetingOptions.endDate?.toISOString(),
+      dateTime: meetingOptions.endDate.toISOString(),
       timeZone
     },
     location: {

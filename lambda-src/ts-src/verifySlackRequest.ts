@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import {verifySlackRequest as _verifySlackRequest} from '@slack/bolt';
-import {SlackRequestVerificationOptions} from '@slack/bolt/dist/receivers/verify-request';
-import {APIGatewayProxyEventHeaders} from 'aws-lambda';
+import { verifySlackRequest as _verifySlackRequest } from '@slack/bolt';
+import { SlackRequestVerificationOptions } from '@slack/bolt/dist/receivers/verify-request';
+import { APIGatewayProxyEventHeaders } from 'aws-lambda';
 
 export function verifySlackRequest(signingSecret: string, headers: APIGatewayProxyEventHeaders, body: string) {
   let x_slack_signature = headers['X-Slack-Signature'];
@@ -19,13 +19,15 @@ export function verifySlackRequest(signingSecret: string, headers: APIGatewayPro
   if(Array.isArray(x_slack_request_timestamp)) {
     x_slack_request_timestamp = x_slack_request_timestamp[0];
   }
-  const number_x_slack_request_timestamp = parseInt(x_slack_request_timestamp as string);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const number_x_slack_request_timestamp = parseInt(x_slack_request_timestamp!);
 
   const slackRequestVerificationOptions: SlackRequestVerificationOptions = {
     signingSecret: signingSecret,
     body: body,
     headers: {
-      'x-slack-signature': x_slack_signature as string,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      'x-slack-signature': x_slack_signature!,
       'x-slack-request-timestamp': number_x_slack_request_timestamp
     }
   };

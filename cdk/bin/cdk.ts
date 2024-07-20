@@ -1,17 +1,20 @@
 #!/usr/bin/env node
+import { App } from 'aws-cdk-lib';
 import 'source-map-support/register';
-import * as cdk from 'aws-cdk-lib';
-import {LambdaStack} from '../lib/lambda-stack';
-import {DynamoDBStack} from '../lib/dynamodb-stack';
-import {getEnv} from '../lib/common';
-import {SecretsManagerStack} from '../lib/secretsmanager-stack';
+import { getEnv } from '../lib/common';
+import { DynamoDBStack } from '../lib/dynamodb-stack';
+import { LambdaStack } from '../lib/lambda-stack';
+import { SecretsManagerStack } from '../lib/secretsmanager-stack';
 
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const lambdaVersion = getEnv('LAMBDA_VERSION', false)!;
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const customDomainName = getEnv('CUSTOM_DOMAIN_NAME', false)!;
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const route53ZoneId = getEnv('R53_ZONE_ID', false)!;
 const slashMeetDomainName = `slashmeet.${customDomainName}`;
 
-const app = new cdk.App();
+const app = new App();
 
 const region = 'eu-west-2';
 

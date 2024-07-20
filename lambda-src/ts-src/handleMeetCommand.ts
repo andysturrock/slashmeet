@@ -1,8 +1,9 @@
-import {ChannelMember, getChannelMembers, getSlackUserTimeZone, openView, postErrorMessageToResponseUrl, SlashCommandPayload} from './slackAPI';
-import {MeetingOptions, parseMeetingArgs} from './parseMeetingArgs';
-import {InputBlock, KnownBlock, ModalView, Option, SectionBlock} from '@slack/bolt';
-import {getAADToken} from './tokenStorage';
-import {PrivateMetaData} from './common';
+import { InputBlock, KnownBlock, ModalView, Option, SectionBlock } from '@slack/bolt';
+import util from 'util';
+import { PrivateMetaData } from './common';
+import { MeetingOptions, parseMeetingArgs } from './parseMeetingArgs';
+import { ChannelMember, getChannelMembers, getSlackUserTimeZone, openView, postErrorMessageToResponseUrl, SlashCommandPayload } from './slackAPI';
+import { getAADToken } from './tokenStorage';
 
 export async function handleMeetCommand(event: SlashCommandPayload): Promise<void> {
   const responseUrl = event.response_url;
@@ -67,7 +68,8 @@ export async function handleMeetCommand(event: SlashCommandPayload): Promise<voi
       private_metadata: JSON.stringify(privateMetadata),
       callback_id: "SlashMeetModal"
     };
-    await openView(event.trigger_id, modalView);
+    const result = await openView(event.trigger_id, modalView);
+    console.log(`result : ${util.inspect(result, false, null)}`);
   }
   catch (error) {
     console.error(error);
