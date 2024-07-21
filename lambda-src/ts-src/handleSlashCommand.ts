@@ -1,42 +1,44 @@
-import {InvocationType, InvokeCommand, InvokeCommandInput, LambdaClient, LambdaClientConfig} from "@aws-sdk/client-lambda";
-import {generateImmediateSlackResponseBlocks} from './generateImmediateSlackResponseBlocks';
+import { InvocationType, InvokeCommand, InvokeCommandInput, LambdaClient, LambdaClientConfig } from "@aws-sdk/client-lambda";
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import querystring from 'querystring';
 import util from 'util';
-import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda";
-import {verifySlackRequest} from "./verifySlackRequest";
-import {getSecretValue} from "./awsAPI";
-import {SlashCommandPayload} from "./slackAPI";
-import {MeetingOptions, parseMeetingArgs} from "./parseMeetingArgs";
-import {getGCalToken} from "./tokenStorage";
+import { getSecretValue } from "./awsAPI";
+import { createModalView } from "./createModal";
+import { MeetingOptions, parseMeetingArgs } from "./parseMeetingArgs";
+import { openView, SlashCommandPayload } from "./slackAPI";
+import { getGCalToken } from "./tokenStorage";
+import { verifySlackRequest } from "./verifySlackRequest";
+
+// Cache this between invocations in the same execution environment.
+// See https://docs.aws.amazon.com/lambda/latest/operatorguide/global-scope.html
+let slackSigningSecret = "";
 
 export async function handleSlashCommand(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-
   try {
     if(!event.body) {
       throw new Error("Missing event body");
     }
     const body = querystring.parse(event.body) as unknown as SlashCommandPayload;
 
-    const signingSecret = await getSecretValue('SlashMeet', 'slackSigningSecret');
-
+    if(slackSigningSecret == "") {
+      // Debug statements so can see how long this takes.
+      // Sometimes SecretsManager calls take over a second.
+      console.debug("slackSigningSecret is not cached so fetching...");
+      slackSigningSecret = await getSecretValue('SlashMeet', 'slackSigningSecret');
+      console.debug("Done fetching slackSigningSecret.");
+    }
     // Verify that this request really did come from Slack
-    verifySlackRequest(signingSecret, event.headers, event.body);
+    verifySlackRequest(slackSigningSecret, event.headers, event.body);
 
     // We need to send an immediate response within 3000ms.
     // So this lambda will invoke another one to do the real work.
     // It will use the response_url which comes from the body of the event param.
     // Here we just return an interim result with a 200 code.
     // See https://api.slack.com/interactivity/handling#acknowledgment_response
-
-    const blocks = generateImmediateSlackResponseBlocks();
     const result: APIGatewayProxyResult = {
-      body: JSON.stringify(blocks),
+      body: "",
       statusCode: 200
     };
-
-    // Dispatch to the appropriate lambda depending on meeting args
-    // and whether we are logged into AAD/Entra and Google
-    let functionName = "SlashMeet-handleMeetCommandLambda";
     
     let meetingOptions: MeetingOptions;
     try {
@@ -48,13 +50,21 @@ export async function handleSlashCommand(event: APIGatewayProxyEvent): Promise<A
     }
 
     const gcalRefreshToken = await getGCalToken(body.user_id);
-    // Logging into Google is mandatory so if we're not logged in then run the login Lambda.
-    // Also run the login lambda if the user has run the login subcommand.
+    // Dispatch to the appropriate lambda depending on the command given by the user.
+    let functionName = "SlashMeet-handleMeetCommandLambda";
+    // Run the login lambda if the user is not logged into Google.
     if(!gcalRefreshToken || meetingOptions.login) {
       functionName = "SlashMeet-handleLoginCommandLambda";
     }
     else if(meetingOptions.logout) {
       functionName = "SlashMeet-handleLogoutCommandLambda";
+      result.body = "Logging out...";
+    }
+    else {
+      const modalView = createModalView(meetingOptions, body.channel_id, null, null);
+      const viewsOpenResponse = await openView(body.trigger_id, modalView);
+      body.view_id = viewsOpenResponse.view?.id;
+      body.view_hash = viewsOpenResponse.view?.hash;
     }
 
     const configuration: LambdaClientConfig = {
@@ -67,7 +77,6 @@ export async function handleSlashCommand(event: APIGatewayProxyEvent): Promise<A
       InvocationType: InvocationType.Event,
       Payload: new TextEncoder().encode(JSON.stringify(body))
     };
-
     const command = new InvokeCommand(input);
     const output = await lambdaClient.send(command);
     if(output.StatusCode != 202) {

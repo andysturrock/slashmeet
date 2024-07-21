@@ -41,6 +41,7 @@ export class LambdaStack extends Stack {
       handler: "handleSlashCommand.handleSlashCommand",
       functionName: 'SlashMeet-handleSlashCommand',
       code: lambda.Code.fromAsset("../lambda-src/dist/handleSlashCommand"),
+      memorySize: 1024,
       ...allLambdaProps
     });
     // Allow read access to the secret it needs

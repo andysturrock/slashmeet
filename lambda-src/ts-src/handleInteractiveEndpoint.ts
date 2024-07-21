@@ -40,13 +40,13 @@ export async function handleInteractiveEndpoint(event: APIGatewayProxyEvent): Pr
       // So just grab the values from the Modal and then async invoke
       // another lambda to call the Google and MS APIs.
       const viewSubmitAction: ViewSubmitAction = payload as ViewSubmitAction;
-      const {meetingOptions, participants} = handleViewSubmission(viewSubmitAction);
+      const {meetingOptions, attendees} = handleViewSubmission(viewSubmitAction);
       const configuration: LambdaClientConfig = {
         region: 'eu-west-2'
       };
       const handleCreateMeetingsInput = {
         meetingOptions,
-        participants,
+        attendees,
         viewSubmitAction
       };
   
@@ -106,8 +106,7 @@ async function handleBlockAction(blockAction: BlockAction) {
     // Delete the original login card as it can't be used again without appearing like a CSRF replay attack.
     // Use the POST api as per https://api.slack.com/interactivity/handling#deleting_message_response
     // chat.delete doesn't seem to work here.
-    const result = await axios.post(blockAction.response_url, {delete_original: "true"});
-    console.log(`result : ${util.inspect(result, false, null)}`);
+    await axios.post(blockAction.response_url, {delete_original: "true"});
   }
   else if(blockAction.actions[0].action_id == "joinMeetingButton") {
     // These can be undefined according to the type system but won't be
@@ -145,9 +144,9 @@ function handleViewSubmission(viewSubmitAction: ViewSubmitAction) {
   }
   // This will not be present if the user is not logged into MS
   const noCalString = state.values.nocal.nocal.selected_option?.value;
-  const participants = state.values.participants.participants.selected_users;
-  if(!participants) {
-    throw new Error("Cannot find meeting participants from dialog values");
+  const attendees = state.values.attendees.attendees.selected_users;
+  if(!attendees) {
+    throw new Error("Cannot find meeting attendees from dialog values");
   }
   // If the user originally explicitly set the start date to "now" or implicitly (by not specififying)
   // but has since changed the date via the startDate picker then the meeting isn't "now".
@@ -161,5 +160,5 @@ function handleViewSubmission(viewSubmitAction: ViewSubmitAction) {
     now,
     noCal: (noCalString == "nocal")
   };
-  return {meetingOptions, participants};
+  return {meetingOptions, attendees};
 }
