@@ -3,7 +3,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import querystring from 'querystring';
 import util from 'util';
 import { getSecretValue } from "./awsAPI";
-import { createModalView } from "./createModal";
+import { createModalView } from "./createModalView";
 import { MeetingOptions, parseMeetingArgs } from "./parseMeetingArgs";
 import { openView, SlashCommandPayload } from "./slackAPI";
 import { getGCalToken } from "./tokenStorage";

@@ -102,11 +102,7 @@ function createModalBlocks(meetingOptions: MeetingOptions, channelMembers: Chann
     label: {
       type: 'plain_text',
       text: 'Meeting start',
-    },
-    hint: {
-      type: 'plain_text',
-      text: 'Meeting start date and time',
-    },
+    }
   };
   blocks.push(inputBlock);
 
@@ -121,11 +117,7 @@ function createModalBlocks(meetingOptions: MeetingOptions, channelMembers: Chann
     label: {
       type: 'plain_text',
       text: 'Meeting end',
-    },
-    hint: {
-      type: 'plain_text',
-      text: 'Meeting end date and time',
-    },
+    }
   };
   blocks.push(inputBlock);
 

@@ -1,17 +1,17 @@
-import {getSlackUserTimeZone, getUserEmailAddress, postEphemeralMessage, postEphmeralErrorMessage, postMessage, scheduleMessage} from './slackAPI';
-import {getSecretValue} from './awsAPI';
-import {KnownBlock, ViewSubmitAction} from '@slack/bolt';
-import {deleteAADToken, getAADToken, getGCalToken} from './tokenStorage';
-import {ConfidentialClientApplication, Configuration} from '@azure/msal-node';
-import {Auth} from 'googleapis';
-import {createGoogleMeetMeeting} from "./createGoogleCalendarMeeting";
-import {AuthenticationError, createOutlookCalendarMeeting} from './createOutlookCalendarMeeting';
-import {generateGoogleMeetURLBlocks} from './generateGoogleMeetURLBlocks';
-import {MeetingOptions} from './parseMeetingArgs';
+import { ConfidentialClientApplication, Configuration } from '@azure/msal-node';
+import { KnownBlock, ViewSubmitAction } from '@slack/bolt';
+import { Auth } from 'googleapis';
+import { getSecretValue } from './awsAPI';
+import { createGoogleMeetMeeting } from "./createGoogleCalendarMeeting";
+import { AuthenticationError, createOutlookCalendarMeeting } from './createOutlookCalendarMeeting';
+import { generateGoogleMeetURLBlocks } from './generateGoogleMeetURLBlocks';
+import { MeetingOptions } from './parseMeetingArgs';
+import { getSlackUserTimeZone, getUserEmailAddress, postEphemeralMessage, postEphmeralErrorMessage, postMessage, scheduleMessage } from './slackAPI';
+import { deleteAADToken, getAADToken, getGCalToken } from './tokenStorage';
 
 type HandleCreateMeetingsInput = {
   meetingOptions: MeetingOptions,
-  participants: string[] | undefined,
+  attendees: string[] | undefined,
   viewSubmitAction: ViewSubmitAction
 };
 export async function handleCreateMeetings(payload: HandleCreateMeetingsInput): Promise<void> {
@@ -86,9 +86,9 @@ export async function handleCreateMeetings(payload: HandleCreateMeetingsInput): 
       if(aadRefreshToken) {
         try {
           const emailAddresses: string[] = [];
-          if(payload.participants) {
-            for(const participant of payload.participants) {
-              const emailAddress = await getUserEmailAddress(participant);
+          if(payload.attendees) {
+            for(const attendee of payload.attendees) {
+              const emailAddress = await getUserEmailAddress(attendee);
               if(emailAddress) {
                 emailAddresses.push(emailAddress);
               }
