@@ -1,5 +1,5 @@
-import { Block, KnownBlock, ModalView } from "@slack/bolt";
-import { LogLevel, ViewsOpenArguments, WebClient } from "@slack/web-api";
+import { Block, KnownBlock, View } from "@slack/bolt";
+import { LogLevel, ViewsOpenArguments, ViewsUpdateArguments, WebClient } from "@slack/web-api";
 import axios from 'axios';
 import util from 'util';
 import { getSecretValue } from './awsAPI';
@@ -12,13 +12,23 @@ async function createClient() {
   });
 }
 
-export async function openView(trigger_id: string, modalView: ModalView) {
+export async function openView(trigger_id: string, view: View) {
   const client = await createClient();
   const viewsOpenArguments: ViewsOpenArguments = {
     trigger_id,
-    view: modalView
+    view
   };
   return await client.views.open(viewsOpenArguments);
+}
+
+export async function updateView(view_id: string, hash: string, view: View) {
+  const client = await createClient();
+  const viewsUpdateArguments: ViewsUpdateArguments = {
+    view_id,
+    hash,
+    view
+  };
+  return await client.views.update(viewsUpdateArguments);
 }
 
 export async function getSlackUserTimeZone(userId: string) {
@@ -164,7 +174,9 @@ export type SlashCommandPayload = {
   api_app_id: string,
   is_enterprise_install: string,
   response_url: string,
-  trigger_id: string
+  trigger_id: string,
+  view_id?: string,
+  view_hash?: string
 };
 
 export type Action = {
