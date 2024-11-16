@@ -1,7 +1,7 @@
-import {Auth} from 'googleapis';
+import { ActionsBlock, KnownBlock, SectionBlock } from '@slack/web-api';
 import crypto from 'crypto';
-import {State, putState} from './stateTable';
-import {ActionsBlock, KnownBlock, SectionBlock} from '@slack/bolt';
+import { Auth } from 'googleapis';
+import { State, putState } from './stateTable';
 
 /**
  * Generate a button for Google login.

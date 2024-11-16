@@ -1,8 +1,8 @@
-import {AuthorizationUrlRequest, ConfidentialClientApplication, CryptoProvider, ResponseMode} from '@azure/msal-node';
-import {ActionsBlock, KnownBlock, SectionBlock} from '@slack/bolt';
+import { AuthorizationUrlRequest, ConfidentialClientApplication, CryptoProvider, ResponseMode } from '@azure/msal-node';
+import { ActionsBlock, KnownBlock, SectionBlock } from '@slack/web-api';
 import crypto from 'crypto';
-import {aadScopes} from './aadConfig';
-import {State, putState} from './stateTable';
+import { aadScopes } from './aadConfig';
+import { State, putState } from './stateTable';
 
 /**
  * Generate a button for Microsoft AAD/Entra login.

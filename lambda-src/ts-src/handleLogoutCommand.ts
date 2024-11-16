@@ -1,6 +1,6 @@
-import {SlashCommandPayload, postErrorMessageToResponseUrl, postToResponseUrl} from './slackAPI';
-import {KnownBlock} from '@slack/bolt';
-import {deleteAADToken, deleteGCalToken} from './tokenStorage';
+import { KnownBlock } from '@slack/web-api';
+import { SlashCommandPayload, postErrorMessageToResponseUrl, postToResponseUrl } from './slackAPI';
+import { deleteAADToken, deleteGCalToken } from './tokenStorage';
 
 /**
  * Remove the connection between slashMeet and AAD/Entra and Google.

@@ -1,6 +1,7 @@
 import { InvocationType, InvokeCommand, InvokeCommandInput, LambdaClient, LambdaClientConfig } from '@aws-sdk/client-lambda';
-import { BlockAction, ViewSubmitAction } from '@slack/bolt';
-import { LogLevel, WebClient } from "@slack/web-api";
+import { BlockAction } from '@slack/bolt/dist/types/actions';
+import { ViewSubmitAction } from '@slack/bolt/dist/types/view';
+import { LogLevel, WebClient } from '@slack/web-api';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import axios from 'axios';
 import util from 'util';

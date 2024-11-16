@@ -1,5 +1,6 @@
 import { ConfidentialClientApplication, Configuration } from '@azure/msal-node';
-import { KnownBlock, ViewSubmitAction } from '@slack/bolt';
+import { ViewSubmitAction } from '@slack/bolt/dist/types/view';
+import { KnownBlock } from '@slack/web-api';
 import { Auth } from 'googleapis';
 import { getSecretValue } from './awsAPI';
 import { createGoogleMeetMeeting } from "./createGoogleCalendarMeeting";

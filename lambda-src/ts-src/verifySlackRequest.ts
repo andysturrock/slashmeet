@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { verifySlackRequest as _verifySlackRequest } from '@slack/bolt';
-import { SlackRequestVerificationOptions } from '@slack/bolt/dist/receivers/verify-request';
+import { verifySlackRequest as _verifySlackRequest, SlackRequestVerificationOptions } from '@slack/bolt/dist/receivers/verify-request';
 import { APIGatewayProxyEventHeaders } from 'aws-lambda';
 
 export function verifySlackRequest(signingSecret: string, headers: APIGatewayProxyEventHeaders, body: string) {

@@ -1,4 +1,4 @@
-import {ActionsBlock, SectionBlock} from "@slack/bolt";
+import { ActionsBlock, SectionBlock } from "@slack/web-api";
 
 export function generateGoogleMeetURLBlocks(meetingUrl: string, meetingName: string) {
   const sectionBlock: SectionBlock = {

@@ -1,4 +1,4 @@
-import { InputBlock, KnownBlock, ModalView, Option, SectionBlock } from "@slack/bolt";
+import { InputBlock, KnownBlock, ModalView, Option, SectionBlock } from "@slack/web-api";
 import { PrivateMetaData } from "./common";
 import { MeetingOptions } from "./parseMeetingArgs";
 import { ChannelMember } from "./slackAPI";

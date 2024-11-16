@@ -1,5 +1,4 @@
-import { Block, KnownBlock, View } from "@slack/bolt";
-import { LogLevel, ViewsOpenArguments, ViewsUpdateArguments, WebClient } from "@slack/web-api";
+import { Block, KnownBlock, LogLevel, View, ViewsOpenArguments, ViewsUpdateArguments, WebClient } from "@slack/web-api";
 import axios from 'axios';
 import util from 'util';
 import { getSecretValue } from './awsAPI';
