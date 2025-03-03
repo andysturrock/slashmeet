@@ -31,7 +31,7 @@
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "@slack/bolt": "^4.0.1",
     "axios": "^1.7.4",
-    "googleapis": "^144.0.0",
+    "googleapis": "^146.0.0",
     "luxon": "^3.4.4",
     "ohm-js": "^17.1.0",
     "util": "^0.12.5"
