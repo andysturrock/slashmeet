@@ -46,6 +46,26 @@
         "arn:aws:iam::__ACCOUNTID__:role/cdk-hnb659fds-deploy-role-__ACCOUNTID__-eu-west-2",
         "arn:aws:iam::__ACCOUNTID__:role/cdk-hnb659fds-file-publishing-role-__ACCOUNTID__-eu-west-2"
       ]
+		},
+    {
+			"Sid": "DynamoDB",
+			"Effect": "Allow",
+			"Action": [
+				"dynamodb:DescribeTable",
+				"dynamodb:DeleteTable",
+        "dynamodb:CreateTable",
+        "dynamodb:UpdateTimeToLive",
+        "dynamodb:DescribeTimeToLive"
+			],
+			"Resource": "arn:aws:dynamodb:*:__ACCOUNTID__:table/*"
+		},
+    {
+			"Sid": "Lambda",
+			"Effect": "Allow",
+			"Action": [
+				"lambda:PutFunctionEventInvokeConfig"
+			],
+			"Resource": "arn:aws:lambda:eu-west-2:__ACCOUNTID__:function:SlashMeet-*:*"
 		}
   ]
 }

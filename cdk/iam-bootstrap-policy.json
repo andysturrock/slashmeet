@@ -46,7 +46,7 @@
                 "cloudformation:DeleteChangeSet",
                 "cloudformation:DescribeStacks"
             ],
-            "Resource": "arn:aws:cloudformation:eu-west-2:__ACCOUNTID__:stack/CDKToolkit/*"
+            "Resource": "arn:aws:cloudformation:eu-west-2:__ACCOUNTID__:stack/*/*"
         },
         {
             "Sid": "ecr",
@@ -56,7 +56,8 @@
                 "ecr:PutLifecyclePolicy",
                 "ecr:DeleteRepository",
                 "ecr:SetRepositoryPolicy",
-                "ecr:DescribeRepositories"
+                "ecr:DescribeRepositories",
+                "ecr:PutImageTagMutability"
             ],
             "Resource": "arn:aws:ecr:eu-west-2:__ACCOUNTID__:repository/*"
         },
