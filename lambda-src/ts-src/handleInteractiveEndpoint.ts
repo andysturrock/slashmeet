@@ -143,8 +143,8 @@ function handleViewSubmission(viewSubmitAction: ViewSubmitAction) {
   if(!endDateSeconds) {
     throw new Error("Cannot find meeting end time from dialog values");
   }
-  // This will not be present if the user is not logged into MS
-  const noCalString = state.values.nocal.nocal.selected_option?.value;
+  // state.values.nocal will not be present if the user is not logged into MS
+  const noCalString = state.values.nocal && state.values.nocal.nocal.selected_option?.value;
   const attendees = state.values.attendees.attendees.selected_users;
   if(!attendees) {
     throw new Error("Cannot find meeting attendees from dialog values");
