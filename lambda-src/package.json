@@ -32,7 +32,7 @@
     "@slack/bolt": "^4.2.1",
     "@tsconfig/node22": "^22.0.1",
     "axios": "^1.8.4",
-    "googleapis": "^148.0.0",
+    "googleapis": "^150.0.1",
     "luxon": "^3.6.0",
     "ohm-js": "^17.1.0",
     "util": "^0.12.5"
