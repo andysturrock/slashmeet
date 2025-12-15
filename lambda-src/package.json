@@ -13,7 +13,7 @@
     "@types/aws-lambda": "^8.10.148",
     "@types/jest": "^29.5.14",
     "@types/luxon": "^3.4.2",
-    "@types/node": "^22.13.14",
+    "@types/node": "^25.0.2",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
     "@typescript-eslint/parser": "^8.28.0",
     "eslint": "^9.23.0",
