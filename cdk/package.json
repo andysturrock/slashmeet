@@ -15,7 +15,7 @@
     "@aws-cdk/assert": "^2.68.0",
     "@types/getenv": "^1.0.3",
     "@types/jest": "^29.5.14",
-    "@types/node": "^22.13.14",
+    "@types/node": "^25.0.3",
     "@types/source-map-support": "^0.5.10",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
     "@typescript-eslint/parser": "^8.28.0",
