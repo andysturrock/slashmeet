@@ -11,7 +11,7 @@
     "@aws-sdk/client-secrets-manager": "^3.964.0",
     "@ohm-js/cli": "^2.0.0",
     "@types/aws-lambda": "^8.10.148",
-    "@types/jest": "^29.5.14",
+    "@types/jest": "^30.0.0",
     "@types/luxon": "^3.4.2",
     "@types/node": "^25.0.3",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
