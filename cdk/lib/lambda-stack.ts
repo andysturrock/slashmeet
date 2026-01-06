@@ -22,7 +22,7 @@ export class LambdaStack extends Stack {
         NODE_OPTIONS: '--enable-source-maps',
       },
       logRetention: logs.RetentionDays.THREE_DAYS,
-      runtime: lambda.Runtime.NODEJS_20_X,
+      runtime: lambda.Runtime.NODEJS_22_X,
       timeout: Duration.seconds(30),
     };
 
@@ -201,6 +201,7 @@ export class LambdaStack extends Stack {
     // Create the cert for the gateway.
     // Usefully, this writes the DNS Validation CNAME records to the R53 zone,
     // which is great as normal Cloudformation doesn't do that.
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     const acmCertificateForCustomDomain = new acm.DnsValidatedCertificate(this, 'CustomDomainCertificate', {
       domainName: props.slashMeetDomainName,
       hostedZone: zone,
@@ -237,22 +238,22 @@ export class LambdaStack extends Stack {
 
     // Connect the API Gateway to the lambdas
     const handleSlackAuthRedirectLambdaIntegration = new apigateway.LambdaIntegration(handleSlackAuthRedirectLambda, {
-      requestTemplates: {"application/json": '{ "statusCode": "200" }'}
+      requestTemplates: { "application/json": '{ "statusCode": "200" }' }
     });
     const handleSlashCommandLambdaIntegration = new apigateway.LambdaIntegration(handleSlashCommand, {
-      requestTemplates: {"application/json": '{ "statusCode": "200" }'}
+      requestTemplates: { "application/json": '{ "statusCode": "200" }' }
     });
     const handleGoogleAuthRedirectLambdaIntegration = new apigateway.LambdaIntegration(handleGoogleAuthRedirectLambda, {
-      requestTemplates: {"application/json": '{ "statusCode": "200" }'}
+      requestTemplates: { "application/json": '{ "statusCode": "200" }' }
     });
     const handleAADAuthRedirectLambdaIntegration = new apigateway.LambdaIntegration(handleAADAuthRedirectLambda, {
-      requestTemplates: {"application/json": '{ "statusCode": "200" }'}
+      requestTemplates: { "application/json": '{ "statusCode": "200" }' }
     });
     const handleInteractiveEndpointLambdaIntegration = new apigateway.LambdaIntegration(handleInteractiveEndpointLambda, {
-      requestTemplates: {"application/json": '{ "statusCode": "200" }'}
+      requestTemplates: { "application/json": '{ "statusCode": "200" }' }
     });
     const handleEventsEndpointLambdaIntegration = new apigateway.LambdaIntegration(handleEventsEndpointLambda, {
-      requestTemplates: {"application/json": '{ "statusCode": "200" }'}
+      requestTemplates: { "application/json": '{ "statusCode": "200" }' }
     });
     const initialResponseResource = api.root.addResource('meet');
     const gcpAuthenticationCallbackResource = api.root.addResource('google-oauth-redirect');
@@ -275,6 +276,6 @@ export class LambdaStack extends Stack {
       target: route53.RecordTarget.fromAlias(new targets.ApiGatewayDomain(customDomain))
     });
     // And path mapping to the API
-    customDomain.addBasePathMapping(api, {basePath: lambdaVersionIdForURL, stage: stage});
+    customDomain.addBasePathMapping(api, { basePath: lambdaVersionIdForURL, stage: stage });
   }
 }

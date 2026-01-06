@@ -6,9 +6,9 @@
     "generate": "ohm generateBundles --withTypes 'ts-src/*.ohm'"
   },
   "devDependencies": {
-    "@aws-sdk/client-dynamodb": "^3.777.0",
-    "@aws-sdk/client-lambda": "^3.777.0",
-    "@aws-sdk/client-secrets-manager": "^3.777.0",
+    "@aws-sdk/client-dynamodb": "^3.964.0",
+    "@aws-sdk/client-lambda": "^3.964.0",
+    "@aws-sdk/client-secrets-manager": "^3.964.0",
     "@ohm-js/cli": "^2.0.0",
     "@types/aws-lambda": "^8.10.148",
     "@types/jest": "^29.5.14",
@@ -16,14 +16,14 @@
     "@types/node": "^22.13.14",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
     "@typescript-eslint/parser": "^8.28.0",
-    "eslint": "^9.23.0",
+    "eslint": "^9.39.2",
     "eslint-plugin-node": "^11.1.0",
     "jest": "^29.7.0",
     "ts-jest": "^29.3.0",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tsx": "^4.19.3",
-    "typescript": "^5.8.2"
+    "typescript": "^5.9.3"
   },
   "dependencies": {
     "@azure/identity": "^4.8.0",

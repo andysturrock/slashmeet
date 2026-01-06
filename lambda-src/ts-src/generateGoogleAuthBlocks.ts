@@ -28,7 +28,7 @@ export async function generateGoogleAuthBlocks(oauth2Client: Auth.OAuth2Client, 
 
   await putState(nonce, state);
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+   
   const url = oauth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: scopes.join(' '),
