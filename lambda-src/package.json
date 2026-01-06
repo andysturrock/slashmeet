@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@azure/identity": "^4.8.0",
-    "@azure/msal-node": "^3.4.1",
+    "@azure/msal-node": "^3.8.4",
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "@slack/bolt": "^4.2.1",
     "@tsconfig/node22": "^22.0.1",
