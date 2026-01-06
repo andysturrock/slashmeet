@@ -5,11 +5,15 @@
 
 version: 2
 updates:
-  - package-ecosystem: "npm" # See documentation for possible values
-    directory: "/lambda-src" # Location of package manifests
+  - package-ecosystem: "npm"
+    directory: "/"
     schedule:
-      interval: "weekly"
-  - package-ecosystem: "npm" # See documentation for possible values
-    directory: "/AWS/cdk" # Location of package manifests
+      interval: "daily"
+  - package-ecosystem: "npm"
+    directory: "/lambda-src"
     schedule:
-      interval: "weekly"
+      interval: "daily"
+  - package-ecosystem: "npm"
+    directory: "/cdk"
+    schedule:
+      interval: "daily"
