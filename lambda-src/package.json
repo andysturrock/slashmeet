@@ -9,7 +9,7 @@
     "@aws-sdk/client-dynamodb": "^3.964.0",
     "@aws-sdk/client-lambda": "^3.964.0",
     "@aws-sdk/client-secrets-manager": "^3.964.0",
-    "@ohm-js/cli": "^2.0.0",
+    "@ohm-js/cli": "^2.0.1",
     "@types/aws-lambda": "^8.10.148",
     "@types/jest": "^30.0.0",
     "@types/luxon": "^3.4.2",
