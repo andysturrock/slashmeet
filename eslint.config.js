@@ -5,7 +5,7 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ["*/dist/", "*/node_modules/", "*/cdk.out"]
+    ignores: ["**/dist/", "**/node_modules/", "**/cdk.out", "eslint.config.js", "**/*.ohm-bundle.js", "**/*.ohm-bundle.d.ts", "cdk/jest.config.js"]
   },
   eslint.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
@@ -19,7 +19,7 @@ export default tseslint.config(
       },
     },
     rules: {
-      "@typescript-eslint/semi": ["error"],
+      "semi": ["error", "always"],
       "@typescript-eslint/consistent-type-definitions": [
         "error",
         "type"

@@ -94,7 +94,7 @@ export function parseMeetingArgs(userInput: string, nowDate: Date, timeZone: str
       arg2.eval();
       arg3.eval();
       arg4.eval();
-      const match = this.sourceString.match(/([0-9]+):([0-9]+)/);
+      const match = /([0-9]+):([0-9]+)/.exec(this.sourceString);
       if(match) {
         hours = Number.parseInt(match[1]);
         if(hours < 0 || hours > 23) {
