@@ -29,7 +29,7 @@
     "@azure/identity": "^4.13.0",
     "@azure/msal-node": "^3.8.4",
     "@microsoft/microsoft-graph-client": "^3.0.7",
-    "@slack/bolt": "^4.2.1",
+    "@slack/bolt": "^4.6.0",
     "@tsconfig/node22": "^22.0.1",
     "axios": "^1.13.2",
     "googleapis": "^169.0.0",
