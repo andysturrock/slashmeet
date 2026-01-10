@@ -1,5 +1,5 @@
 {
-  "name": "slashmeet",
+  "name": "slashmeet-cdk",
   "private": true,
   "version": "0.0.1",
   "bin": {
@@ -14,21 +14,12 @@
   "devDependencies": {
     "@aws-cdk/assert": "^2.68.0",
     "@types/getenv": "^1.0.3",
-    "@types/jest": "^30.0.0",
-    "@types/node": "^25.0.3",
     "@types/source-map-support": "^0.5.10",
-    "@typescript-eslint/eslint-plugin": "^8.28.0",
-    "@typescript-eslint/parser": "^8.28.0",
     "adm-zip": "^0.5.16",
     "dotenv": "^17.2.3",
     "esbuild": "^0.27.2",
-    "eslint": "^9.39.2",
     "glob-promise": "^6.0.7",
-    "jest": "^30.2.0",
-    "source-map-support": "^0.5.21",
-    "ts-jest": "^29.4.6",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "source-map-support": "^0.5.21"
   },
   "dependencies": {
     "aws-cdk-lib": "^2.234.1",

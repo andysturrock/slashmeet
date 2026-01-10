@@ -5,7 +5,15 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ["**/dist/", "**/node_modules/", "**/cdk.out", "eslint.config.js", "**/*.ohm-bundle.js", "**/*.ohm-bundle.d.ts", "cdk/jest.config.js"]
+    ignores: [
+      "**/node_modules/",
+      "packages/*/dist/",
+      "packages/*/cdk.out/",
+      "eslint.config.js",
+      "**/*.ohm-bundle.js",
+      "**/*.ohm-bundle.d.ts",
+      "cdk/jest.config.js"
+    ]
   },
   eslint.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
@@ -14,7 +22,7 @@ export default tseslint.config(
   {
     languageOptions: {
       parserOptions: {
-        project: ['./tsconfig.json', './*/tsconfig.json'],
+        project: true,
         tsconfigRootDir: import.meta.dirname,
       },
     },

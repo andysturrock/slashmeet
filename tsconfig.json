@@ -2,8 +2,17 @@
   "extends": "@tsconfig/node22/tsconfig.json",
   "compilerOptions": {
     "moduleResolution": "bundler",
-    "module": "preserve"
+    "module": "preserve",
+    "skipLibCheck": true,
+    "allowJs": true,
+    "noEmit": true
   },
-  "include": ["cdk/**/*", "lambda-src/**/*", "eslint.config.js"],
-  "exclude": ["**/node_modules", "**/dist", "**/cdk.out"]
+  "include": [
+    "eslint.config.js"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/dist",
+    "**/cdk.out"
+  ]
 }
