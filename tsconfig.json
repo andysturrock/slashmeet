@@ -5,7 +5,17 @@
     "module": "preserve",
     "skipLibCheck": true,
     "allowJs": true,
-    "noEmit": true
+    "noEmit": true,
+    "types": [
+      "node",
+      "jest"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "eslint__js": [
+        "./node_modules/@eslint/js/types/index.d.ts"
+      ]
+    }
   },
   "include": [
     "eslint.config.js"
