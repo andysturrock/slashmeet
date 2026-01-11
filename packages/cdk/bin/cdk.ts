@@ -41,4 +41,3 @@ new LambdaStack(app, 'SlashMeetLambdaStack', {
   route53ZoneId,
   removalPolicy: RemovalPolicy.DESTROY
 });
-
