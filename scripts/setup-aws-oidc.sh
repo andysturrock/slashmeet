@@ -71,16 +71,29 @@ aws iam create-role \
     --role-name "$ROLE_NAME" \
     --assume-role-policy-document file://trust-policy.json
 
-# 4. Create and Attach Scoped Permissions
-echo "Creating scoped IAM policy: SlashMeetDeployPolicy..."
-POLICY_ARN=$(aws iam create-policy \
-    --policy-name "SlashMeetDeployPolicy" \
-    --policy-document "file://scripts/deploy-policy.json" \
-    --query 'Policy.Arn' --output text 2>/dev/null)
+# 4. Create or Update Scoped Permissions
+echo "Creating or updating scoped IAM policy: SlashMeetDeployPolicy..."
+POLICY_ARN="arn:aws:iam::$ACCOUNT_ID:policy/SlashMeetDeployPolicy"
 
-if [ -z "$POLICY_ARN" ] || [ "$POLICY_ARN" == "None" ]; then
-    echo "Policy already exists, retrieving ARN..."
-    POLICY_ARN="arn:aws:iam::$ACCOUNT_ID:policy/SlashMeetDeployPolicy"
+if aws iam get-policy --policy-arn "$POLICY_ARN" >/dev/null 2>&1; then
+    echo "Policy already exists, updating version..."
+    # Get the current default version to check if we need to rotate (max 5 versions)
+    VERSIONS_COUNT=$(aws iam list-policy-versions --policy-arn "$POLICY_ARN" --query 'Versions' --output json | grep -c "VersionId")
+    if [ "$VERSIONS_COUNT" -ge 5 ]; then
+        echo "Cleaning up oldest policy version..."
+        OLDEST_VERSION=$(aws iam list-policy-versions --policy-arn "$POLICY_ARN" --query 'Versions[?IsDefaultVersion==`false`].VersionId' --output text | awk '{print $1}')
+        aws iam delete-policy-version --policy-arn "$POLICY_ARN" --version-id "$OLDEST_VERSION"
+    fi
+    aws iam create-policy-version \
+        --policy-arn "$POLICY_ARN" \
+        --policy-document "file://scripts/deploy-policy.json" \
+        --set-as-default
+else
+    echo "Creating new policy..."
+    POLICY_ARN=$(aws iam create-policy \
+        --policy-name "SlashMeetDeployPolicy" \
+        --policy-document "file://scripts/deploy-policy.json" \
+        --query 'Policy.Arn' --output text)
 fi
 
 echo "Hardening: Detaching AdministratorAccess if present..."
