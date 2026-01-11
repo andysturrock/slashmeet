@@ -1,0 +1,45 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "OIDCProviderManagement",
+      "Effect": "Allow",
+      "Action": [
+        "iam:GetOpenIDConnectProvider",
+        "iam:CreateOpenIDConnectProvider"
+      ],
+      "Resource": "arn:aws:iam::*:oidc-provider/token.actions.githubusercontent.com"
+    },
+    {
+      "Sid": "PolicyManagement",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreatePolicy",
+        "iam:GetPolicy",
+        "iam:ListPolicies"
+      ],
+      "Resource": [
+        "arn:aws:iam::*:policy/SlashMeetDeployPolicy",
+        "arn:aws:iam::*:policy/SlashMeetOIDCSetupPolicy"
+      ]
+    },
+    {
+      "Sid": "RoleManagement",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateRole",
+        "iam:AttachRolePolicy",
+        "iam:DetachRolePolicy"
+      ],
+      "Resource": "arn:aws:iam::*:role/SlashMeetGitHubDeployRole"
+    },
+    {
+      "Sid": "SecurityAudit",
+      "Effect": "Allow",
+      "Action": [
+        "sts:GetCallerIdentity"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

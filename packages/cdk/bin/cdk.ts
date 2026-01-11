@@ -15,20 +15,22 @@ const slashMeetDomainName = `slashmeet.${customDomainName}`;
 
 const app = new App();
 
-const region = 'eu-west-2';
+const region = process.env.AWS_REGION || 'eu-west-2';
+const account = process.env.AWS_ACCOUNT_ID || process.env.CDK_DEFAULT_ACCOUNT;
 
-// TODO maybe unhardcode region, but OK for now as always want London to minimise latency and for data residency purposes.
+const env = { region, account };
+
 const dynamoDBStack = new DynamoDBStack(app, 'SlashMeetDynamoDBStack', {
-  env: { region }
+  env
 });
 
 const secretsManagerStack = new SecretsManagerStack(app, 'SlashMeetSecretsManagerStack', {
-  env: { region },
+  env,
   customDomainName,
 });
 
 new LambdaStack(app, 'SlashMeetLambdaStack', {
-  env: { region },
+  env,
   slackIdToGCalTokenTable: dynamoDBStack.slackIdToGCalTokenTable,
   slackIdToAADTokenTable: dynamoDBStack.slackIdToAADTokenTable,
   stateTable: dynamoDBStack.stateTable,
@@ -39,4 +41,3 @@ new LambdaStack(app, 'SlashMeetLambdaStack', {
   route53ZoneId,
   removalPolicy: RemovalPolicy.DESTROY
 });
-
