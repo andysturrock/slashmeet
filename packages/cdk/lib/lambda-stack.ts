@@ -21,29 +21,49 @@ export class LambdaStack extends Stack {
       environment: {
         NODE_OPTIONS: '--enable-source-maps',
       },
-      logRetention: logs.RetentionDays.THREE_DAYS,
       runtime: lambda.Runtime.NODEJS_22_X,
       timeout: Duration.seconds(30),
     };
 
+    /**
+     * Helper to create a lambda function with a log group.
+     */
+    const createFunction = (id: string, name: string, handler: string, assetPath: string, extraProps?: Partial<lambda.FunctionProps>) => {
+      const fn = new lambda.Function(this, id, {
+        handler,
+        functionName: name,
+        code: lambda.Code.fromAsset(assetPath),
+        ...allLambdaProps,
+        ...extraProps
+      });
+
+      new logs.LogGroup(this, `${id}LogGroup`, {
+        logGroupName: `/aws/lambda/${name}`,
+        retention: logs.RetentionDays.ONE_MONTH,
+        removalPolicy: props.removalPolicy
+      });
+
+      return fn;
+    };
+
     // The lambda for handling the callback for the Slack install
-    const handleSlackAuthRedirectLambda = new lambda.Function(this, "handleSlackAuthRedirectLambda", {
-      handler: "handleSlackAuthRedirect.handleSlackAuthRedirect",
-      functionName: 'SlashMeet-handleSlackAuthRedirect',
-      code: lambda.Code.fromAsset("../lambda-src/dist/handleSlackAuthRedirect"),
-      ...allLambdaProps
-    });
+    const handleSlackAuthRedirectLambda = createFunction(
+      "handleSlackAuthRedirectLambda",
+      "SlashMeet-handleSlackAuthRedirect",
+      "handleSlackAuthRedirect.handleSlackAuthRedirect",
+      "../lambda-src/dist/handleSlackAuthRedirect"
+    );
     // Allow read access to the secret it needs
     props.slashMeetSecret.grantRead(handleSlackAuthRedirectLambda);
 
     // Create the initial response lambda
-    const handleSlashCommand = new lambda.Function(this, "handleSlashCommand", {
-      handler: "handleSlashCommand.handleSlashCommand",
-      functionName: 'SlashMeet-handleSlashCommand',
-      code: lambda.Code.fromAsset("../lambda-src/dist/handleSlashCommand"),
-      memorySize: 1024,
-      ...allLambdaProps
-    });
+    const handleSlashCommand = createFunction(
+      "handleSlashCommand",
+      "SlashMeet-handleSlashCommand",
+      "handleSlashCommand.handleSlashCommand",
+      "../lambda-src/dist/handleSlashCommand",
+      { memorySize: 1024 }
+    );
     // Allow read access to the secret it needs
     props.slashMeetSecret.grantRead(handleSlashCommand);
     // Allow access to the DynamoDB tables
@@ -52,13 +72,13 @@ export class LambdaStack extends Stack {
 
     // Create the lambda which creates the dialog box.
     // This lambda is called from the initial response lambda, not via the API Gateway.
-    const handleMeetCommandLambda = new lambda.Function(this, "handleMeetCommandLambda", {
-      handler: "handleMeetCommand.handleMeetCommand",
-      functionName: 'SlashMeet-handleMeetCommandLambda',
-      code: lambda.Code.fromAsset("../lambda-src/dist/handleMeetCommand"),
-      memorySize: 1024,
-      ...allLambdaProps
-    });
+    const handleMeetCommandLambda = createFunction(
+      "handleMeetCommandLambda",
+      "SlashMeet-handleMeetCommandLambda",
+      "handleMeetCommand.handleMeetCommand",
+      "../lambda-src/dist/handleMeetCommand",
+      { memorySize: 1024 }
+    );
     // This function is going to be invoked asynchronously, so set some extra config for that
     new lambda.EventInvokeConfig(this, 'handleMeetCommandLambdaEventInvokeConfig', {
       function: handleMeetCommandLambda,
@@ -74,13 +94,13 @@ export class LambdaStack extends Stack {
 
     // Create the lambda which handles the login to AAD/Entra and Google.
     // This lambda is called from the initial response lambda, not via the API Gateway.
-    const handleLoginCommandLambda = new lambda.Function(this, "handleLoginCommandLambda", {
-      handler: "handleLoginCommand.handleLoginCommand",
-      functionName: 'SlashMeet-handleLoginCommandLambda',
-      code: lambda.Code.fromAsset("../lambda-src/dist/handleLoginCommand"),
-      memorySize: 1024,
-      ...allLambdaProps
-    });
+    const handleLoginCommandLambda = createFunction(
+      "handleLoginCommandLambda",
+      "SlashMeet-handleLoginCommandLambda",
+      "handleLoginCommand.handleLoginCommand",
+      "../lambda-src/dist/handleLoginCommand",
+      { memorySize: 1024 }
+    );
     // This function is going to be invoked asynchronously, so set some extra config for that
     new lambda.EventInvokeConfig(this, 'handleLoginCommandLambdaEventInvokeConfig', {
       function: handleLoginCommandLambda,
@@ -98,13 +118,13 @@ export class LambdaStack extends Stack {
 
     // Create the lambda which handles the logout from AAD/Entra and Google.
     // This lambda is called from the initial response lambda, not via the API Gateway.
-    const handleLogoutCommandLambda = new lambda.Function(this, "handleLogoutCommandLambda", {
-      handler: "handleLogoutCommand.handleLogoutCommand",
-      functionName: 'SlashMeet-handleLogoutCommandLambda',
-      code: lambda.Code.fromAsset("../lambda-src/dist/handleLogoutCommand"),
-      memorySize: 1024,
-      ...allLambdaProps
-    });
+    const handleLogoutCommandLambda = createFunction(
+      "handleLogoutCommandLambda",
+      "SlashMeet-handleLogoutCommandLambda",
+      "handleLogoutCommand.handleLogoutCommand",
+      "../lambda-src/dist/handleLogoutCommand",
+      { memorySize: 1024 }
+    );
     // This function is going to be invoked asynchronously, so set some extra config for that
     new lambda.EventInvokeConfig(this, 'handleLogoutCommandLambdaEventInvokeConfig', {
       function: handleLogoutCommandLambda,
@@ -120,13 +140,13 @@ export class LambdaStack extends Stack {
     props.slashMeetSecret.grantRead(handleLogoutCommandLambda);
 
     // Create the lambda which handles the redirect from the Google auth
-    const handleGoogleAuthRedirectLambda = new lambda.Function(this, "handleGoogleAuthRedirectLambda", {
-      handler: "handleGoogleAuthRedirect.handleGoogleAuthRedirect",
-      functionName: 'SlashMeet-handleGoogleAuthRedirectLambda',
-      code: lambda.Code.fromAsset("../lambda-src/dist/handleGoogleAuthRedirect"),
-      memorySize: 512,
-      ...allLambdaProps
-    });
+    const handleGoogleAuthRedirectLambda = createFunction(
+      "handleGoogleAuthRedirectLambda",
+      "SlashMeet-handleGoogleAuthRedirectLambda",
+      "handleGoogleAuthRedirect.handleGoogleAuthRedirect",
+      "../lambda-src/dist/handleGoogleAuthRedirect",
+      { memorySize: 512 }
+    );
     // Allow access to the DynamoDB tables
     props.slackIdToGCalTokenTable.grantReadWriteData(handleGoogleAuthRedirectLambda);
     props.stateTable.grantReadWriteData(handleGoogleAuthRedirectLambda);
@@ -134,13 +154,13 @@ export class LambdaStack extends Stack {
     props.slashMeetSecret.grantRead(handleGoogleAuthRedirectLambda);
 
     // Create the lambda which handles the redirect from the AAD/Entra auth
-    const handleAADAuthRedirectLambda = new lambda.Function(this, "handleAADAuthRedirectLambda", {
-      handler: "handleAADAuthRedirect.handleAADAuthRedirect",
-      functionName: 'SlashMeet-handleAADAuthRedirectLambda',
-      code: lambda.Code.fromAsset("../lambda-src/dist/handleAADAuthRedirect"),
-      memorySize: 512,
-      ...allLambdaProps
-    });
+    const handleAADAuthRedirectLambda = createFunction(
+      "handleAADAuthRedirectLambda",
+      "SlashMeet-handleAADAuthRedirectLambda",
+      "handleAADAuthRedirect.handleAADAuthRedirect",
+      "../lambda-src/dist/handleAADAuthRedirect",
+      { memorySize: 512 }
+    );
     // Allow access to the DynamoDB tables
     props.slackIdToAADTokenTable.grantReadWriteData(handleAADAuthRedirectLambda);
     props.stateTable.grantReadWriteData(handleAADAuthRedirectLambda);
@@ -148,24 +168,24 @@ export class LambdaStack extends Stack {
     props.slashMeetSecret.grantRead(handleAADAuthRedirectLambda);
 
     // Create the lambda for handling interactions.
-    const handleInteractiveEndpointLambda = new lambda.Function(this, "handleInteractiveEndpointLambda", {
-      handler: "handleInteractiveEndpoint.handleInteractiveEndpoint",
-      functionName: 'SlashMeet-handleInteractiveEndpoint',
-      code: lambda.Code.fromAsset("../lambda-src/dist/handleInteractiveEndpoint"),
-      memorySize: 512,
-      ...allLambdaProps
-    });
+    const handleInteractiveEndpointLambda = createFunction(
+      "handleInteractiveEndpointLambda",
+      "SlashMeet-handleInteractiveEndpoint",
+      "handleInteractiveEndpoint.handleInteractiveEndpoint",
+      "../lambda-src/dist/handleInteractiveEndpoint",
+      { memorySize: 512 }
+    );
     // Allow read access to the secret it needs
     props.slashMeetSecret.grantRead(handleInteractiveEndpointLambda);
 
     // Create the lambda which calls the Google and MS APIs to create the meetings
-    const handleCreateMeetingsLambda = new lambda.Function(this, "handleCreateMeetingsLambda", {
-      handler: "handleCreateMeetings.handleCreateMeetings",
-      functionName: 'SlashMeet-handleCreateMeetingsLambda',
-      code: lambda.Code.fromAsset("../lambda-src/dist/handleCreateMeetings"),
-      memorySize: 1024,
-      ...allLambdaProps
-    });
+    const handleCreateMeetingsLambda = createFunction(
+      "handleCreateMeetingsLambda",
+      "SlashMeet-handleCreateMeetingsLambda",
+      "handleCreateMeetings.handleCreateMeetings",
+      "../lambda-src/dist/handleCreateMeetings",
+      { memorySize: 1024 }
+    );
     // This function is going to be invoked asynchronously, so set some extra config for that
     new lambda.EventInvokeConfig(this, 'handleCreateMeetingsLambdaEventInvokeConfig', {
       function: handleCreateMeetingsLambda,
@@ -182,13 +202,13 @@ export class LambdaStack extends Stack {
     props.slackIdToAADTokenTable.grantReadWriteData(handleCreateMeetingsLambda);
 
     // Create the lambda for handling events.
-    const handleEventsEndpointLambda = new lambda.Function(this, "handleEventsEndpointLambda", {
-      handler: "handleEventsEndpoint.handleEventsEndpoint",
-      functionName: 'SlashMeet-handleEventsEndpoint',
-      code: lambda.Code.fromAsset("../lambda-src/dist/handleEventsEndpoint"),
-      memorySize: 512,
-      ...allLambdaProps
-    });
+    const handleEventsEndpointLambda = createFunction(
+      "handleEventsEndpointLambda",
+      "SlashMeet-handleEventsEndpoint",
+      "handleEventsEndpoint.handleEventsEndpoint",
+      "../lambda-src/dist/handleEventsEndpoint",
+      { memorySize: 512 }
+    );
     // Allow read access to the secret it needs
     props.slashMeetSecret.grantRead(handleEventsEndpointLambda);
 
@@ -201,10 +221,8 @@ export class LambdaStack extends Stack {
     // Create the cert for the gateway.
     // Usefully, this writes the DNS Validation CNAME records to the R53 zone,
     // which is great as normal Cloudformation doesn't do that.
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    const acmCertificateForCustomDomain = new acm.DnsValidatedCertificate(this, 'CustomDomainCertificate', {
+    const acmCertificateForCustomDomain = new acm.Certificate(this, 'CustomDomainCertificate', {
       domainName: props.slashMeetDomainName,
-      hostedZone: zone,
       validation: acm.CertificateValidation.fromDns(zone),
     });
 

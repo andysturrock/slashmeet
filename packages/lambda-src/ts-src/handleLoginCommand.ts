@@ -1,9 +1,9 @@
-import {generateGoogleAuthBlocks} from './generateGoogleAuthBlocks';
-import {Auth} from 'googleapis';
-import {getSecretValue} from './awsAPI';
-import {SlashCommandPayload, postErrorMessageToResponseUrl, postToResponseUrl} from './slackAPI';
-import {ConfidentialClientApplication, Configuration} from "@azure/msal-node";
-import {generateAADAuthBlocks} from './generateAADAuthBlocks';
+import { ConfidentialClientApplication, Configuration } from "@azure/msal-node";
+import { Auth } from 'googleapis';
+import { getSecretValue } from './awsAPI';
+import { generateAADAuthBlocks } from './generateAADAuthBlocks';
+import { generateGoogleAuthBlocks } from './generateGoogleAuthBlocks';
+import { SlashCommandPayload, postErrorMessageToResponseUrl, postToResponseUrl } from './slackAPI';
 
 /**
  * Log the user into AAD/Entra and Google and connect slashMeet to those.
@@ -31,9 +31,11 @@ export async function handleLoginCommand(event: SlashCommandPayload): Promise<vo
       }
     };
     const confidentialClientApplication = new ConfidentialClientApplication(msalConfig);
-  
+
     const aadAuthBlocks = await generateAADAuthBlocks(confidentialClientApplication, aadRedirectUri, event.user_id, event.response_url);
-    await postToResponseUrl(responseUrl, "ephemeral", "Sign in to Microsoft", aadAuthBlocks);
+    if (aadAuthBlocks.length > 0) {
+      await postToResponseUrl(responseUrl, "ephemeral", "Sign in to Microsoft", aadAuthBlocks);
+    }
 
     const oAuth2ClientOptions: Auth.OAuth2ClientOptions = {
       clientId: gcpClientId,
@@ -43,7 +45,9 @@ export async function handleLoginCommand(event: SlashCommandPayload): Promise<vo
     const oauth2Client = new Auth.OAuth2Client(oAuth2ClientOptions);
 
     const googleAuthBlocks = await generateGoogleAuthBlocks(oauth2Client, event.user_id, event.response_url);
-    await postToResponseUrl(responseUrl, "ephemeral", "Sign in to Google", googleAuthBlocks);
+    if (googleAuthBlocks.length > 0) {
+      await postToResponseUrl(responseUrl, "ephemeral", "Sign in to Google", googleAuthBlocks);
+    }
   }
   catch (error) {
     console.error(error);
