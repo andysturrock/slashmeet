@@ -2,75 +2,166 @@
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "CloudFormationManagement",
+      "Sid": "CloudFormationDeployment",
       "Effect": "Allow",
       "Action": [
-        "cloudformation:*"
+        "cloudformation:CreateStack",
+        "cloudformation:UpdateStack",
+        "cloudformation:DeleteStack",
+        "cloudformation:DescribeStacks",
+        "cloudformation:DescribeStackEvents",
+        "cloudformation:DescribeStackResources",
+        "cloudformation:GetTemplate",
+        "cloudformation:ValidateTemplate",
+        "cloudformation:GetStackPolicy",
+        "cloudformation:SetStackPolicy"
       ],
-      "Resource": "*"
+      "Resource": "arn:aws:cloudformation:*:*:stack/SlashMeet*/*"
     },
     {
       "Sid": "S3AssetManagement",
       "Effect": "Allow",
       "Action": [
-        "s3:*"
+        "s3:GetBucketLocation",
+        "s3:ListBucket",
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject"
       ],
-      "Resource": "arn:aws:s3:::cdk-*"
+      "Resource": [
+        "arn:aws:s3:::cdk-*",
+        "arn:aws:s3:::cdk-*/*"
+      ]
     },
     {
-      "Sid": "IAMManagement",
+      "Sid": "IAMRoleManagement",
       "Effect": "Allow",
       "Action": [
-        "iam:*"
+        "iam:CreateRole",
+        "iam:DeleteRole",
+        "iam:GetRole",
+        "iam:PutRolePolicy",
+        "iam:DeleteRolePolicy",
+        "iam:GetRolePolicy",
+        "iam:PassRole",
+        "iam:TagRole",
+        "iam:UntagRole",
+        "iam:AttachRolePolicy",
+        "iam:DetachRolePolicy"
       ],
-      "Resource": "*"
+      "Resource": "arn:aws:iam::*:role/SlashMeet*"
     },
     {
       "Sid": "LambdaManagement",
       "Effect": "Allow",
       "Action": [
-        "lambda:*"
+        "lambda:CreateFunction",
+        "lambda:DeleteFunction",
+        "lambda:GetFunction",
+        "lambda:GetFunctionConfiguration",
+        "lambda:UpdateFunctionCode",
+        "lambda:UpdateFunctionConfiguration",
+        "lambda:AddPermission",
+        "lambda:RemovePermission",
+        "lambda:TagResource",
+        "lambda:UntagResource",
+        "lambda:PutFunctionEventInvokeConfig",
+        "lambda:DeleteFunctionEventInvokeConfig"
       ],
-      "Resource": "*"
+      "Resource": "arn:aws:lambda:*:*:function:SlashMeet*"
+    },
+    {
+      "Sid": "LogsManagement",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:DeleteLogGroup",
+        "logs:DescribeLogGroups",
+        "logs:PutRetentionPolicy",
+        "logs:DeleteRetentionPolicy",
+        "logs:ListTagsForResource",
+        "logs:TagResource",
+        "logs:UntagResource"
+      ],
+      "Resource": "arn:aws:logs:*:*:log-group:/aws/lambda/SlashMeet*"
     },
     {
       "Sid": "APIGatewayManagement",
       "Effect": "Allow",
       "Action": [
-        "apigateway:*"
+        "apigateway:GET",
+        "apigateway:POST",
+        "apigateway:PUT",
+        "apigateway:DELETE",
+        "apigateway:PATCH"
       ],
-      "Resource": "*"
+      "Resource": "arn:aws:apigateway:*::/*"
     },
     {
       "Sid": "DynamoDBManagement",
       "Effect": "Allow",
       "Action": [
-        "dynamodb:*"
+        "dynamodb:CreateTable",
+        "dynamodb:DeleteTable",
+        "dynamodb:UpdateTable",
+        "dynamodb:DescribeTable",
+        "dynamodb:TagResource",
+        "dynamodb:UntagResource",
+        "dynamodb:UpdateTimeToLive"
       ],
-      "Resource": "*"
+      "Resource": "arn:aws:dynamodb:*:*:table/SlashMeet*"
     },
     {
       "Sid": "Route53Management",
       "Effect": "Allow",
       "Action": [
-        "route53:*"
+        "route53:GetHostedZone",
+        "route53:ChangeResourceRecordSets",
+        "route53:ListResourceRecordSets"
       ],
-      "Resource": "*"
+      "Resource": "arn:aws:route53:::hostedzone/*"
     },
     {
       "Sid": "ACMManagement",
       "Effect": "Allow",
       "Action": [
-        "acm:*"
+        "acm:RequestCertificate",
+        "acm:DescribeCertificate",
+        "acm:DeleteCertificate",
+        "acm:AddTagsToResource",
+        "acm:RemoveTagsFromResource"
       ],
-      "Resource": "*"
+      "Resource": "arn:aws:acm:*:*:certificate/*"
     },
     {
       "Sid": "SecretsManagerManagement",
       "Effect": "Allow",
       "Action": [
-        "secretsmanager:*"
+        "secretsmanager:ListSecrets",
+        "secretsmanager:DescribeSecret"
       ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "SecretsManagerRead",
+      "Effect": "Allow",
+      "Action": [
+        "secretsmanager:GetSecretValue"
+      ],
+      "Resource": "arn:aws:secretsmanager:*:*:secret:SlashMeet*"
+    },
+    {
+      "Sid": "SSMParameterRead",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:GetParameters"
+      ],
+      "Resource": "arn:aws:ssm:*:*:parameter/cdk-bootstrap/*"
+    },
+    {
+      "Sid": "StsGetCallerIdentity",
+      "Effect": "Allow",
+      "Action": "sts:GetCallerIdentity",
       "Resource": "*"
     }
   ]
