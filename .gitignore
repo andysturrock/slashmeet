@@ -10,4 +10,11 @@ cloudfunction/dist
 # Random directories from VSCode extensions
 .clj-kondo/
 .lsp/
-cdk.out/
+cdk.out/coverage/
+*.context.json
+*.tfstate*
+**/cdk.out/
+**/coverage/
+**/*.context.json
+**/.env
+**/.env.*
