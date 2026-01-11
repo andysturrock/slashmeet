@@ -128,8 +128,8 @@
         "acm:RequestCertificate",
         "acm:DescribeCertificate",
         "acm:DeleteCertificate",
-        "acm:AddTagsToResource",
-        "acm:RemoveTagsFromResource"
+        "acm:AddTagsToCertificate",
+        "acm:RemoveTagsFromCertificate"
       ],
       "Resource": "arn:aws:acm:*:*:certificate/*"
     },
@@ -154,9 +154,18 @@
       "Sid": "SSMParameterRead",
       "Effect": "Allow",
       "Action": [
-        "ssm:GetParameters"
+        "ssm:GetParameters",
+        "ssm:GetParameter"
       ],
-      "Resource": "arn:aws:ssm:*:*:parameter/cdk-bootstrap/*"
+      "Resource": [
+        "arn:aws:ssm:*:*:parameter/cdk-bootstrap/*"
+      ]
+    },
+    {
+      "Sid": "CdkRoleAssumption",
+      "Effect": "Allow",
+      "Action": "sts:AssumeRole",
+      "Resource": "arn:aws:iam::*:role/cdk-hnb659fds-*"
     },
     {
       "Sid": "StsGetCallerIdentity",
