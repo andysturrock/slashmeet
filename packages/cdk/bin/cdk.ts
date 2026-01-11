@@ -1,5 +1,4 @@
-#!/usr/bin/env node
-import { App } from 'aws-cdk-lib';
+import { App, RemovalPolicy } from 'aws-cdk-lib';
 import 'source-map-support/register';
 import { getEnv } from '../lib/common';
 import { DynamoDBStack } from '../lib/dynamodb-stack';
@@ -20,16 +19,16 @@ const region = 'eu-west-2';
 
 // TODO maybe unhardcode region, but OK for now as always want London to minimise latency and for data residency purposes.
 const dynamoDBStack = new DynamoDBStack(app, 'SlashMeetDynamoDBStack', {
-  env: {region}
+  env: { region }
 });
 
 const secretsManagerStack = new SecretsManagerStack(app, 'SlashMeetSecretsManagerStack', {
-  env: {region},
+  env: { region },
   customDomainName,
 });
 
 new LambdaStack(app, 'SlashMeetLambdaStack', {
-  env: {region},
+  env: { region },
   slackIdToGCalTokenTable: dynamoDBStack.slackIdToGCalTokenTable,
   slackIdToAADTokenTable: dynamoDBStack.slackIdToAADTokenTable,
   stateTable: dynamoDBStack.stateTable,
@@ -37,6 +36,7 @@ new LambdaStack(app, 'SlashMeetLambdaStack', {
   lambdaVersion,
   customDomainName,
   slashMeetDomainName,
-  route53ZoneId
+  route53ZoneId,
+  removalPolicy: RemovalPolicy.DESTROY
 });
 

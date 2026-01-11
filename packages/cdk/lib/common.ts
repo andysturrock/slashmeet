@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import { StackProps } from 'aws-cdk-lib';
+import { RemovalPolicy, StackProps } from 'aws-cdk-lib';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 
@@ -15,7 +15,7 @@ import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
  */
 export function getEnv(name: string, optional = false): string | undefined {
   const val = process.env[name];
-  if((val === undefined) && !optional) {
+  if ((val === undefined) && !optional) {
     console.error(`${name} env var not set`);
     throw new Error(`${name} env var not set`);
   }
@@ -31,6 +31,7 @@ export type LambdaStackProps = {
   readonly customDomainName: string;
   readonly slashMeetDomainName: string;
   readonly route53ZoneId: string;
+  readonly removalPolicy: RemovalPolicy;
 } & StackProps;
 
 export type SecretsManagerStackProps = {

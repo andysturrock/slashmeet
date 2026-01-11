@@ -34,7 +34,7 @@ describe('Check different names work', () => {
     '1couldn\'t!?',
   ];
 
-  for(const meetingName of names) {
+  for (const meetingName of names) {
     const unquotedName = meetingName.replaceAll('"', '');
 
     test(`should be called ${unquotedName}`, () => {
@@ -430,4 +430,16 @@ test(`Deals with the date changing between timezones`, () => {
     logout: false
   };
   expect<MeetingOptions>(actual).toStrictEqual(expected);
+});
+
+describe('Edge cases and error conditions', () => {
+  const startDate = new Date(fourteenHundredNinteenthJuneTwentyTwentyThree);
+
+  test('should throw error for invalid hour in 24h clock', () => {
+    expect(() => parseMeetingArgs('foo 24:00', startDate, 'UTC')).toThrow("Hour must be between 0 and 23 in 24 hour clock");
+  });
+
+  test('should throw error for invalid minute in 24h clock', () => {
+    expect(() => parseMeetingArgs('foo 23:60', startDate, 'UTC')).toThrow("Minute must be between 0 and 59 in 24 hour clock");
+  });
 });
