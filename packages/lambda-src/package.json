@@ -21,7 +21,7 @@
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "@slack/bolt": "^4.6.0",
     "@tsconfig/node22": "^22.0.5",
-    "axios": "^1.13.2",
+    "axios": "^1.13.3",
     "googleapis": "^170.1.0",
     "luxon": "^3.7.2",
     "ohm-js": "^17.3.0",
