@@ -8,7 +8,7 @@
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.998.0",
     "@aws-sdk/client-lambda": "^3.999.0",
-    "@aws-sdk/client-secrets-manager": "^3.998.0",
+    "@aws-sdk/client-secrets-manager": "^3.999.0",
     "@ohm-js/cli": "^2.0.1",
     "@types/aws-lambda": "^8.10.161",
     "@types/luxon": "^3.7.1",
