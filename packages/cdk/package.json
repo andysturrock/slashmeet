@@ -18,7 +18,7 @@
     "adm-zip": "^0.5.17",
     "aws-cdk": "^2.1116.0",
     "dotenv": "^17.4.0",
-    "esbuild": "^0.27.5",
+    "esbuild": "^0.28.0",
     "glob-promise": "^6.0.7",
     "source-map-support": "^0.5.21"
   },
