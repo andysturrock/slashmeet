@@ -16,7 +16,7 @@
     "@types/getenv": "^1.0.3",
     "@types/source-map-support": "^0.5.10",
     "adm-zip": "^0.5.17",
-    "aws-cdk": "^2.1115.0",
+    "aws-cdk": "^2.1116.0",
     "dotenv": "^17.4.0",
     "esbuild": "^0.27.5",
     "glob-promise": "^6.0.7",
