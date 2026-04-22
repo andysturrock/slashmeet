@@ -19,7 +19,7 @@
     "@azure/identity": "^4.13.1",
     "@azure/msal-node": "^5.1.4",
     "@microsoft/microsoft-graph-client": "^3.0.7",
-    "@slack/bolt": "^4.7.0",
+    "@slack/bolt": "^4.7.1",
     "@tsconfig/node22": "^22.0.5",
     "axios": "^1.15.1",
     "googleapis": "^171.4.0",
