@@ -15,7 +15,7 @@
     "@aws-cdk/assert": "^2.68.0",
     "@types/getenv": "^1.0.3",
     "@types/source-map-support": "^0.5.10",
-    "adm-zip": "^0.5.17",
+    "adm-zip": "^0.6.0",
     "aws-cdk": "^2.1121.0",
     "dotenv": "^17.4.2",
     "esbuild": "^0.28.0",
